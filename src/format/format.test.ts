@@ -3,9 +3,9 @@ import { describe, expect, it } from "bun:test"
 import {
   formatBytes,
   formatCurrency,
+  formatIntervalAmount,
   formatMimeType,
-  formatPrice,
-  formatToDecimals,
+  formatToDecimals
 } from "./format"
 
 describe("formatCurrency", () => {
@@ -17,12 +17,15 @@ describe("formatCurrency", () => {
   })
 })
 
-describe("formatPrice", () => {
-  it("formats a number as price", () => {
-    expect(formatPrice(1000)).toBe("$1,000")
-    expect(formatPrice(1000, true)).toBe("$83.33")
-    expect(formatPrice(1000, false, "EUR")).toBe("€1,000")
-    expect(formatPrice(1000, true, "EUR")).toBe("€83.33")
+describe("formatIntervalAmount", () => {
+  it("formats the amount for a monthly interval by default", () => {
+    expect(formatIntervalAmount(1000)).toEqual("1000")
+    expect(formatIntervalAmount(1234.5678)).toEqual("1234.57")
+  })
+
+  it("formats the amount for a yearly interval", () => {
+    expect(formatIntervalAmount(1000, "year")).toEqual("83.33")
+    expect(formatIntervalAmount(1234.5678, "year")).toEqual("102.88")
   })
 })
 
@@ -36,6 +39,12 @@ describe("formatToDecimals", () => {
   it("handles negative decimal values", () => {
     expect(formatToDecimals(1234.5678, -1)).toEqual("1235")
   })
+
+  it("trims trailing double zeros", () => {
+    expect(formatToDecimals(1234.00, 2)).toEqual("1234")
+    expect(formatToDecimals(1234.00, 0)).toEqual("1234")
+    expect(formatToDecimals(1234.10, 2)).toEqual("1234.10")
+  })
 })
 
 describe("formatBytes", () => {
@@ -48,10 +57,10 @@ describe("formatBytes", () => {
   })
 
   it("formats bytes with decimals correctly", () => {
-    expect(formatBytes(1024, 1)).toEqual("1.0 KB")
-    expect(formatBytes(1048576, 2)).toEqual("1.00 MB")
-    expect(formatBytes(1073741824, 3)).toEqual("1.000 GB")
-    expect(formatBytes(1099511627776, 4)).toEqual("1.0000 TB")
+    expect(formatBytes(1200, 1)).toEqual("1.2 KB")
+    expect(formatBytes(1200000, 2)).toEqual("1.14 MB")
+    expect(formatBytes(1200000000, 3)).toEqual("1.118 GB")
+    expect(formatBytes(1200000000000, 4)).toEqual("1.0914 TB")
   })
 })
 

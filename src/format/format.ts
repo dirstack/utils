@@ -20,57 +20,39 @@ export const formatCurrency = (amount: number, currency: Currency = "USD") => {
 }
 
 /**
- * Formats a given amount with an interval to a currency string.
+ * Formats a given amount with an interval
  * @param amount The amount of money to format.
  * @param interval The interval, either 'month' or 'year'. Defaults to 'month'.
- * @param currency The currency to format the amount in. Defaults to 'USD'.
- * @returns The formatted currency string per interval.
+ * @returns The formatted amount per interval.
  */
-export const formatAmount = (
-  amount: number,
-  interval: "month" | "year" = "month",
-  currency: Currency = "USD",
-) => {
-  return formatCurrency(amount / (interval === "year" ? 12 : 1), currency)
-}
-
-/**
- * Formats a given price into a currency string.
- * @param amount The amount of money to format.
- * @param annual Whether the price is an annual price. Defaults to false.
- * @param currency The currency to format the price in. Defaults to 'USD'.
- * @returns The formatted price string.
- */
-export const formatPrice = (amount: number, annual?: boolean, currency?: Currency) => {
-  return formatCurrency(amount / (annual ? 12 : 1), currency)
+export const formatIntervalAmount = (amount: number, interval: "month" | "year" = "month") => {
+  return formatToDecimals(amount / (interval === "year" ? 12 : 1), 2)
 }
 
 /**
  * Formats a number to a specified number of decimal places.
  * @param number - The number to format.
- * @param decimals - The number of decimal places to format to.
+ * @param precision - The number of decimal places to format to.
  * @returns The formatted number as a string.
  */
-export const formatToDecimals = (number: number, decimals = 0): string => {
-  const dm = decimals < 0 ? 0 : decimals
-
-  return parseFloat(number.toString()).toFixed(dm)
+export const formatToDecimals = (number: number, precision = 0): string => {
+  return number.toFixed(precision < 0 ? 0 : precision).replace(/\.0+$/, '')
 }
 
 /**
  * Formats a number of bytes to a human-readable string.
  * @param bytes - The number of bytes to format.
- * @param decimals - The number of decimal places to format the size to.
+ * @param precision - The number of decimal places to format the size to.
  * @returns The formatted size as a string.
  */
-export const formatBytes = (bytes: number, decimals = 0): string => {
+export const formatBytes = (bytes: number, precision = 0): string => {
   if (bytes === 0) {
     return "0 Bytes"
   }
 
   const k = 1024
   const i = Math.floor(Math.log(bytes) / Math.log(k))
-  const size = formatToDecimals(bytes / k ** i, decimals)
+  const size = formatToDecimals(bytes / k ** i, precision)
   const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
 
   return `${size} ${sizes[i]}`
