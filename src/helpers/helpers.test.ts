@@ -58,7 +58,7 @@ describe("getExcerpt", () => {
   it("gets an excerpt from a string", () => {
     expect(getExcerpt("<p>Hello, <strong>world!</strong></p>", 10)).toEqual("Hello, wor...")
     expect(getExcerpt("Lorem ipsum dolor sit amet, consectetur adipiscing elit.", 20)).toEqual(
-      "Lorem ipsum dolor si...",
+      "Lorem ipsum dolor si..."
     )
     expect(getExcerpt("", 10)).toEqual(null)
   })
@@ -72,6 +72,13 @@ describe("slugify", () => {
     expect(slugify("Lorem Ipsum Dolor Sit Amet")).toEqual("lorem-ipsum-dolor-sit-amet")
     expect(slugify("1234")).toEqual("1234")
     expect(slugify("")).toEqual("")
+  })
+
+  it("should slugify the input string with custom replacements", () => {
+    expect(slugify("Hello+World")).toEqual("helloplusworld")
+    expect(slugify("Hello#World")).toEqual("hellosharpworld")
+    expect(slugify("Hello+World", true)).toEqual("helloplus-world")
+    expect(slugify("Hello#World", true)).toEqual("hellosharp-world")
   })
 })
 
