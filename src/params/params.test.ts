@@ -20,6 +20,12 @@ describe("getCurrentPage", () => {
 
     expect(currentPage).toBe(1)
   })
+
+  it("returns 1 if the provided page is less than 1", () => {
+    const currentPage = getCurrentPage("0")
+
+    expect(currentPage).toBe(1)
+  })
 })
 
 describe("getPageLink", () => {
