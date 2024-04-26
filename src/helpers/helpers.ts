@@ -175,11 +175,11 @@ export const setInputValue = (
 ) => {
   const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
     HTMLInputElement.prototype,
-    'value',
+    "value",
   )?.set
 
   nativeInputValueSetter?.call(input, value)
 
   // Trigger a change event if the value was changed
-  triggerChange && input?.dispatchEvent(new Event('input', { bubbles: true }))
+  triggerChange && input?.dispatchEvent(new Event("input", { bubbles: true }))
 }

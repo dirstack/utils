@@ -25,11 +25,24 @@ export const keepNumberInRange = (value: number, min?: number, max?: number) => 
 
 /**
  * Parse a string into a numeric value.
- * @param string - The string to parse.
- * @returns The parsed numeric value, or the original string if it cannot be parsed.
+ * @param value - The value to parse into a numeric value.
+ * @returns The parsed numeric value, or `undefined` if the value cannot be parsed.
  */
-export const parseNumericValue = (string: string) => {
-  const number = Number.parseFloat(string)
+export const parseNumericValue = (value?: string | number | null) => {
+  if (value === undefined || value === null) return undefined
+  const parsed = Number.parseFloat(value.toString())
 
-  return Number.isNaN(number) ? string : number
+  return Number.isNaN(parsed) ? undefined : parsed
+}
+
+/**
+ * Rounds a number to a specified number of decimal places, with an adjustment for floating point precision.
+ * @param value - The number to round.
+ * @param decimals - The number of decimal places to round to. Defaults to 2.
+ * @returns The rounded number.
+ */
+export const preciseRound = (value: number, decimals = 2) => {
+  const factor = Math.pow(10, decimals)
+
+  return Math.round((value + Number.EPSILON) * factor) / factor
 }

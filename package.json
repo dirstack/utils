@@ -1,7 +1,7 @@
 {
   "name": "@curiousleaf/utils",
   "description": "A lightweight set of utilities",
-  "version": "1.0.26",
+  "version": "1.0.27",
   "license": "MIT",
   "type": "module",
   "author": {
@@ -15,7 +15,7 @@
   "scripts": {
     "build": "bun build ./src/index.ts --outdir ./dist && bun run build:declaration",
     "build:declaration": "tsc --emitDeclarationOnly",
-    "lint": "bun biome lint .",
+    "lint": "bun biome lint --apply .",
     "format": "bun biome format --write ."
   },
   "dependencies": {
