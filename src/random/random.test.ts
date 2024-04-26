@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test"
 
-import { getRandomColor, getRandomProperty, getRandomString } from "./random"
+import { getRandomColor, getRandomNumber, getRandomProperty, getRandomString } from "./random"
 
 describe("getRandomColor", () => {
   it("returns a string", () => {
