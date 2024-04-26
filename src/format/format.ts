@@ -36,7 +36,7 @@ export const formatIntervalAmount = (amount: number, interval: "month" | "year" 
  * @returns The formatted number as a string.
  */
 export const formatToDecimals = (number: number, precision = 0): string => {
-  return number.toFixed(precision < 0 ? 0 : precision).replace(/\.0+$/, '')
+  return number.toFixed(precision < 0 ? 0 : precision).replace(/\.0+$/, "")
 }
 
 /**

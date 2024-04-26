@@ -5,7 +5,7 @@ import {
   formatCurrency,
   formatIntervalAmount,
   formatMimeType,
-  formatToDecimals
+  formatToDecimals,
 } from "./format"
 
 describe("formatCurrency", () => {
@@ -41,9 +41,9 @@ describe("formatToDecimals", () => {
   })
 
   it("trims trailing double zeros", () => {
-    expect(formatToDecimals(1234.00, 2)).toEqual("1234")
-    expect(formatToDecimals(1234.00, 0)).toEqual("1234")
-    expect(formatToDecimals(1234.10, 2)).toEqual("1234.10")
+    expect(formatToDecimals(1234.0, 2)).toEqual("1234")
+    expect(formatToDecimals(1234.0, 0)).toEqual("1234")
+    expect(formatToDecimals(1234.1, 2)).toEqual("1234.10")
   })
 })
 

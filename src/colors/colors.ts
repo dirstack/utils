@@ -1,4 +1,4 @@
-import { ColorResult, HsvaColor, color, hexToRgba } from "@uiw/color-convert"
+import { type ColorResult, type HsvaColor, color, hexToRgba } from "@uiw/color-convert"
 
 /**
  * Check if a given color in hexadecimal format is a light color.

@@ -33,6 +33,16 @@ describe("getRandomString", () => {
   })
 })
 
+describe("getRandomNumber", () => {
+  it("returns a random number within the specified range", () => {
+    const min = 1
+    const max = 10
+    const randomNumber = getRandomNumber(min, max)
+    expect(randomNumber).toBeGreaterThanOrEqual(min)
+    expect(randomNumber).toBeLessThanOrEqual(max)
+  })
+})
+
 describe("getRandomProperty", () => {
   it("returns a value from the object", () => {
     const obj = { a: 1, b: 2, c: 3 }

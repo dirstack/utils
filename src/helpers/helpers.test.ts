@@ -58,7 +58,7 @@ describe("getExcerpt", () => {
   it("gets an excerpt from a string", () => {
     expect(getExcerpt("<p>Hello, <strong>world!</strong></p>", 10)).toEqual("Hello, wor...")
     expect(getExcerpt("Lorem ipsum dolor sit amet, consectetur adipiscing elit.", 20)).toEqual(
-      "Lorem ipsum dolor si..."
+      "Lorem ipsum dolor si...",
     )
     expect(getExcerpt("", 10)).toEqual(null)
   })

@@ -21,7 +21,7 @@ export const range = (start: number, end: number) => {
  * @param delay - The amount of time to delay the execution of the function, in milliseconds.
  */
 export const sleep = async (delay: number) => {
-  new Promise((resolve) => setTimeout(resolve, delay))
+  new Promise(resolve => setTimeout(resolve, delay))
 }
 
 /**
@@ -123,7 +123,7 @@ export const getInitials = (value?: string | null, limit = 0) => {
   }
 
   const values = val.split(" ").filter(isTruthy)
-  const initials = values.map((name) => name.charAt(0).toUpperCase()).join("")
+  const initials = values.map(name => name.charAt(0).toUpperCase()).join("")
 
   if (limit > 0) {
     return initials.slice(0, limit)
@@ -142,7 +142,7 @@ export const toBase64 = (file: File): Promise<string> => {
     const reader = new FileReader()
     reader.readAsDataURL(file)
     reader.onload = () => resolve(reader.result as string)
-    reader.onerror = (error) => reject(error)
+    reader.onerror = error => reject(error)
   })
 }
 
@@ -160,4 +160,26 @@ export const splitArrayChunks = <T>(array: T[], chunkSize: number) => {
   }
 
   return chunks
+}
+
+/**
+ * Set the value of an HTMLInputElement using its native value setter.
+ *
+ * @param input - The HTMLInputElement to set the value of.
+ * @param value - The value to set on the input element.
+ */
+export const setInputValue = (
+  input: HTMLInputElement | null | undefined,
+  value: unknown,
+  triggerChange = false,
+) => {
+  const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+    HTMLInputElement.prototype,
+    'value',
+  )?.set
+
+  nativeInputValueSetter?.call(input, value)
+
+  // Trigger a change event if the value was changed
+  triggerChange && input?.dispatchEvent(new Event('input', { bubbles: true }))
 }
