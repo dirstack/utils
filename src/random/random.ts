@@ -38,7 +38,7 @@ export const getRandomNumber = (min: number, max: number) => {
  */
 export const getRandomProperty = <T>(obj: Record<string, T>): T => {
   const keys = Object.keys(obj)
-  const randomKey = keys[Math.floor(keys.length * Math.random())]
+  const randomKey = keys[Math.floor(keys.length * Math.random())]!
 
-  return obj[randomKey]
+  return obj[randomKey]!
 }

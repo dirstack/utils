@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test"
 
-import { getRandomNumber, keepNumberInRange, parseNumericValue } from "./numbers"
+import { keepNumberInRange, parseNumericValue } from "./numbers"
 
 describe("keepNumberInRange", () => {
   it("returns the same value if no range is specified", () => {
