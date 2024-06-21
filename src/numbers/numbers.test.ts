@@ -34,7 +34,7 @@ describe("parseNumericValue", () => {
   })
 
   it("returns the original string if it cannot be parsed", () => {
-    expect(parseNumericValue("not a number")).toBe(undefined)
+    expect(parseNumericValue("not a number")).toBeUndefined()
   })
 })
 

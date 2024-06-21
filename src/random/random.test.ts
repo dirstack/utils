@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test"
 
-import { getRandomColor, getRandomNumber, getRandomProperty, getRandomString } from "./random"
+import { getRandomColor, getRandomElement, getRandomNumber, getRandomProperty, getRandomString } from "./random"
 
 describe("getRandomColor", () => {
   it("returns a string", () => {
@@ -40,6 +40,14 @@ describe("getRandomNumber", () => {
     const randomNumber = getRandomNumber(min, max)
     expect(randomNumber).toBeGreaterThanOrEqual(min)
     expect(randomNumber).toBeLessThanOrEqual(max)
+  })
+})
+
+describe("getRandomElement", () => {
+  it("returns a value from the array", () => {
+    const array = [1, 2, 3]
+    const result = getRandomElement(array)
+    expect([1, 2, 3]).toContain(result)
   })
 })
 

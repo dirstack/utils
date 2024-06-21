@@ -32,6 +32,17 @@ export const getRandomNumber = (min: number, max: number) => {
 }
 
 /**
+ * Returns a random element from an array.
+ *
+ * @param array - The array to get a random element from.
+ * @returns A random element from the array.
+ */
+export const getRandomElement = <T>(array: T[]): T => {
+  const index = Math.floor(Math.random() * array.length)
+  return array[index]!
+}
+
+/**
  * Returns a random property value from an object.
  * @param obj - The object to get a random property value from.
  * @returns A random property value from the object.

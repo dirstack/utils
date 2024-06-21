@@ -103,10 +103,8 @@
     "allowUnreachableCode": true /* Disable error reporting for unreachable code. */,
 
     /* Completeness */
-    "skipLibCheck": true /* Skip type checking all .d.ts files. */,
+    "skipLibCheck": true /* Skip type checking all .d.ts files. */
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
-
-    "types": ["bun-types"] /* Add Bun global */
   },
 
   "include": ["src"],

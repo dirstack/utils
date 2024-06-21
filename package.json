@@ -1,7 +1,7 @@
 {
   "name": "@curiousleaf/utils",
   "description": "A lightweight set of utilities",
-  "version": "1.0.27",
+  "version": "1.0.28",
   "license": "MIT",
   "type": "module",
   "author": {
@@ -26,7 +26,7 @@
   "devDependencies": {
     "@babel/runtime": "^7.23.8",
     "@biomejs/biome": "^1.7.1",
-    "bun-types": "latest",
+    "@types/bun": "^1.1.2",
     "prettier": "^3.1.1",
     "typescript": "^5.3.3"
   },
