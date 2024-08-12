@@ -2,7 +2,21 @@
  * Utility functions for formatting data.
  */
 
+type Notation = Intl.NumberFormatOptions["notation"]
 type Currency = Intl.NumberFormatOptions["currency"]
+
+/**
+ * Formats a number with thousands separators.
+ * @param number - The number to format.
+ * @param notation - The notation to use for formatting. Defaults to 'standard'.
+ * @param locale - The locale to use for formatting. Defaults to 'en-US'.
+ * @returns The formatted number as a string.
+ */
+export const formatNumber = (number: number, notation: Notation = "compact", locale = "en-US") => {
+  const formatter = new Intl.NumberFormat(locale, { notation })
+
+  return formatter.format(number)
+}
 
 /**
  * Formats a given amount of money into a currency string.

@@ -5,8 +5,45 @@ import {
   formatCurrency,
   formatIntervalAmount,
   formatMimeType,
+  formatNumber,
   formatToDecimals,
 } from "./format"
+
+describe("formatNumber", () => {
+  it("formats numbers with compact notation (default)", () => {
+    expect(formatNumber(1000)).toBe("1K")
+    expect(formatNumber(1500)).toBe("1.5K")
+    expect(formatNumber(1000000)).toBe("1M")
+  })
+
+  it("formats numbers with standard notation", () => {
+    expect(formatNumber(1000, "standard")).toBe("1,000")
+    expect(formatNumber(1000000, "standard")).toBe("1,000,000")
+  })
+
+  it("formats numbers with different locales", () => {
+    expect(formatNumber(1000, "compact", "de-DE")).toBe("1000")
+  })
+
+  it("formats large numbers", () => {
+    expect(formatNumber(1000000000)).toBe("1B")
+    expect(formatNumber(1500000000)).toBe("1.5B")
+  })
+
+  it("formats small numbers", () => {
+    expect(formatNumber(0.1)).toBe("0.1")
+    expect(formatNumber(0.01)).toBe("0.01")
+  })
+
+  it("formats zero", () => {
+    expect(formatNumber(0)).toBe("0")
+  })
+
+  it("formats negative numbers", () => {
+    expect(formatNumber(-1000)).toBe("-1K")
+    expect(formatNumber(-1500000)).toBe("-1.5M")
+  })
+})
 
 describe("formatCurrency", () => {
   it("formats a number as currency", () => {
