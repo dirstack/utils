@@ -1,7 +1,7 @@
 {
   "name": "@curiousleaf/utils",
   "description": "A lightweight set of utilities",
-  "version": "1.0.29",
+  "version": "1.0.30",
   "license": "MIT",
   "type": "module",
   "author": {
@@ -10,8 +10,8 @@
     "url": "https://kulpinski.pl"
   },
   "repository": "curious-leaf/utils",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "build": "bun build ./src/index.ts --outdir ./dist && bun run build:declaration",
     "build:declaration": "tsc --emitDeclarationOnly",
