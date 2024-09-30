@@ -1,9 +1,8 @@
 {
   "name": "@curiousleaf/utils",
   "description": "A lightweight set of utilities",
-  "version": "1.0.33",
+  "version": "1.0.34",
   "license": "MIT",
-  "type": "module",
   "author": {
     "name": "Piotr Kulpinski",
     "email": "piotr@kulpinski.pl",
