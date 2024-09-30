@@ -7,6 +7,7 @@ import {
   getShortcutLabel,
   isCuid,
   isTruthy,
+  joinAsSentence,
   range,
   slugify,
   splitArrayChunks,
@@ -152,5 +153,23 @@ describe("splitArrayChunks", () => {
     expect(splitArrayChunks([1, 2, 3, 4, 5, 6, 7], 3)).toEqual([[1, 2, 3], [4, 5, 6], [7]])
     expect(splitArrayChunks([1, 2, 3, 4, 5, 6], 5)).toEqual([[1, 2, 3, 4, 5], [6]])
     expect(splitArrayChunks([], 3)).toEqual([])
+  })
+})
+
+describe("joinAsSentence", () => {
+  it("joins an array of strings into a sentence", () => {
+    expect(joinAsSentence(["apple"])).toEqual("apple")
+    expect(joinAsSentence(["apple", "banana"])).toEqual("apple and banana")
+    expect(joinAsSentence(["apple", "banana", "cherry"])).toEqual("apple, banana and cherry")
+  })
+
+  it("joins an array of strings into a sentence with a custom last item", () => {
+    expect(joinAsSentence(["apple", "banana", "cherry"], undefined, "or")).toEqual(
+      "apple, banana or cherry",
+    )
+  })
+
+  it("joins an array with custom max items", () => {
+    expect(joinAsSentence(["apple", "banana", "cherry"], 2)).toEqual("apple and banana")
   })
 })

@@ -183,3 +183,17 @@ export const setInputValue = (
   // Trigger a change event if the value was changed
   triggerChange && input?.dispatchEvent(new Event("input", { bubbles: true }))
 }
+
+/**
+ * Joins an array of strings into a sentence, with a maximum of 3 items.
+ *
+ * @param items The array of strings to be joined.
+ * @param maxItems The maximum number of items to include in the sentence.
+ * @returns The joined sentence.
+ */
+export const joinAsSentence = (items: string[], maxItems = 3, lastItem = "and") => {
+  return items
+    .slice(0, maxItems)
+    .join(", ")
+    .replace(/, ([^,]*)$/, ` ${lastItem} $1`)
+}

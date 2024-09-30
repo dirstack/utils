@@ -13,11 +13,11 @@ export type GetPageParams<T> = T & {
 
 /**
  * Returns an object containing the search parameters from a request URL.
- * @param request - The request object.
+ * @param url - The request url.
  * @returns An object containing the search parameters.
  */
-export const getSearchParams = (request: Request) => {
-  return Object.fromEntries(new URL(request.url).searchParams)
+export const getSearchParams = (url: string) => {
+  return Object.fromEntries(new URL(url).searchParams)
 }
 
 /**
@@ -32,12 +32,12 @@ export const getCurrentPage = (page?: string | null) => {
 /**
  * Returns an object containing the parameters for a paginated query.
  * @template T - The type of the query parameters.
- * @param request - The request object.
+ * @param url - The URL to get the page parameters from.
  * @param take - The number of items to take per page.
  * @returns An object containing the parameters for a paginated query.
  */
-export const getPageParams = <T extends object>(request: Request, take: number) => {
-  const { page, ...params } = getSearchParams(request)
+export const getPageParams = <T extends object>(url: string, take: number) => {
+  const { page, ...params } = getSearchParams(url)
 
   const currentPage = getCurrentPage(page)
   const skip = (currentPage - 1) * take

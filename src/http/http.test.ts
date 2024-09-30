@@ -1,6 +1,14 @@
 import { describe, expect, it } from "bun:test"
 
-import { addHttp, isExternalLink, removeHttp, removeTrailingSlash } from "./http"
+import {
+  addHttp,
+  getUrlHostname,
+  isExternalLink,
+  isValidUrl,
+  removeHttp,
+  removeTrailingSlash,
+  stripURLSubpath,
+} from "./http"
 
 describe("addHttp", () => {
   it("adds https protocol to url", () => {
@@ -75,5 +83,50 @@ describe("isExternalLink", () => {
 
   it("returns false for empty input", () => {
     expect(isExternalLink()).toBe(false)
+  })
+})
+
+describe("stripURLSubpath", () => {
+  it("returns the original URL if it's not a valid URL", () => {
+    const url = "not a URL"
+    expect(stripURLSubpath(url)).toBe(url)
+  })
+
+  it("returns stripped URL", () => {
+    const url = "https://example.com/path/to/resource"
+    expect(stripURLSubpath(url)).toBe("https://example.com")
+  })
+})
+
+describe("getUrlHostname", () => {
+  it("returns the hostname for a valid URL", () => {
+    const url = "https://example.com"
+    expect(getUrlHostname(url)).toBe("example.com")
+  })
+
+  it("returns the original URL if it's not a valid URL", () => {
+    const url = "not a URL"
+    expect(getUrlHostname(url)).toBe(url)
+  })
+
+  it("returns the original URL if it's not a valid URL", () => {
+    const url = "not a URL"
+    expect(getUrlHostname(url)).toBe(url)
+  })
+})
+
+describe("isValidUrl", () => {
+  it("returns true for valid URL", () => {
+    const url = "https://example.com"
+    expect(isValidUrl(url)).toBe(true)
+  })
+
+  it("returns false for invalid URL", () => {
+    const url = "not a URL"
+    expect(isValidUrl(url)).toBe(false)
+  })
+
+  it("returns false for empty input", () => {
+    expect(isValidUrl()).toBe(false)
   })
 })
