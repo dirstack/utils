@@ -45,9 +45,7 @@ export const isExternalLink = (url?: string): boolean => {
  * @param url The URL to be stripped.
  * @returns The URL with the subpath removed.
  */
-export const stripURLSubpath = (url?: string) => {
-  if (!url) return url
-
+export const stripURLSubpath = (url: string) => {
   try {
     const parsedUrl = new URL(url)
     return `${parsedUrl.protocol}//${parsedUrl.host}`
@@ -64,7 +62,7 @@ export const stripURLSubpath = (url?: string) => {
  */
 export const getUrlHostname = (url: string) => {
   if (isValidUrl(url)) {
-    return new URL(url).hostname
+    return new URL(url).hostname.replace("www.", "")
   }
 
   return url
