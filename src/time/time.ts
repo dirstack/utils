@@ -1,6 +1,21 @@
 /**
  * Utility functions related to time.
  */
+type DateStyle = Intl.DateTimeFormatOptions["dateStyle"]
+type TimeStyle = Intl.DateTimeFormatOptions["timeStyle"]
+type Timestamp = string | number | Date
+
+const getDateFormatter = (locale: string, dateStyle: DateStyle) => {
+  return new Intl.DateTimeFormat(locale, { dateStyle })
+}
+
+const getTimeFormatter = (locale: string, timeStyle: TimeStyle) => {
+  return new Intl.DateTimeFormat(locale, { timeStyle })
+}
+
+const getDateTimeFormatter = (locale: string, dateStyle: DateStyle, timeStyle: TimeStyle) => {
+  return new Intl.DateTimeFormat(locale, { dateStyle, timeStyle })
+}
 
 /**
  * Formats a date according to the specified options.
@@ -10,11 +25,11 @@
  * @returns The formatted date string.
  */
 export const formatDate = (
-  timestamp: string | number | Date,
-  dateStyle: Intl.DateTimeFormatOptions["timeStyle"] = "medium",
+  timestamp: Timestamp,
+  dateStyle: DateStyle = "medium",
   locale = "en-US",
 ) => {
-  return new Date(timestamp).toLocaleString(locale, { dateStyle })
+  return getDateFormatter(locale, dateStyle).format(new Date(timestamp))
 }
 
 /**
@@ -25,11 +40,11 @@ export const formatDate = (
  * @returns The formatted time string.
  */
 export const formatTime = (
-  timestamp: string | number | Date,
-  timeStyle: Intl.DateTimeFormatOptions["timeStyle"] = "short",
+  timestamp: Timestamp,
+  timeStyle: TimeStyle = "short",
   locale = "en-US",
 ) => {
-  return new Date(timestamp).toLocaleTimeString(locale, { timeStyle })
+  return getTimeFormatter(locale, timeStyle).format(new Date(timestamp))
 }
 
 /**
@@ -41,12 +56,12 @@ export const formatTime = (
  * @returns The formatted date and time string.
  */
 export const formatDateTime = (
-  timestamp: string | number | Date,
-  dateStyle: Intl.DateTimeFormatOptions["timeStyle"] = "medium",
-  timeStyle: Intl.DateTimeFormatOptions["timeStyle"] = "short",
+  timestamp: Timestamp,
+  dateStyle: DateStyle = "medium",
+  timeStyle: TimeStyle = "short",
   locale = "en-US",
 ) => {
-  return new Date(timestamp).toLocaleString(locale, { dateStyle, timeStyle })
+  return getDateTimeFormatter(locale, dateStyle, timeStyle).format(new Date(timestamp))
 }
 
 /**
@@ -59,10 +74,10 @@ export const formatDateTime = (
  * @returns The formatted date or time string.
  */
 export const formatDateOrTime = (
-  timestamp: string | number | Date,
+  timestamp: Timestamp,
   type: "date" | "time" | "datetime",
-  dateStyle: Intl.DateTimeFormatOptions["timeStyle"] = "medium",
-  timeStyle: Intl.DateTimeFormatOptions["timeStyle"] = "short",
+  dateStyle: DateStyle = "medium",
+  timeStyle: TimeStyle = "short",
   locale = "en-US",
 ) => {
   switch (type) {
@@ -73,6 +88,23 @@ export const formatDateOrTime = (
     default:
       return formatDateTime(timestamp, dateStyle, timeStyle, locale)
   }
+}
+
+/**
+ * Formats a date range.
+ * @param start - The start date.
+ * @param end - The end date.
+ * @param dateStyle - The date formatting style to use. Defaults to 'medium'.
+ * @param locale - The locale to use for formatting. Defaults to 'en'.
+ * @returns The formatted date range string.
+ */
+export const formatDateRange = (
+  start: Timestamp,
+  end: Timestamp,
+  dateStyle: DateStyle = "medium",
+  locale = "en-US",
+) => {
+  return getDateFormatter(locale, dateStyle).formatRange(new Date(start), new Date(end))
 }
 
 /**

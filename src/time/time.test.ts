@@ -1,6 +1,13 @@
 import { describe, expect, it } from "bun:test"
 
-import { formatDate, formatDateOrTime, formatDateTime, formatTime, getReadTime } from "./time"
+import {
+  formatDate,
+  formatDateOrTime,
+  formatDateRange,
+  formatDateTime,
+  formatTime,
+  getReadTime,
+} from "./time"
 
 const timestamp = "2022-01-01 00:00:00.000"
 
@@ -46,5 +53,36 @@ describe("getReadTime", () => {
 
   it("returns 0 for empty content", () => {
     expect(getReadTime(null)).toEqual(0)
+  })
+})
+
+describe("formatDateRange", () => {
+  it("formats date range correctly in English", () => {
+    const start = "2022-01-01"
+    const end = "2022-12-31"
+    expect(formatDateRange(start, end)).toBe("Jan 1 – Dec 31, 2022")
+  })
+
+  it("formats date range correctly with different locale", () => {
+    const start = "2022-01-01"
+    const end = "2022-12-31"
+    expect(formatDateRange(start, end, "medium", "es")).toBe("1 ene – 31 dic 2022")
+  })
+
+  it("formats date range with short date style", () => {
+    const start = "2022-01-01"
+    const end = "2022-12-31"
+    expect(formatDateRange(start, end, "short")).toBe("1/1/22 – 12/31/22")
+  })
+
+  it("formats date range with long date style", () => {
+    const start = "2022-01-01"
+    const end = "2022-12-31"
+    expect(formatDateRange(start, end, "long")).toBe("January 1 – December 31, 2022")
+  })
+
+  it("handles same day range", () => {
+    const date = "2022-01-01"
+    expect(formatDateRange(date, date)).toBe("Jan 1, 2022")
   })
 })
