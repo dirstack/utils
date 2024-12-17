@@ -1,8 +1,9 @@
 {
   "name": "@curiousleaf/utils",
   "description": "A lightweight set of utilities",
-  "version": "1.0.39",
+  "version": "1.0.40",
   "license": "MIT",
+  "type": "module",
   "author": {
     "name": "Piotr Kulpinski",
     "email": "piotr@kulpinski.pl",
@@ -10,15 +11,12 @@
   },
   "repository": "curious-leaf/utils",
   "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": {
-      "require": "./dist/index.js",
-      "import": "./dist/index.mjs",
-      "types": "./dist/index.d.ts"
-    }
+    "default": "./dist/index.js",
+    "types": "./dist/index.d.ts"
   },
+  "files": ["dist"],
   "scripts": {
     "build": "tsup",
     "lint": "bun biome lint --apply .",
