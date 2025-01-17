@@ -1,7 +1,7 @@
 {
   "name": "@curiousleaf/utils",
   "description": "A lightweight set of utilities",
-  "version": "1.0.41",
+  "version": "1.1.0",
   "license": "MIT",
   "author": {
     "name": "Piotr Kulpinski",
@@ -9,30 +9,33 @@
     "url": "https://kulpinski.pl"
   },
   "repository": "curious-leaf/utils",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "files": ["dist"],
+  "main": "./dist/index.umd.cjs",
+  "module": "./dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.umd.cjs"
+    }
+  },
   "scripts": {
-    "build": "tsup",
+    "clean": "rimraf ./dist",
+    "build": "vite build && tsc --emitDeclarationOnly",
+    "prebuild": "bun run clean",
     "lint": "bun biome lint --apply .",
     "format": "bun biome format --write ."
   },
   "dependencies": {
-    "@sindresorhus/slugify": "^2.2.1",
-    "@uiw/color-convert": "^2.3.4",
-    "scule": "^1.3.0"
+    "@sindresorhus/slugify": "^2.2.1"
   },
   "devDependencies": {
-    "@babel/runtime": "^7.26.0",
     "@biomejs/biome": "^1.9.4",
-    "@types/bun": "^1.1.14",
-    "prettier": "^3.4.2",
-    "tsup": "^8.3.5",
-    "typescript": "^5.7.2"
+    "@types/bun": "^1.1.17",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.7"
   },
   "peerDependencies": {
-    "@sindresorhus/slugify": "^2.2.1",
-    "@uiw/color-convert": "^2.0.9",
-    "scule": "^1.3.0"
+    "@sindresorhus/slugify": "^2.2.1"
   }
 }

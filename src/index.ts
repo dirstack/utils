@@ -1,8 +1,3 @@
-// External exports
-export * from "scule"
-export * from "@uiw/color-convert"
-
-// Internal exports
 export * from "./colors/colors"
 export * from "./errors/errors"
 export * from "./events/events"
