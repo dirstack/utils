@@ -1,15 +1,23 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
   "include": ["src"],
   "exclude": ["node_modules", "dist", "**/*.test.*", "**/*.spec.*"],
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "commonjs",
     "declaration": true,
-    "outDir": "./dist",
+    "declarationMap": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
+    "incremental": false,
+    "isolatedModules": true,
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleDetection": "force",
+    "moduleResolution": "Bundler",
+    "noUncheckedIndexedAccess": true,
+    "outDir": "./dist",
+    "resolveJsonModule": true,
     "skipLibCheck": true,
-    "types": ["bun"]
+    "strictNullChecks": true,
+    "strict": true
   }
 }
