@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.7.1/schema.json",
+  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
   "organizeImports": {
     "enabled": true
   },
@@ -7,7 +7,8 @@
     "enabled": true,
     "lineWidth": 100,
     "indentStyle": "space",
-    "indentWidth": 2
+    "indentWidth": 2,
+    "formatWithErrors": true
   },
   "javascript": {
     "formatter": {
@@ -15,13 +16,16 @@
       "semicolons": "asNeeded",
       "arrowParentheses": "asNeeded",
       "bracketSpacing": true,
-      "trailingComma": "all"
+      "trailingCommas": "all"
     }
   },
   "json": {
     "parser": {
       "allowComments": false,
       "allowTrailingCommas": true
+    },
+    "formatter": {
+      "trailingCommas": "none"
     }
   },
   "vcs": {
@@ -39,11 +43,19 @@
         "noConfusingLabels": "off",
         "noShadowRestrictedNames": "off"
       },
+      "correctness": {
+        "useExhaustiveDependencies": "off"
+      },
       "security": {
         "noDangerouslySetInnerHtml": "off"
       },
+      "style": {
+        "noNonNullAssertion": "off"
+      },
       "a11y": {
-        "useAnchorContent": "off"
+        "useAnchorContent": "off",
+        "useValidAnchor": "off",
+        "useAltText": "off"
       }
     }
   }

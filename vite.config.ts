@@ -14,7 +14,4 @@ export default defineConfig({
     },
     sourcemap: true,
   },
-  optimizeDeps: {
-    exclude: ["**/*.test.*", "**/*.spec.*"],
-  },
 })

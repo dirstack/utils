@@ -14,10 +14,12 @@ export const getRandomColor = (): string => {
 
 /**
  * Returns a random string of characters.
+ * @param length - The desired length of the random string
  * @returns A string representing a random string of characters.
  */
-export const getRandomString = (): string => {
-  return Math.random().toString(36).substring(2, 15)
+export const getRandomString = (length = 16): string => {
+  const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+  return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join("")
 }
 
 /**

@@ -1,6 +1,12 @@
 import { describe, expect, it } from "bun:test"
 
-import { getRandomColor, getRandomElement, getRandomNumber, getRandomProperty, getRandomString } from "./random"
+import {
+  getRandomColor,
+  getRandomElement,
+  getRandomNumber,
+  getRandomProperty,
+  getRandomString,
+} from "./random"
 
 describe("getRandomColor", () => {
   it("returns a string", () => {
@@ -26,10 +32,25 @@ describe("getRandomString", () => {
     expect(typeof result).toBe("string")
   })
 
-  it("returns a string with length between 2 and 13", () => {
+  it("returns a string with default length of 16", () => {
     const result = getRandomString()
-    expect(result.length).toBeGreaterThanOrEqual(2)
-    expect(result.length).toBeLessThanOrEqual(13)
+    expect(result.length).toBe(16)
+  })
+
+  it("returns a string with specified length", () => {
+    const result = getRandomString(10)
+    expect(result.length).toBe(10)
+  })
+
+  it("returns different strings on each call", () => {
+    const result1 = getRandomString()
+    const result2 = getRandomString()
+    expect(result1).not.toBe(result2)
+  })
+
+  it("contains only alphanumeric characters", () => {
+    const result = getRandomString()
+    expect(result).toMatch(/^[a-zA-Z0-9]+$/)
   })
 })
 

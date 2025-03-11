@@ -1,7 +1,7 @@
 {
   "name": "@curiousleaf/utils",
   "description": "A lightweight set of utilities",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "license": "MIT",
   "type": "module",
   "author": {
@@ -32,10 +32,10 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@types/bun": "^1.1.17",
+    "@types/bun": "^1.2.5",
     "rimraf": "^6.0.1",
-    "typescript": "^5.7.2",
-    "vite": "^6.0.7"
+    "typescript": "^5.8.2",
+    "vite": "^6.2.1"
   },
   "peerDependencies": {
     "@sindresorhus/slugify": "^2.2.1"

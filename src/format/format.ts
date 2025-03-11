@@ -8,7 +8,7 @@ type Currency = Intl.NumberFormatOptions["currency"]
 /**
  * Formats a number with thousands separators.
  * @param number - The number to format.
- * @param notation - The notation to use for formatting. Defaults to 'standard'.
+ * @param notation - The notation to use for formatting. Defaults to 'compact'.
  * @param locale - The locale to use for formatting. Defaults to 'en-US'.
  * @returns The formatted number as a string.
  */
