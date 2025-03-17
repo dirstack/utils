@@ -34,6 +34,15 @@ export const getRandomNumber = (min: number, max: number) => {
 }
 
 /**
+ * Generate a random string of digits
+ * @param length Length of the digits string
+ * @returns Random digits string
+ */
+export const getRandomDigits = (length: number) => {
+  return Array.from({ length }, () => Math.floor(Math.random() * 10)).join("")
+}
+
+/**
  * Returns a random element from an array.
  *
  * @param array - The array to get a random element from.

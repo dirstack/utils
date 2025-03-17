@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test"
 
 import {
   getRandomColor,
+  getRandomDigits,
   getRandomElement,
   getRandomNumber,
   getRandomProperty,
@@ -61,6 +62,36 @@ describe("getRandomNumber", () => {
     const randomNumber = getRandomNumber(min, max)
     expect(randomNumber).toBeGreaterThanOrEqual(min)
     expect(randomNumber).toBeLessThanOrEqual(max)
+  })
+})
+
+describe("getRandomDigits", () => {
+  it("returns a string", () => {
+    const result = getRandomDigits(5)
+    expect(typeof result).toBe("string")
+  })
+
+  it("returns a string with specified length", () => {
+    const result = getRandomDigits(10)
+    expect(result.length).toBe(10)
+  })
+
+  it("returns different strings on each call", () => {
+    const result1 = getRandomDigits(5)
+    const result2 = getRandomDigits(5)
+    expect(result1).not.toBe(result2)
+  })
+
+  it("contains only digits", () => {
+    const result = getRandomDigits(10)
+    expect(result).toMatch(/^[0-9]+$/)
+  })
+
+  it("handles different lengths", () => {
+    const short = getRandomDigits(1)
+    const long = getRandomDigits(20)
+    expect(short.length).toBe(1)
+    expect(long.length).toBe(20)
   })
 })
 
