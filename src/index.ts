@@ -9,6 +9,7 @@ export * from "./objects/objects"
 export * from "./params/params"
 export * from "./parsers/parsers"
 export * from "./random/random"
+export * from "./string/string"
 export * from "./time/time"
 
 export type WithOptional<Type, Key extends keyof Type> = Pick<Partial<Type>, Key> & Omit<Type, Key>
