@@ -34,3 +34,11 @@ export type ValidatePath<T, K extends string> = K extends ""
         ? `${K0}.${ValidatePath<T[K0], KR>}`
         : Extract<keyof T, string>
       : Extract<keyof T, string>
+
+export type NestedPartial<T> = {
+  [K in keyof T]?: T[K] extends object ? NestedPartial<T[K]> : T[K]
+}
+
+export type NestedRequired<T> = {
+  [K in keyof T]-?: T[K] extends object ? NestedRequired<T[K]> : T[K]
+}
