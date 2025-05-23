@@ -31,11 +31,11 @@ export const removeTrailingSlash = (url?: string): string => {
 }
 
 /**
- * Checks if the given URL is an external link.
+ * Checks if the given URL is an external URL.
  * @param url - The URL to check.
- * @returns A boolean indicating whether the URL is an external link.
+ * @returns A boolean indicating whether the URL is an external URL.
  */
-export const isExternalLink = (url?: string): boolean => {
+export const isExternalUrl = (url?: string): boolean => {
   return url ? url.includes("http") : false
 }
 

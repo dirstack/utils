@@ -3,7 +3,7 @@ import { describe, expect, it } from "bun:test"
 import {
   addHttp,
   getUrlHostname,
-  isExternalLink,
+  isExternalUrl,
   isValidUrl,
   removeHttp,
   removeTrailingSlash,
@@ -65,24 +65,24 @@ describe("removeTrailingSlash", () => {
   })
 })
 
-describe("isExternalLink", () => {
+describe("isExternalUrl", () => {
   it("returns true for url with http protocol", () => {
     const url = "http://example.com"
-    expect(isExternalLink(url)).toBe(true)
+    expect(isExternalUrl(url)).toBe(true)
   })
 
   it("returns true for url with https protocol", () => {
     const url = "https://example.com"
-    expect(isExternalLink(url)).toBe(true)
+    expect(isExternalUrl(url)).toBe(true)
   })
 
   it("returns false for url without protocol", () => {
     const url = "example.com"
-    expect(isExternalLink(url)).toBe(false)
+    expect(isExternalUrl(url)).toBe(false)
   })
 
   it("returns false for empty input", () => {
-    expect(isExternalLink()).toBe(false)
+    expect(isExternalUrl()).toBe(false)
   })
 })
 
