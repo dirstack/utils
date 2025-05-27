@@ -1,5 +1,5 @@
 {
-  "name": "@curiousleaf/utils",
+  "name": "@primoui/utils",
   "description": "A lightweight set of utilities",
   "version": "1.1.7",
   "license": "MIT",
@@ -9,7 +9,7 @@
     "email": "piotr@kulpinski.pl",
     "url": "https://kulpinski.pl"
   },
-  "repository": "curious-leaf/utils",
+  "repository": "primoui/utils",
   "files": ["dist"],
   "main": "./dist/index.umd.cjs",
   "module": "./dist/index.js",
