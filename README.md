@@ -1,4 +1,4 @@
-# @curiousleaf/utils
+# @primoui/utils
 
 To install dependencies:
 

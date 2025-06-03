@@ -1,4 +1,5 @@
 export * from "./colors/colors"
+export * from "./dom/dom"
 export * from "./errors/errors"
 export * from "./events/events"
 export * from "./format/format"
