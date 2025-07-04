@@ -197,3 +197,38 @@ export const joinAsSentence = (items: string[], maxItems = 3, lastItem = "and") 
     .join(", ")
     .replace(/, ([^,]*)$/, ` ${lastItem} $1`)
 }
+
+/**
+ * A type representing a successful result with data and no error.
+ */
+type Success<T> = {
+  data: T
+  error: null
+}
+
+/**
+ * A type representing a failed result with no data and an error.
+ */
+type Failure<E> = {
+  data: null
+  error: E
+}
+
+/**
+ * A type representing a result with either data or an error.
+ */
+type Result<T, E = Error> = Success<T> | Failure<E>
+
+/**
+ * Wraps a promise and returns a result object with the data or error
+ * @param promise - The promise to wrap
+ * @returns A result object with the data or error
+ */
+export const tryCatch = async <T, E = Error>(promise: Promise<T>): Promise<Result<T, E>> => {
+  try {
+    const data = await promise
+    return { data, error: null }
+  } catch (error) {
+    return { data: null, error: error as E }
+  }
+}

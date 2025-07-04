@@ -12,6 +12,7 @@ import {
   slugify,
   splitArrayChunks,
   stripHtml,
+  tryCatch,
 } from "./helpers"
 
 describe("range", () => {
@@ -171,5 +172,24 @@ describe("joinAsSentence", () => {
 
   it("joins an array with custom max items", () => {
     expect(joinAsSentence(["apple", "banana", "cherry"], 2)).toEqual("apple and banana")
+  })
+})
+
+describe("tryCatch", () => {
+  it("should return data when promise resolves", async () => {
+    const promise = Promise.resolve("success")
+    const result = await tryCatch(promise)
+
+    expect(result.data).toEqual("success")
+    expect(result.error).toBeNull()
+  })
+
+  it("should return error when promise rejects", async () => {
+    const error = new Error("failure")
+    const promise = Promise.reject(error)
+    const result = await tryCatch(promise)
+
+    expect(result.data).toBeNull()
+    expect(result.error).toEqual(error)
   })
 })
