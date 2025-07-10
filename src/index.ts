@@ -1,3 +1,4 @@
+export * from "./batch/batch"
 export * from "./colors/colors"
 export * from "./dom/dom"
 export * from "./errors/errors"

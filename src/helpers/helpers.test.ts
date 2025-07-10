@@ -10,7 +10,7 @@ import {
   joinAsSentence,
   range,
   slugify,
-  splitArrayChunks,
+  splitArrayIntoChunks,
   stripHtml,
   tryCatch,
 } from "./helpers"
@@ -149,11 +149,11 @@ describe("getInitials", () => {
   })
 })
 
-describe("splitArrayChunks", () => {
+describe("splitArrayIntoChunks", () => {
   it("splits an array into chunks of specified size", () => {
-    expect(splitArrayChunks([1, 2, 3, 4, 5, 6, 7], 3)).toEqual([[1, 2, 3], [4, 5, 6], [7]])
-    expect(splitArrayChunks([1, 2, 3, 4, 5, 6], 5)).toEqual([[1, 2, 3, 4, 5], [6]])
-    expect(splitArrayChunks([], 3)).toEqual([])
+    expect(splitArrayIntoChunks([1, 2, 3, 4, 5, 6, 7], 3)).toEqual([[1, 2, 3], [4, 5, 6], [7]])
+    expect(splitArrayIntoChunks([1, 2, 3, 4, 5, 6], 5)).toEqual([[1, 2, 3, 4, 5], [6]])
+    expect(splitArrayIntoChunks([], 3)).toEqual([])
   })
 })
 

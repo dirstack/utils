@@ -21,7 +21,7 @@ export const range = (start: number, end: number) => {
  * @param delay - The amount of time to delay the execution of the function, in milliseconds.
  */
 export const sleep = async (delay: number) => {
-  new Promise(resolve => setTimeout(resolve, delay))
+  return new Promise(resolve => setTimeout(resolve, delay))
 }
 
 /**
@@ -148,15 +148,15 @@ export const toBase64 = (file: File): Promise<string> => {
 
 /**
  * Splits an array into chunks of a specified size.
- * @param array - The array to split into chunks.
+ * @param items - The array of items to split into chunks.
  * @param chunkSize - The size of each chunk.
  * @returns An array of arrays, each containing a chunk of the original array.
  */
-export const splitArrayChunks = <T>(array: T[], chunkSize: number) => {
+export const splitArrayIntoChunks = <T>(items: T[], chunkSize: number) => {
   const chunks: T[][] = []
 
-  for (let i = 0; i < array.length; i += chunkSize) {
-    chunks.push(array.slice(i, i + chunkSize))
+  for (let i = 0; i < items.length; i += chunkSize) {
+    chunks.push(items.slice(i, i + chunkSize))
   }
 
   return chunks

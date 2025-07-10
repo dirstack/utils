@@ -50,7 +50,7 @@ export const stripURLSubpath = (url: string) => {
     const parsedUrl = new URL(url)
     return `${parsedUrl.protocol}//${parsedUrl.host}`
   } catch (error) {
-    // If the URL is invalid, return the original string
+    console.error(error)
     return url
   }
 }
@@ -79,7 +79,8 @@ export const isValidUrl = (url?: string) => {
   try {
     new URL(url)
     return true
-  } catch (e) {
+  } catch (error) {
+    console.error(error)
     return false
   }
 }
