@@ -13,7 +13,9 @@
     "type": "git",
     "url": "https://github.com/primoui/utils.git"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "main": "./dist/index.umd.cjs",
   "module": "./dist/index.js",
   "exports": {
@@ -34,11 +36,11 @@
     "@sindresorhus/slugify": "^2.2.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "@types/bun": "^1.2.15",
+    "@biomejs/biome": "^2.1.1",
+    "@types/bun": "^1.2.18",
     "rimraf": "^6.0.1",
     "typescript": "^5.8.3",
-    "vite": "^6.3.5"
+    "vite": "^7.0.4"
   },
   "peerDependencies": {
     "@sindresorhus/slugify": "^2.2.1"
