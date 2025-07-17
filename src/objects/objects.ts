@@ -47,3 +47,29 @@ export const sortObject = <T extends Record<K, unknown>, K extends keyof T>(
       return { ...result, [key as K]: obj[key as K] }
     }, {} as T)
 }
+
+/**
+ * Creates a new object with only the specified properties from the source object.
+ * Provides full type safety and intellisense for the picked properties.
+ *
+ * @param obj - The source object to pick properties from
+ * @param keys - Array of property keys to pick from the source object
+ * @returns A new object containing only the specified properties
+ *
+ * @example
+ * const user = { id: 1, name: 'John', email: 'john@example.com', password: 'secret' }
+ * const publicUser = pick(user, ['id', 'name', 'email'])
+ * // Result: { id: 1, name: 'John', email: 'john@example.com' }
+ */
+export function pickFromObject<T extends object, K extends keyof T>(
+  obj: T,
+  keys: readonly K[],
+): Pick<T, K> {
+  const result = {} as Pick<T, K>
+  for (const key of keys) {
+    if (key in obj) {
+      result[key] = obj[key]
+    }
+  }
+  return result
+}

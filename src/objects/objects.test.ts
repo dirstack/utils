@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test"
 
-import { isEmptyObject, sortObject, sortObjectKeys } from "./objects"
+import { isEmptyObject, pickFromObject, sortObject, sortObjectKeys } from "./objects"
 
 describe("isEmptyObject", () => {
   it("returns true for an empty object", () => {
@@ -70,5 +70,107 @@ describe("sortObject", () => {
     const sortedObj = sortObject(obj, comparator)
 
     expect(sortedObj).toEqual({ c: 3, b: 2, a: 1 })
+  })
+})
+
+describe("pickFromObject", () => {
+  it("picks specified properties from an object", () => {
+    const user = { id: 1, name: "John", email: "john@example.com", password: "secret" }
+    const result = pickFromObject(user, ["id", "name", "email"])
+
+    expect(result).toEqual({ id: 1, name: "John", email: "john@example.com" })
+  })
+
+  it("returns an empty object when given an empty keys array", () => {
+    const user = { id: 1, name: "John", email: "john@example.com" }
+    const result = pickFromObject(user, [])
+
+    expect(result).toEqual({})
+  })
+
+  it("handles non-existing keys gracefully", () => {
+    const user = { id: 1, name: "John" }
+    const result = pickFromObject(user, ["id", "age" as keyof typeof user])
+
+    expect(result).toEqual({ id: 1 })
+  })
+
+  it("picks properties with different data types", () => {
+    const data = {
+      str: "hello",
+      num: 42,
+      bool: true,
+      arr: [1, 2, 3],
+      obj: { nested: "value" },
+      nil: null,
+      undef: undefined,
+    }
+    const result = pickFromObject(data, ["str", "num", "bool", "arr", "obj"])
+
+    expect(result).toEqual({
+      str: "hello",
+      num: 42,
+      bool: true,
+      arr: [1, 2, 3],
+      obj: { nested: "value" },
+    })
+  })
+
+  it("handles an empty source object", () => {
+    const emptyObj = {}
+    const result = pickFromObject(emptyObj, ["nonExistent" as keyof typeof emptyObj])
+
+    expect(result).toEqual({})
+  })
+
+  it("picks a single property", () => {
+    const user = { id: 1, name: "John", email: "john@example.com" }
+    const result = pickFromObject(user, ["name"])
+
+    expect(result).toEqual({ name: "John" })
+  })
+
+  it("handles objects with symbol keys", () => {
+    const sym = Symbol("test")
+    const obj = { [sym]: "symbol value", regular: "regular value" }
+    const result = pickFromObject(obj, ["regular"])
+
+    expect(result).toEqual({ regular: "regular value" })
+  })
+
+  it("preserves property order", () => {
+    const obj = { c: 3, a: 1, b: 2 }
+    const result = pickFromObject(obj, ["a", "b", "c"])
+
+    // While object property order isn't guaranteed in all cases,
+    // modern JS engines preserve insertion order for string keys
+    expect(Object.keys(result)).toEqual(["a", "b", "c"])
+    expect(result).toEqual({ a: 1, b: 2, c: 3 })
+  })
+
+  it("works with readonly keys array", () => {
+    const user = { id: 1, name: "John", email: "john@example.com" }
+    const keys = ["id", "name"] as const
+    const result = pickFromObject(user, keys)
+
+    expect(result).toEqual({ id: 1, name: "John" })
+  })
+
+  it("handles falsy values correctly", () => {
+    const data = {
+      zero: 0,
+      emptyString: "",
+      false: false,
+      nullValue: null,
+      undefinedValue: undefined,
+    }
+    const result = pickFromObject(data, ["zero", "emptyString", "false", "nullValue"])
+
+    expect(result).toEqual({
+      zero: 0,
+      emptyString: "",
+      false: false,
+      nullValue: null,
+    })
   })
 })
