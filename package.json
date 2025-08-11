@@ -1,7 +1,7 @@
 {
   "name": "@primoui/utils",
   "description": "A lightweight set of utilities",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "license": "MIT",
   "type": "module",
   "author": {
