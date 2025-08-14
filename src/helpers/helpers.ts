@@ -1,4 +1,5 @@
 import slugifyString from "@sindresorhus/slugify"
+import { ReplaceNullWithUndefined } from ".."
 
 /**
  * A collection of helper functions used throughout the application.
@@ -231,4 +232,24 @@ export const tryCatch = async <T, E = Error>(promise: Promise<T>): Promise<Resul
   } catch (error) {
     return { data: null, error: error as E }
   }
+}
+
+/**
+ * Converts all null values in an object to undefined.
+ * @param obj - The object to convert.
+ * @returns The converted object.
+ */
+export function nullsToUndefined<T>(obj: T): ReplaceNullWithUndefined<T> {
+  if (obj === null) {
+    return undefined as any
+  }
+
+  // object check based on: https://stackoverflow.com/a/51458052/6489012
+  if (obj?.constructor.name === "Object") {
+    for (const key in obj) {
+      obj[key] = nullsToUndefined(obj[key]) as any
+    }
+  }
+
+  return obj as any
 }

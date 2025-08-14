@@ -8,6 +8,7 @@ import {
   isCuid,
   isTruthy,
   joinAsSentence,
+  nullsToUndefined,
   range,
   slugify,
   splitArrayIntoChunks,
@@ -191,5 +192,177 @@ describe("tryCatch", () => {
 
     expect(result.data).toBeNull()
     expect(result.error).toEqual(error)
+  })
+})
+
+describe("nullsToUndefined", () => {
+  it("should convert null to undefined", () => {
+    expect(nullsToUndefined(null)).toEqual(undefined)
+  })
+
+  it("should preserve undefined values", () => {
+    expect(nullsToUndefined(undefined)).toEqual(undefined)
+  })
+
+  it("should preserve primitive values", () => {
+    expect(nullsToUndefined("hello")).toEqual("hello")
+    expect(nullsToUndefined(42)).toEqual(42)
+    expect(nullsToUndefined(true)).toEqual(true)
+    expect(nullsToUndefined(false)).toEqual(false)
+    expect(nullsToUndefined(0)).toEqual(0)
+  })
+
+  it("should convert null properties in objects to undefined", () => {
+    const input = {
+      name: "John",
+      age: null,
+      active: true,
+      description: null,
+    }
+
+    const result = nullsToUndefined(input)
+
+    expect(result).toEqual({
+      name: "John",
+      age: undefined,
+      active: true,
+      description: undefined,
+    })
+  })
+
+  it("should recursively convert null values in nested objects", () => {
+    const input = {
+      user: {
+        name: "John",
+        profile: {
+          bio: null,
+          avatar: "avatar.jpg",
+          settings: {
+            theme: null,
+            notifications: true,
+          },
+        },
+      },
+      data: null,
+    }
+
+    const result = nullsToUndefined(input)
+
+    expect(result).toEqual({
+      user: {
+        name: "John",
+        profile: {
+          bio: undefined,
+          avatar: "avatar.jpg",
+          settings: {
+            theme: undefined,
+            notifications: true,
+          },
+        },
+      },
+      data: undefined,
+    })
+  })
+
+  it("should handle empty objects", () => {
+    const input = {}
+    const result = nullsToUndefined(input)
+    expect(result).toEqual({})
+  })
+
+  it("should handle objects with only null values", () => {
+    const input = {
+      a: null,
+      b: null,
+      c: null,
+    }
+
+    const result = nullsToUndefined(input)
+
+    expect(result).toEqual({
+      a: undefined,
+      b: undefined,
+      c: undefined,
+    })
+  })
+
+  it("should mutate the original object", () => {
+    const input = {
+      name: "John",
+      age: null,
+    }
+
+    const result = nullsToUndefined(input)
+
+    // Should return the same reference
+    expect(result).toBe(input)
+    // Original object should be mutated
+    expect(input.age).toEqual(undefined)
+  })
+
+  it("should handle arrays (current behavior: not processed recursively)", () => {
+    const input = [null, "hello", null, 42]
+    const result = nullsToUndefined(input)
+
+    // Arrays are not plain objects (constructor.name !== "Object"), so they're returned as-is
+    expect(result).toEqual([null, "hello", null, 42])
+    expect(result).toBe(input)
+  })
+
+  it("should handle Date objects (current behavior: processed as objects)", () => {
+    const date = new Date("2023-01-01")
+    const result = nullsToUndefined(date)
+
+    // Date objects have constructor.name !== "Object", so they're returned as-is
+    expect(result).toEqual(date)
+    expect(result).toBe(date)
+  })
+
+  it("should handle objects containing arrays", () => {
+    const input = {
+      list: [null, "item", null],
+      name: null,
+    }
+
+    const result = nullsToUndefined(input)
+
+    expect(result).toEqual({
+      list: [null, "item", null], // Array is not processed
+      name: undefined, // Object property is processed
+    })
+  })
+
+  it("should handle complex mixed data structures", () => {
+    const input = {
+      id: 1,
+      name: null,
+      metadata: {
+        created: "2023-01-01",
+        updated: null,
+        tags: ["tag1", null, "tag2"],
+        config: {
+          enabled: null,
+          value: 42,
+        },
+      },
+      stats: null,
+    }
+
+    const result = nullsToUndefined(input)
+
+    expect(result).toEqual({
+      id: 1,
+      name: undefined,
+      metadata: {
+        created: "2023-01-01",
+        updated: undefined,
+        tags: ["tag1", null, "tag2"], // Arrays not processed
+        config: {
+          enabled: undefined,
+          value: 42,
+        },
+      },
+      stats: undefined,
+    })
   })
 })

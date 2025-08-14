@@ -44,3 +44,13 @@ export type NestedPartial<T> = {
 export type NestedRequired<T> = {
   [K in keyof T]-?: T[K] extends object ? NestedRequired<T[K]> : T[K]
 }
+
+export type ReplaceNullWithUndefined<T> = T extends null
+  ? undefined
+  : T extends Date
+    ? T
+    : {
+        [K in keyof T]: T[K] extends (infer U)[]
+          ? ReplaceNullWithUndefined<U>[]
+          : ReplaceNullWithUndefined<T[K]>
+      }
