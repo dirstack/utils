@@ -1,5 +1,5 @@
 import slugifyString from "@sindresorhus/slugify"
-import { ReplaceNullWithUndefined } from ".."
+import type { ReplaceNullWithUndefined } from ".."
 
 /**
  * A collection of helper functions used throughout the application.
@@ -105,7 +105,7 @@ export const isCuid = (id: string) => {
  * @param value - The value to check
  * @returns A boolean indicating if the value is truthy
  */
-export function isTruthy<T>(value?: T | undefined | null | false): value is T {
+export const isTruthy = <T>(value?: T | undefined | null | false): value is T => {
   return !!value
 }
 
@@ -239,7 +239,7 @@ export const tryCatch = async <T, E = Error>(promise: Promise<T>): Promise<Resul
  * @param obj - The object to convert.
  * @returns The converted object.
  */
-export function nullsToUndefined<T>(obj: T): ReplaceNullWithUndefined<T> {
+export const nullsToUndefined = <T>(obj: T): ReplaceNullWithUndefined<T> => {
   if (obj === null) {
     return undefined as any
   }

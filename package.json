@@ -1,7 +1,7 @@
 {
   "name": "@primoui/utils",
   "description": "A lightweight set of utilities",
-  "version": "1.2.3",
+  "version": "1.3.0",
   "license": "MIT",
   "type": "module",
   "author": {
@@ -36,11 +36,11 @@
     "@sindresorhus/slugify": "^2.2.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.1.1",
-    "@types/bun": "^1.2.18",
+    "@biomejs/biome": "^2.2.2",
+    "@types/bun": "^1.2.21",
     "rimraf": "^6.0.1",
-    "typescript": "^5.8.3",
-    "vite": "^7.0.4"
+    "typescript": "^5.9.2",
+    "vite": "^7.1.4"
   },
   "peerDependencies": {
     "@sindresorhus/slugify": "^2.2.1"

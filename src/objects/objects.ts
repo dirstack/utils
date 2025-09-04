@@ -61,10 +61,10 @@ export const sortObject = <T extends Record<K, unknown>, K extends keyof T>(
  * const publicUser = pick(user, ['id', 'name', 'email'])
  * // Result: { id: 1, name: 'John', email: 'john@example.com' }
  */
-export function pickFromObject<T extends object, K extends keyof T>(
+export const pickFromObject = <T extends object, K extends keyof T>(
   obj: T,
   keys: readonly K[],
-): Pick<T, K> {
+): Pick<T, K> => {
   const result = {} as Pick<T, K>
   for (const key of keys) {
     if (key in obj) {
