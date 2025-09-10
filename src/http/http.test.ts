@@ -1,25 +1,24 @@
 import { describe, expect, it } from "bun:test"
 
 import {
-    // Legacy aliases
-    addHttp,
-    addProtocol,
-    getBaseUrl,
-    getDomain,
-    getQueryParams,
-    getUrlHostname,
-    isExternalUrl,
-    isLocalhostUrl,
-    isValidUrl,
-    joinUrlPaths,
-    normalizeUrl,
-    removeHttp,
-    removeProtocol,
-    removeQueryParams,
-    removeTrailingSlash,
-    setQueryParams,
-    stripTrailingSlash,
-    stripURLSubpath
+  addHttp,
+  addProtocol,
+  getBaseUrl,
+  getDomain,
+  getQueryParams,
+  getUrlHostname,
+  isExternalUrl,
+  isLocalhostUrl,
+  isValidUrl,
+  joinUrlPaths,
+  normalizeUrl,
+  removeHttp,
+  removeProtocol,
+  removeQueryParams,
+  removeTrailingSlash,
+  setQueryParams,
+  stripTrailingSlash,
+  stripURLSubpath,
 } from "./http"
 
 describe("isValidUrl", () => {
@@ -27,6 +26,14 @@ describe("isValidUrl", () => {
     expect(isValidUrl("https://example.com")).toBe(true)
     expect(isValidUrl("http://localhost:3000")).toBe(true)
     expect(isValidUrl("https://www.example.com/path?query=value#hash")).toBe(true)
+  })
+
+  it("validates URLs with longer TLDs", () => {
+    expect(isValidUrl("https://example.storage")).toBe(true)
+    expect(isValidUrl("https://mysite.directory")).toBe(true)
+    expect(isValidUrl("http://www.example.storage")).toBe(true)
+    expect(isValidUrl("https://api.myapp.directory/path")).toBe(true)
+    expect(isValidUrl("https://subdomain.example.storage?param=value")).toBe(true)
   })
 
   it("rejects invalid URLs", () => {
@@ -111,41 +118,39 @@ describe("normalizeUrl", () => {
     expect(normalizeUrl()).toBe("")
     expect(normalizeUrl("")).toBe("")
   })
-})
 
-describe("stripTrailingSlash", () => {
   it("removes trailing slash from URL", () => {
     const url = "https://example.com/"
     const expected = "https://example.com"
-    expect(stripTrailingSlash(url)).toBe(expected)
+    expect(normalizeUrl(url)).toBe(expected)
   })
 
   it("removes trailing slash from URL with path", () => {
     const url = "https://example.com/path/"
     const expected = "https://example.com/path"
-    expect(stripTrailingSlash(url)).toBe(expected)
+    expect(normalizeUrl(url)).toBe(expected)
   })
 
   it("does not remove slash from root URL", () => {
     const url = "/"
     const expected = "/"
-    expect(stripTrailingSlash(url)).toBe(expected)
+    expect(normalizeUrl(url)).toBe(expected)
   })
 
   it("returns URL unchanged when no trailing slash", () => {
     const url = "https://example.com/path"
     const expected = "https://example.com/path"
-    expect(stripTrailingSlash(url)).toBe(expected)
+    expect(normalizeUrl(url)).toBe(expected)
   })
 
   it("returns empty string for undefined input", () => {
-    expect(stripTrailingSlash()).toBe("")
+    expect(normalizeUrl()).toBe("")
   })
 
   it("handles URLs with query parameters and trailing slash", () => {
     const url = "https://example.com/path/?param=value"
     const expected = "https://example.com/path?param=value"
-    expect(stripTrailingSlash(url)).toBe(expected)
+    expect(normalizeUrl(url)).toBe(expected)
   })
 })
 

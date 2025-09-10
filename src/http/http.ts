@@ -7,7 +7,7 @@
  * Supports both regular domains and localhost/IP addresses
  */
 const URL_REGEX =
-  /^https?:\/\/(?:www\.)?(?:[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b|localhost(?::\d+)?|127\.0\.0\.1(?::\d+)?)(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$/
+  /^https?:\/\/(?:www\.)?(?:[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,63}\b|localhost(?::\d+)?|127\.0\.0\.1(?::\d+)?)(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$/
 
 /**
  * Checks if a URL is valid using both regex and URL constructor validation
