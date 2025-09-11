@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test"
 
-import { isEmptyObject, pickFromObject, sortObject, sortObjectKeys } from "./objects"
+import { isEmptyObject, isKeyInObject, pickFromObject, sortObject, sortObjectKeys } from "./objects"
 
 describe("isEmptyObject", () => {
   it("returns true for an empty object", () => {
@@ -13,6 +13,98 @@ describe("isEmptyObject", () => {
 
   it("returns false for an object with properties", () => {
     expect(isEmptyObject({ a: 1 })).toBe(false)
+  })
+})
+
+describe("isKeyInObject", () => {
+  it("returns true when string key exists in object", () => {
+    const obj = { name: "John", age: 30 }
+    expect(isKeyInObject("name", obj)).toBe(true)
+    expect(isKeyInObject("age", obj)).toBe(true)
+  })
+
+  it("returns false when string key does not exist in object", () => {
+    const obj = { name: "John", age: 30 }
+    expect(isKeyInObject("email", obj)).toBe(false)
+    expect(isKeyInObject("phone", obj)).toBe(false)
+  })
+
+  it("returns true when number key exists in object", () => {
+    const obj = { 0: "first", 1: "second", 42: "answer" }
+    expect(isKeyInObject(0, obj)).toBe(true)
+    expect(isKeyInObject(1, obj)).toBe(true)
+    expect(isKeyInObject(42, obj)).toBe(true)
+  })
+
+  it("returns false when number key does not exist in object", () => {
+    const obj = { 0: "first", 1: "second" }
+    expect(isKeyInObject(2, obj)).toBe(false)
+    expect(isKeyInObject(99, obj)).toBe(false)
+  })
+
+  it("returns true when symbol key exists in object", () => {
+    const sym1 = Symbol("test1")
+    const sym2 = Symbol("test2")
+    const obj = { [sym1]: "value1", [sym2]: "value2", regular: "normal" }
+    expect(isKeyInObject(sym1, obj)).toBe(true)
+    expect(isKeyInObject(sym2, obj)).toBe(true)
+  })
+
+  it("returns false when symbol key does not exist in object", () => {
+    const sym1 = Symbol("test1")
+    const sym2 = Symbol("test2")
+    const obj = { [sym1]: "value1", regular: "normal" }
+    expect(isKeyInObject(sym2, obj)).toBe(false)
+  })
+
+  it("works with mixed property types", () => {
+    const sym = Symbol("mixed")
+    const obj = {
+      stringKey: "string",
+      42: "number",
+      [sym]: "symbol",
+      true: "boolean as key",
+    }
+    expect(isKeyInObject("stringKey", obj)).toBe(true)
+    expect(isKeyInObject(42, obj)).toBe(true)
+    expect(isKeyInObject(sym, obj)).toBe(true)
+    expect(isKeyInObject("true", obj)).toBe(true)
+    expect(isKeyInObject("missing", obj)).toBe(false)
+  })
+
+  it("returns true for inherited properties", () => {
+    const parent = { inherited: "value" }
+    const child = Object.create(parent)
+    child.own = "own property"
+    expect(isKeyInObject("own", child)).toBe(true)
+    expect(isKeyInObject("inherited", child)).toBe(true)
+  })
+
+  it("handles empty objects", () => {
+    const obj = {}
+    expect(isKeyInObject("anyKey", obj)).toBe(false)
+    expect(isKeyInObject(0, obj)).toBe(false)
+    expect(isKeyInObject(Symbol("any"), obj)).toBe(false)
+  })
+
+  it("handles objects with undefined values", () => {
+    const obj = { undefinedValue: undefined, nullValue: null, defined: "value" }
+    expect(isKeyInObject("undefinedValue", obj)).toBe(true)
+    expect(isKeyInObject("nullValue", obj)).toBe(true)
+    expect(isKeyInObject("defined", obj)).toBe(true)
+    expect(isKeyInObject("missing", obj)).toBe(false)
+  })
+
+  it("provides proper type narrowing", () => {
+    const obj = { name: "John", age: 30 }
+    const key: string = "name"
+
+    if (isKeyInObject(key, obj)) {
+      // TypeScript should know that obj[key] is valid here
+      expect(obj[key]).toBe("John")
+    } else {
+      throw new Error("This should not happen")
+    }
   })
 })
 

@@ -12,6 +12,16 @@ export const isEmptyObject = (obj: Record<string, unknown> = {}) => {
 }
 
 /**
+ * Checks if a key is present in an object.
+ * @param key - The key to check.
+ * @param obj - The object to check.
+ * @returns `true` if the key is present in the object, `false` otherwise.
+ */
+export const isKeyInObject = <T extends object>(key: PropertyKey, obj: T): key is keyof T => {
+  return key in obj
+}
+
+/**
  * Sorts two objects based on their keys' positions in an array of keys.
  * @param keys - An array of keys to sort the objects by.
  * @param a - The first object to compare.
