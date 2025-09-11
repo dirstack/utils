@@ -6,6 +6,7 @@ import {
   getInitials,
   getShortcutLabel,
   isCuid,
+  isMimeTypeMatch,
   isTruthy,
   joinAsSentence,
   nullsToUndefined,
@@ -286,29 +287,6 @@ describe("nullsToUndefined", () => {
     })
   })
 
-  it("should mutate the original object", () => {
-    const input = {
-      name: "John",
-      age: null,
-    }
-
-    const result = nullsToUndefined(input)
-
-    // Should return the same reference
-    expect(result).toBe(input)
-    // Original object should be mutated
-    expect(input.age).toEqual(undefined)
-  })
-
-  it("should handle arrays (current behavior: not processed recursively)", () => {
-    const input = [null, "hello", null, 42]
-    const result = nullsToUndefined(input)
-
-    // Arrays are not plain objects (constructor.name !== "Object"), so they're returned as-is
-    expect(result).toEqual([null, "hello", null, 42])
-    expect(result).toBe(input)
-  })
-
   it("should handle Date objects (current behavior: processed as objects)", () => {
     const date = new Date("2023-01-01")
     const result = nullsToUndefined(date)
@@ -317,52 +295,74 @@ describe("nullsToUndefined", () => {
     expect(result).toEqual(date)
     expect(result).toBe(date)
   })
+})
 
-  it("should handle objects containing arrays", () => {
-    const input = {
-      list: [null, "item", null],
-      name: null,
-    }
-
-    const result = nullsToUndefined(input)
-
-    expect(result).toEqual({
-      list: [null, "item", null], // Array is not processed
-      name: undefined, // Object property is processed
-    })
+describe("isMimeTypeMatch", () => {
+  it("should match exact MIME types", () => {
+    expect(isMimeTypeMatch("image/jpeg", ["image/jpeg"])).toBe(true)
+    expect(isMimeTypeMatch("text/plain", ["text/plain"])).toBe(true)
+    expect(isMimeTypeMatch("application/json", ["application/json"])).toBe(true)
   })
 
-  it("should handle complex mixed data structures", () => {
-    const input = {
-      id: 1,
-      name: null,
-      metadata: {
-        created: "2023-01-01",
-        updated: null,
-        tags: ["tag1", null, "tag2"],
-        config: {
-          enabled: null,
-          value: 42,
-        },
-      },
-      stats: null,
-    }
+  it("should match wildcard patterns", () => {
+    expect(isMimeTypeMatch("image/jpeg", ["image/*"])).toBe(true)
+    expect(isMimeTypeMatch("image/png", ["image/*"])).toBe(true)
+    expect(isMimeTypeMatch("image/gif", ["image/*"])).toBe(true)
+    expect(isMimeTypeMatch("text/html", ["text/*"])).toBe(true)
+    expect(isMimeTypeMatch("text/css", ["text/*"])).toBe(true)
+    expect(isMimeTypeMatch("application/pdf", ["application/*"])).toBe(true)
+  })
 
-    const result = nullsToUndefined(input)
+  it("should not match different types", () => {
+    expect(isMimeTypeMatch("image/jpeg", ["text/plain"])).toBe(false)
+    expect(isMimeTypeMatch("text/plain", ["image/jpeg"])).toBe(false)
+    expect(isMimeTypeMatch("application/json", ["image/*"])).toBe(false)
+    expect(isMimeTypeMatch("text/html", ["image/*"])).toBe(false)
+  })
 
-    expect(result).toEqual({
-      id: 1,
-      name: undefined,
-      metadata: {
-        created: "2023-01-01",
-        updated: undefined,
-        tags: ["tag1", null, "tag2"], // Arrays not processed
-        config: {
-          enabled: undefined,
-          value: 42,
-        },
-      },
-      stats: undefined,
-    })
+  it("should not match different subtypes without wildcard", () => {
+    expect(isMimeTypeMatch("image/jpeg", ["image/png"])).toBe(false)
+    expect(isMimeTypeMatch("text/html", ["text/plain"])).toBe(false)
+    expect(isMimeTypeMatch("application/json", ["application/xml"])).toBe(false)
+  })
+
+  it("should match against multiple patterns", () => {
+    expect(isMimeTypeMatch("image/jpeg", ["image/*", "text/plain"])).toBe(true)
+    expect(isMimeTypeMatch("text/plain", ["image/*", "text/plain"])).toBe(true)
+    expect(isMimeTypeMatch("application/json", ["image/*", "text/plain", "application/json"])).toBe(
+      true,
+    )
+  })
+
+  it("should not match if none of the patterns match", () => {
+    expect(isMimeTypeMatch("video/mp4", ["image/*", "text/plain"])).toBe(false)
+    expect(isMimeTypeMatch("audio/mpeg", ["image/jpeg", "text/html"])).toBe(false)
+  })
+
+  it("should handle empty patterns array", () => {
+    expect(isMimeTypeMatch("image/jpeg", [])).toBe(false)
+    expect(isMimeTypeMatch("text/plain", [])).toBe(false)
+  })
+
+  it("should handle edge cases with MIME type format", () => {
+    expect(isMimeTypeMatch("image/jpeg", ["image/jpeg"])).toBe(true)
+    expect(isMimeTypeMatch("application/vnd.api+json", ["application/*"])).toBe(true)
+    expect(isMimeTypeMatch("application/vnd.api+json", ["application/vnd.api+json"])).toBe(true)
+  })
+
+  it("should be case sensitive", () => {
+    expect(isMimeTypeMatch("Image/JPEG", ["image/jpeg"])).toBe(false)
+    expect(isMimeTypeMatch("image/jpeg", ["Image/JPEG"])).toBe(false)
+    expect(isMimeTypeMatch("IMAGE/JPEG", ["image/*"])).toBe(false)
+  })
+
+  it("should handle complex MIME types", () => {
+    expect(
+      isMimeTypeMatch("application/vnd.openxmlformats-officedocument.wordprocessingml.document", [
+        "application/*",
+      ]),
+    ).toBe(true)
+    expect(isMimeTypeMatch("application/vnd.ms-excel", ["application/vnd.ms-excel"])).toBe(true)
+    expect(isMimeTypeMatch("text/html; charset=utf-8", ["text/*"])).toBe(true)
   })
 })

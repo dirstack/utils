@@ -253,3 +253,35 @@ export const nullsToUndefined = <T>(obj: T): ReplaceNullWithUndefined<T> => {
 
   return obj as any
 }
+
+/**
+ * Checks if a MIME type matches any of the provided patterns.
+ * Supports wildcard matching for subtypes (e.g., "image/*").
+ *
+ * @param mimeType - The MIME type to check (e.g., "image/jpeg", "text/plain")
+ * @param patterns - Array of MIME type patterns to match against (e.g., ["image/*", "text/plain"])
+ * @returns True if the MIME type matches any of the patterns, false otherwise
+ *
+ * @example
+ * ```typescript
+ * isMimeTypeMatch("image/jpeg", ["image/*"]) // returns true
+ * isMimeTypeMatch("text/plain", ["image/*", "text/plain"]) // returns true
+ * isMimeTypeMatch("application/json", ["image/*"]) // returns false
+ * ```
+ */
+export const isMimeTypeMatch = (mimeType: string, patterns: string[]) => {
+  return patterns.some(pattern => {
+    // Split type/subtype for both mimeType and pattern
+    const [type, subtype] = mimeType.split("/")
+    const [pType, pSubtype] = pattern.split("/")
+
+    // Type must match
+    if (type !== pType) return false
+
+    // Wildcard matches any subtype
+    if (pSubtype === "*") return true
+
+    // Exact subtype match
+    return subtype === pSubtype
+  })
+}
