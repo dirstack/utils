@@ -60,14 +60,17 @@ export const formatToDecimals = (number: number, precision = 0): string => {
  * @returns The formatted size as a string.
  */
 export const formatBytes = (bytes: number, precision = 0): string => {
-  if (bytes === 0) {
-    return "0 Bytes"
+  const k = 1024
+
+  if (bytes < k) {
+    const factor = 10 ** precision
+    const size = Math.floor((bytes / k) * factor) / factor
+    return `${size} KB`
   }
 
-  const k = 1024
   const i = Math.floor(Math.log(bytes) / Math.log(k))
   const size = formatToDecimals(bytes / k ** i, precision)
-  const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
+  const sizes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
 
   return `${size} ${sizes[i]}`
 }

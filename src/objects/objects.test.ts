@@ -184,7 +184,7 @@ describe("pickFromObject", () => {
     const user = { id: 1, name: "John" }
     const result = pickFromObject(user, ["id", "age" as keyof typeof user])
 
-    expect(result).toEqual({ id: 1 })
+    expect(result).toEqual({ id: 1 } as any)
   })
 
   it("picks properties with different data types", () => {
