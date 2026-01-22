@@ -1,24 +1,19 @@
-import { describe, expect, it } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from "bun:test"
 
 import {
-  addHttp,
   addProtocol,
+  checkUrlAvailability,
   getBaseUrl,
   getDomain,
   getQueryParams,
-  getUrlHostname,
   isExternalUrl,
   isLocalhostUrl,
   isValidUrl,
   joinUrlPaths,
   normalizeUrl,
-  removeHttp,
   removeProtocol,
   removeQueryParams,
-  removeTrailingSlash,
   setQueryParams,
-  stripTrailingSlash,
-  stripURLSubpath,
 } from "./http"
 
 describe("isValidUrl", () => {
@@ -309,29 +304,118 @@ describe("setQueryParams", () => {
   })
 })
 
-// Legacy alias tests
-describe("Legacy aliases", () => {
-  it("addHttp works as addProtocol", () => {
-    expect(addHttp("example.com")).toBe("https://example.com")
+describe("checkUrlAvailability", () => {
+  const originalFetch = globalThis.fetch
+
+  afterEach(() => {
+    globalThis.fetch = originalFetch
   })
 
-  it("removeHttp works as removeProtocol", () => {
-    expect(removeHttp("https://example.com")).toBe("example.com")
+  it("returns false for empty URL", async () => {
+    expect(await checkUrlAvailability("")).toBe(false)
   })
 
-  it("removeTrailingSlash works as normalizeUrl", () => {
-    expect(removeTrailingSlash("https://example.com/")).toBe("https://example.com")
+  it("returns true when HEAD request succeeds with status < 400", async () => {
+    globalThis.fetch = mock(() =>
+      Promise.resolve(new Response(null, { status: 200 })),
+    ) as unknown as typeof fetch
+
+    const result = await checkUrlAvailability("https://example.com")
+    expect(result).toBe(true)
   })
 
-  it("stripTrailingSlash works as normalizeUrl", () => {
-    expect(stripTrailingSlash("https://example.com/")).toBe("https://example.com")
+  it("returns true for redirect statuses (3xx)", async () => {
+    globalThis.fetch = mock(() =>
+      Promise.resolve(new Response(null, { status: 301 })),
+    ) as unknown as typeof fetch
+
+    const result = await checkUrlAvailability("https://example.com")
+    expect(result).toBe(true)
   })
 
-  it("stripURLSubpath works as getBaseUrl", () => {
-    expect(stripURLSubpath("https://example.com/path")).toBe("https://example.com")
+  it("returns false for client error statuses (4xx)", async () => {
+    globalThis.fetch = mock(() =>
+      Promise.resolve(new Response(null, { status: 404 })),
+    ) as unknown as typeof fetch
+
+    const result = await checkUrlAvailability("https://example.com")
+    expect(result).toBe(false)
   })
 
-  it("getUrlHostname works as getDomain", () => {
-    expect(getUrlHostname("https://www.example.com")).toBe("example.com")
+  it("returns false for server error statuses (5xx)", async () => {
+    globalThis.fetch = mock(() =>
+      Promise.resolve(new Response(null, { status: 500 })),
+    ) as unknown as typeof fetch
+
+    const result = await checkUrlAvailability("https://example.com")
+    expect(result).toBe(false)
+  })
+
+  it("falls back to GET when HEAD fails", async () => {
+    let callCount = 0
+    globalThis.fetch = mock((url: string, options?: RequestInit) => {
+      callCount++
+      if (options?.method === "HEAD") {
+        return Promise.reject(new Error("HEAD not supported"))
+      }
+      return Promise.resolve(new Response(null, { status: 200 }))
+    }) as unknown as typeof fetch
+
+    const result = await checkUrlAvailability("https://example.com")
+    expect(result).toBe(true)
+    expect(callCount).toBe(2)
+  })
+
+  it("returns false when both HEAD and GET fail", async () => {
+    globalThis.fetch = mock(() =>
+      Promise.reject(new Error("Network error")),
+    ) as unknown as typeof fetch
+
+    const result = await checkUrlAvailability("https://example.com")
+    expect(result).toBe(false)
+  })
+
+  it("uses custom timeout option", async () => {
+    let receivedSignal: AbortSignal | null | undefined
+    globalThis.fetch = mock((url: string, options?: RequestInit) => {
+      receivedSignal = options?.signal
+      return Promise.resolve(new Response(null, { status: 200 }))
+    }) as unknown as typeof fetch
+
+    await checkUrlAvailability("https://example.com", { timeout: 10000 })
+    expect(receivedSignal).toBeDefined()
+  })
+
+  it("uses custom userAgent option", async () => {
+    let receivedHeaders: HeadersInit | undefined
+    globalThis.fetch = mock((url: string, options?: RequestInit) => {
+      receivedHeaders = options?.headers
+      return Promise.resolve(new Response(null, { status: 200 }))
+    }) as unknown as typeof fetch
+
+    await checkUrlAvailability("https://example.com", { userAgent: "CustomBot/1.0" })
+    expect(receivedHeaders).toEqual({ "User-Agent": "CustomBot/1.0" })
+  })
+
+  it("uses default userAgent when not specified", async () => {
+    let receivedHeaders: HeadersInit | undefined
+    globalThis.fetch = mock((url: string, options?: RequestInit) => {
+      receivedHeaders = options?.headers
+      return Promise.resolve(new Response(null, { status: 200 }))
+    }) as unknown as typeof fetch
+
+    await checkUrlAvailability("https://example.com")
+    expect(receivedHeaders).toEqual({ "User-Agent": "Mozilla/5.0 (compatible; URLChecker/1.0)" })
+  })
+
+  it("normalizes URL before checking", async () => {
+    let receivedUrl: string | undefined
+    globalThis.fetch = mock((url: string) => {
+      receivedUrl = url
+      return Promise.resolve(new Response(null, { status: 200 }))
+    }) as unknown as typeof fetch
+
+    await checkUrlAvailability("https://example.com/path/")
+    expect(receivedUrl).toBe("https://example.com/path")
   })
 })

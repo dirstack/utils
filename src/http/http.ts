@@ -239,30 +239,68 @@ export const removeQueryParams = (url?: string): string => {
   }
 }
 
-// Legacy aliases for backward compatibility (deprecated)
-/** @deprecated Use addProtocol instead */
-export const addHttp = addProtocol
+/** Options for checkUrlAvailability */
+export type CheckUrlAvailabilityOptions = {
+  /** Request timeout in milliseconds */
+  timeout?: number
+  /** User-Agent header to send with requests */
+  userAgent?: string
+}
 
-/** @deprecated Use removeProtocol instead */
-export const removeHttp = removeProtocol
+/**
+ * Checks if a URL is accessible by making an HTTP request.
+ * First tries a HEAD request, then falls back to GET if HEAD fails.
+ * @param url - The URL to check
+ * @param options - Configuration options for the request
+ * @returns True if the URL is accessible (status < 400), false otherwise
+ */
+export const checkUrlAvailability = async (
+  url: string,
+  options: CheckUrlAvailabilityOptions = {},
+): Promise<boolean> => {
+  if (!url) {
+    return false
+  }
 
-/** @deprecated Use normalizeUrl instead */
-export const removeTrailingSlash = normalizeUrl
+  const { timeout = 5000, userAgent = "Mozilla/5.0 (compatible; URLChecker/1.0)" } = options
 
-/** @deprecated Use normalizeUrl instead */
-export const stripTrailingSlash = normalizeUrl
+  try {
+    const normalizedUrl = normalizeUrl(url)
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), timeout)
 
-/** @deprecated Use getBaseUrl instead */
-export const stripURLSubpath = getBaseUrl
+    try {
+      const headResponse = await fetch(normalizedUrl, {
+        method: "HEAD",
+        signal: controller.signal,
+        redirect: "follow",
+        headers: { "User-Agent": userAgent },
+      })
 
-/** @deprecated Use getDomain instead */
-export const getUrlHostname = getDomain
+      clearTimeout(timeoutId)
+      return headResponse.status < 400
+    } catch {
+      clearTimeout(timeoutId)
 
-/** @deprecated Use removeQueryParams instead */
-export const removeSearchParams = removeQueryParams
+      const getController = new AbortController()
+      const getTimeoutId = setTimeout(() => getController.abort(), timeout)
 
-/** @deprecated Use getQueryParams instead */
-export const getSearchParams = getQueryParams
+      try {
+        const getResponse = await fetch(normalizedUrl, {
+          method: "GET",
+          signal: getController.signal,
+          redirect: "follow",
+          headers: { "User-Agent": userAgent },
+        })
 
-/** @deprecated Use setQueryParams instead */
-export const addSearchParams = setQueryParams
+        clearTimeout(getTimeoutId)
+        return getResponse.status < 400
+      } catch {
+        clearTimeout(getTimeoutId)
+        return false
+      }
+    }
+  } catch {
+    return false
+  }
+}
