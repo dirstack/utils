@@ -42,7 +42,7 @@ export const parseNumericValue = (value?: string | number | null) => {
  * @returns The rounded number.
  */
 export const preciseRound = (value: number, decimals = 2) => {
-  const factor = Math.pow(10, decimals)
+  const factor = 10 ** decimals
 
   return Math.round((value + Number.EPSILON) * factor) / factor
 }

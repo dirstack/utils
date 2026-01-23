@@ -241,8 +241,10 @@ export const removeQueryParams = (url?: string): string => {
 
 /** Options for checkUrlAvailability */
 export type CheckUrlAvailabilityOptions = {
-  /** Request timeout in milliseconds */
+  /** Request timeout in milliseconds (default: 5000) */
   timeout?: number
+  /** HTTP status codes below this value are considered successful (default: 400) */
+  successStatusBelow?: number
   /** User-Agent header to send with requests */
   userAgent?: string
 }
@@ -262,45 +264,39 @@ export const checkUrlAvailability = async (
     return false
   }
 
-  const { timeout = 5000, userAgent = "Mozilla/5.0 (compatible; URLChecker/1.0)" } = options
+  const {
+    timeout = 5000,
+    successStatusBelow = 400,
+    userAgent = "Mozilla/5.0 (compatible; URLChecker/1.0)",
+  } = options
 
-  try {
-    const normalizedUrl = normalizeUrl(url)
+  const normalizedUrl = normalizeUrl(url)
+
+  const makeRequest = async (method: "HEAD" | "GET"): Promise<Response | null> => {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), timeout)
 
     try {
-      const headResponse = await fetch(normalizedUrl, {
-        method: "HEAD",
+      const response = await fetch(normalizedUrl, {
+        method,
         signal: controller.signal,
         redirect: "follow",
         headers: { "User-Agent": userAgent },
       })
-
       clearTimeout(timeoutId)
-      return headResponse.status < 400
+      return response
     } catch {
       clearTimeout(timeoutId)
-
-      const getController = new AbortController()
-      const getTimeoutId = setTimeout(() => getController.abort(), timeout)
-
-      try {
-        const getResponse = await fetch(normalizedUrl, {
-          method: "GET",
-          signal: getController.signal,
-          redirect: "follow",
-          headers: { "User-Agent": userAgent },
-        })
-
-        clearTimeout(getTimeoutId)
-        return getResponse.status < 400
-      } catch {
-        clearTimeout(getTimeoutId)
-        return false
-      }
+      return null
     }
-  } catch {
-    return false
   }
+
+  const headResponse = await makeRequest("HEAD")
+
+  if (headResponse && headResponse.status < successStatusBelow) {
+    return true
+  }
+
+  const getResponse = await makeRequest("GET")
+  return getResponse !== null && getResponse.status < successStatusBelow
 }

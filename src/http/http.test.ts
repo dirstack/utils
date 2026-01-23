@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from "bun:test"
+import { afterEach, describe, expect, it, mock } from "bun:test"
 
 import {
   addProtocol,
@@ -351,12 +351,27 @@ describe("checkUrlAvailability", () => {
     expect(result).toBe(false)
   })
 
-  it("falls back to GET when HEAD fails", async () => {
+  it("falls back to GET when HEAD throws error", async () => {
     let callCount = 0
-    globalThis.fetch = mock((url: string, options?: RequestInit) => {
+    globalThis.fetch = mock((_url: string, options?: RequestInit) => {
       callCount++
       if (options?.method === "HEAD") {
         return Promise.reject(new Error("HEAD not supported"))
+      }
+      return Promise.resolve(new Response(null, { status: 200 }))
+    }) as unknown as typeof fetch
+
+    const result = await checkUrlAvailability("https://example.com")
+    expect(result).toBe(true)
+    expect(callCount).toBe(2)
+  })
+
+  it("falls back to GET when HEAD returns error status", async () => {
+    let callCount = 0
+    globalThis.fetch = mock((_url: string, options?: RequestInit) => {
+      callCount++
+      if (options?.method === "HEAD") {
+        return Promise.resolve(new Response(null, { status: 404 }))
       }
       return Promise.resolve(new Response(null, { status: 200 }))
     }) as unknown as typeof fetch
@@ -375,9 +390,21 @@ describe("checkUrlAvailability", () => {
     expect(result).toBe(false)
   })
 
+  it("returns false when HEAD returns error and GET also returns error status", async () => {
+    globalThis.fetch = mock((_url: string, options?: RequestInit) => {
+      if (options?.method === "HEAD") {
+        return Promise.resolve(new Response(null, { status: 404 }))
+      }
+      return Promise.resolve(new Response(null, { status: 500 }))
+    }) as unknown as typeof fetch
+
+    const result = await checkUrlAvailability("https://example.com")
+    expect(result).toBe(false)
+  })
+
   it("uses custom timeout option", async () => {
     let receivedSignal: AbortSignal | null | undefined
-    globalThis.fetch = mock((url: string, options?: RequestInit) => {
+    globalThis.fetch = mock((_url: string, options?: RequestInit) => {
       receivedSignal = options?.signal
       return Promise.resolve(new Response(null, { status: 200 }))
     }) as unknown as typeof fetch
@@ -388,7 +415,7 @@ describe("checkUrlAvailability", () => {
 
   it("uses custom userAgent option", async () => {
     let receivedHeaders: HeadersInit | undefined
-    globalThis.fetch = mock((url: string, options?: RequestInit) => {
+    globalThis.fetch = mock((_url: string, options?: RequestInit) => {
       receivedHeaders = options?.headers
       return Promise.resolve(new Response(null, { status: 200 }))
     }) as unknown as typeof fetch
@@ -399,7 +426,7 @@ describe("checkUrlAvailability", () => {
 
   it("uses default userAgent when not specified", async () => {
     let receivedHeaders: HeadersInit | undefined
-    globalThis.fetch = mock((url: string, options?: RequestInit) => {
+    globalThis.fetch = mock((_url: string, options?: RequestInit) => {
       receivedHeaders = options?.headers
       return Promise.resolve(new Response(null, { status: 200 }))
     }) as unknown as typeof fetch
@@ -417,5 +444,33 @@ describe("checkUrlAvailability", () => {
 
     await checkUrlAvailability("https://example.com/path/")
     expect(receivedUrl).toBe("https://example.com/path")
+  })
+
+  it("uses custom successStatusBelow to accept only 2xx responses", async () => {
+    globalThis.fetch = mock(() =>
+      Promise.resolve(new Response(null, { status: 301 })),
+    ) as unknown as typeof fetch
+
+    const defaultResult = await checkUrlAvailability("https://example.com")
+    expect(defaultResult).toBe(true)
+
+    const strictResult = await checkUrlAvailability("https://example.com", {
+      successStatusBelow: 300,
+    })
+    expect(strictResult).toBe(false)
+  })
+
+  it("uses custom successStatusBelow to accept 4xx responses", async () => {
+    globalThis.fetch = mock(() =>
+      Promise.resolve(new Response(null, { status: 404 })),
+    ) as unknown as typeof fetch
+
+    const defaultResult = await checkUrlAvailability("https://example.com")
+    expect(defaultResult).toBe(false)
+
+    const lenientResult = await checkUrlAvailability("https://example.com", {
+      successStatusBelow: 500,
+    })
+    expect(lenientResult).toBe(true)
   })
 })
