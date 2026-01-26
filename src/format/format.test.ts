@@ -52,6 +52,81 @@ describe("formatCurrency", () => {
     expect(formatCurrency(1000, "EUR")).toBe("€1,000")
     expect(formatCurrency(1000.5, "EUR")).toBe("€1,000.50")
   })
+
+  describe("custom locales", () => {
+    // Non-breaking space character used by Intl.NumberFormat
+    const NBSP = "\u00A0"
+    // Narrow no-break space used by French locale
+    const NNBSP = "\u202F"
+
+    it("formats currency with German locale (de-DE)", () => {
+      expect(formatCurrency(1000, "EUR", "de-DE")).toBe(`1.000${NBSP}€`)
+      expect(formatCurrency(1000.5, "EUR", "de-DE")).toBe(`1.000,50${NBSP}€`)
+      expect(formatCurrency(1234.56, "USD", "de-DE")).toBe(`1.234,56${NBSP}$`)
+    })
+
+    it("formats currency with French locale (fr-FR)", () => {
+      expect(formatCurrency(1000, "EUR", "fr-FR")).toBe(`1${NNBSP}000${NBSP}€`)
+      expect(formatCurrency(1000.5, "EUR", "fr-FR")).toBe(`1${NNBSP}000,50${NBSP}€`)
+      expect(formatCurrency(1234.56, "USD", "fr-FR")).toBe(`1${NNBSP}234,56${NBSP}$US`)
+    })
+
+    it("formats currency with British locale (en-GB)", () => {
+      expect(formatCurrency(1000, "GBP", "en-GB")).toBe("£1,000")
+      expect(formatCurrency(1000.5, "GBP", "en-GB")).toBe("£1,000.50")
+      expect(formatCurrency(1234.56, "USD", "en-GB")).toBe("US$1,234.56")
+    })
+
+    it("formats currency with Spanish locale (es-ES)", () => {
+      expect(formatCurrency(1000, "EUR", "es-ES")).toBe(`1000${NBSP}€`)
+      expect(formatCurrency(1000.5, "EUR", "es-ES")).toBe(`1000,50${NBSP}€`)
+      expect(formatCurrency(1234.56, "USD", "es-ES")).toBe(`1234,56${NBSP}US$`)
+    })
+
+    it("formats currency with Canadian locale (en-CA)", () => {
+      expect(formatCurrency(1000, "CAD", "en-CA")).toBe("$1,000")
+      expect(formatCurrency(1000.5, "CAD", "en-CA")).toBe("$1,000.50")
+      expect(formatCurrency(1234.56, "USD", "en-CA")).toBe("US$1,234.56")
+    })
+
+    it("formats currency with Australian locale (en-AU)", () => {
+      expect(formatCurrency(1000, "AUD", "en-AU")).toBe("$1,000")
+      expect(formatCurrency(1000.5, "AUD", "en-AU")).toBe("$1,000.50")
+      expect(formatCurrency(1234.56, "USD", "en-AU")).toBe(`USD${NBSP}1,234.56`)
+    })
+
+    it("formats currency with Chinese locale (zh-CN)", () => {
+      expect(formatCurrency(1000, "CNY", "zh-CN")).toBe("¥1,000")
+      expect(formatCurrency(1000.5, "CNY", "zh-CN")).toBe("¥1,000.50")
+      expect(formatCurrency(1234.56, "USD", "zh-CN")).toBe("US$1,234.56")
+    })
+
+    it("formats currency with Swiss locale (de-CH)", () => {
+      // Swiss locale uses U+2019 (right single quotation mark) as thousands separator
+      const swissSeparator = "\u2019"
+      expect(formatCurrency(1000, "CHF", "de-CH")).toBe(`CHF${NBSP}1${swissSeparator}000`)
+      expect(formatCurrency(1000.5, "CHF", "de-CH")).toBe(`CHF${NBSP}1${swissSeparator}000.50`)
+      expect(formatCurrency(1234.56, "EUR", "de-CH")).toBe(`EUR${NBSP}1${swissSeparator}234.56`)
+    })
+
+    it("handles zero amounts with different locales", () => {
+      expect(formatCurrency(0, "USD", "en-US")).toBe("$0")
+      expect(formatCurrency(0, "EUR", "de-DE")).toBe(`0${NBSP}€`)
+      expect(formatCurrency(0, "GBP", "en-GB")).toBe("£0")
+    })
+
+    it("handles negative amounts with different locales", () => {
+      expect(formatCurrency(-1000, "USD", "en-US")).toBe("-$1,000")
+      expect(formatCurrency(-1000, "EUR", "de-DE")).toBe(`-1.000${NBSP}€`)
+      expect(formatCurrency(-1000.5, "EUR", "fr-FR")).toBe(`-1${NNBSP}000,50${NBSP}€`)
+    })
+
+    it("handles large amounts with different locales", () => {
+      expect(formatCurrency(1000000, "USD", "en-US")).toBe("$1,000,000")
+      expect(formatCurrency(1000000, "EUR", "de-DE")).toBe(`1.000.000${NBSP}€`)
+      expect(formatCurrency(1000000, "EUR", "fr-FR")).toBe(`1${NNBSP}000${NNBSP}000${NBSP}€`)
+    })
+  })
 })
 
 describe("formatIntervalAmount", () => {

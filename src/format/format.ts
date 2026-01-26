@@ -22,10 +22,11 @@ export const formatNumber = (number: number, notation: Notation = "compact", loc
  * Formats a given amount of money into a currency string.
  * @param amount The amount of money to format.
  * @param currency The currency to format the amount in. Defaults to 'USD'.
+ * @param locale - The locale to use for formatting. Defaults to 'en-US'.
  * @returns The formatted currency string.
  */
-export const formatCurrency = (amount: number, currency: Currency = "USD") => {
-  const formatter = new Intl.NumberFormat("en-US", {
+export const formatCurrency = (amount: number, currency: Currency = "USD", locale = "en-US") => {
+  const formatter = new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
   })
