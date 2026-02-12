@@ -300,3 +300,14 @@ export const checkUrlAvailability = async (
   const getResponse = await makeRequest("GET")
   return getResponse !== null && getResponse.status < successStatusBelow
 }
+
+/**
+ * Checks if a string is a valid image source (relative path or absolute URL)
+ * @param src - The image source string to validate
+ * @returns True if the source is a valid relative path or absolute URL
+ */
+export const isValidImageSrc = (src?: string | null): src is string => {
+  if (!src) return false
+  if (/^\/\w/.test(src)) return true
+  try { return !!new URL(src) } catch { return false }
+}

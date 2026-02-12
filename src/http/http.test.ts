@@ -8,6 +8,7 @@ import {
   getQueryParams,
   isExternalUrl,
   isLocalhostUrl,
+  isValidImageSrc,
   isValidUrl,
   joinUrlPaths,
   normalizeUrl,
@@ -472,5 +473,35 @@ describe("checkUrlAvailability", () => {
       successStatusBelow: 500,
     })
     expect(lenientResult).toBe(true)
+  })
+})
+
+describe("isValidImageSrc", () => {
+  it("validates absolute URLs", () => {
+    expect(isValidImageSrc("https://example.com/image.png")).toBe(true)
+    expect(isValidImageSrc("http://localhost/img.jpg")).toBe(true)
+    expect(isValidImageSrc("https://cdn.example.com/photos/pic.webp")).toBe(true)
+  })
+
+  it("validates relative paths", () => {
+    expect(isValidImageSrc("/images/photo.png")).toBe(true)
+    expect(isValidImageSrc("/img.jpg")).toBe(true)
+    expect(isValidImageSrc("/assets/icons/logo.svg")).toBe(true)
+  })
+
+  it("validates data URIs", () => {
+    expect(isValidImageSrc("data:image/png;base64,iVBOR")).toBe(true)
+  })
+
+  it("rejects falsy and invalid inputs", () => {
+    expect(isValidImageSrc(null)).toBe(false)
+    expect(isValidImageSrc(undefined)).toBe(false)
+    expect(isValidImageSrc("")).toBe(false)
+    expect(isValidImageSrc("not-a-url")).toBe(false)
+  })
+
+  it("handles edge cases", () => {
+    expect(isValidImageSrc("/")).toBe(false)
+    expect(isValidImageSrc("/ space")).toBe(false)
   })
 })
