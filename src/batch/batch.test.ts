@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it } from "bun:test"
-
 import { processBatch, processBatchWithErrorHandling } from "./batch"
 
 describe("processBatch", () => {

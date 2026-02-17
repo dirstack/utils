@@ -1,5 +1,4 @@
 import { describe, expect, it } from "bun:test"
-
 import { getErrorMessage, isErrorWithMessage, toErrorWithMessage } from "./errors"
 
 describe("isErrorWithMessage", () => {

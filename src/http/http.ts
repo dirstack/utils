@@ -309,5 +309,9 @@ export const checkUrlAvailability = async (
 export const isValidImageSrc = (src?: string | null): src is string => {
   if (!src) return false
   if (/^\/\w/.test(src)) return true
-  try { return !!new URL(src) } catch { return false }
+  try {
+    return !!new URL(src)
+  } catch {
+    return false
+  }
 }

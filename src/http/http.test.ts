@@ -1,5 +1,4 @@
 import { afterEach, describe, expect, it, mock } from "bun:test"
-
 import {
   addProtocol,
   checkUrlAvailability,

@@ -1,5 +1,4 @@
 import { describe, expect, it } from "bun:test"
-
 import { getCurrentPage, getPageLink } from "./pagination"
 
 describe("getCurrentPage", () => {

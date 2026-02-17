@@ -1,5 +1,4 @@
 import { describe, expect, it } from "bun:test"
-
 import { keepNumberInRange, parseNumericValue, preciseRound } from "./numbers"
 
 describe("keepNumberInRange", () => {

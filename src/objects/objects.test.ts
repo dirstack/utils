@@ -1,5 +1,4 @@
 import { describe, expect, it } from "bun:test"
-
 import { isEmptyObject, isKeyInObject, pickFromObject, sortObject, sortObjectKeys } from "./objects"
 
 describe("isEmptyObject", () => {

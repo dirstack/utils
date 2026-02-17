@@ -1,5 +1,4 @@
 import { describe, expect, it } from "bun:test"
-
 import { isLightColor } from "./colors"
 
 describe("isLightColor", () => {

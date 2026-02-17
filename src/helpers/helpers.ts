@@ -182,7 +182,9 @@ export const setInputValue = (
   nativeInputValueSetter?.call(input, value)
 
   // Trigger a change event if the value was changed
-  triggerChange && input?.dispatchEvent(new Event("input", { bubbles: true }))
+  if (triggerChange) {
+    input?.dispatchEvent(new Event("input", { bubbles: true }))
+  }
 }
 
 /**
