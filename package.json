@@ -1,5 +1,5 @@
 {
-  "name": "@primoui/utils",
+  "name": "@dirstack/utils",
   "version": "1.4.3",
   "description": "A lightweight set of utilities",
   "license": "MIT",
@@ -8,7 +8,7 @@
     "email": "piotr@kulpinski.pl",
     "url": "https://kulpinski.pl"
   },
-  "repository": "git+https://github.com/primoui/utils.git",
+  "repository": "git+https://github.com/dirstack/utils.git",
   "files": [
     "dist"
   ],
@@ -42,5 +42,8 @@
   },
   "peerDependencies": {
     "@sindresorhus/slugify": "^2.2.1"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

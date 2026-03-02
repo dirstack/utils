@@ -1,4 +1,4 @@
-# @primoui/utils
+# @dirstack/utils
 
 To install dependencies:
 
