@@ -1,6 +1,5 @@
 {
-  "$schema": "./node_modules/oxfmt/configuration_schema.json",
-  "ignorePatterns": ["*.{md,mdx}"],
+  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/refs/heads/main/npm/oxfmt/configuration_schema.json",
   "printWidth": 100,
   "tabWidth": 2,
   "useTabs": false,
@@ -12,7 +11,7 @@
   "experimentalSortImports": {
     "enabled": true,
     "groups": [
-      ["side-effect"],
+      ["side_effect"],
       ["value-builtin", "type-builtin"],
       ["value-external", "type-external"],
       ["value-internal", "type-internal"]
