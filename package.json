@@ -1,6 +1,5 @@
 {
   "name": "@dirstack/utils",
-  "version": "1.4.3",
   "description": "A lightweight set of utilities",
   "license": "MIT",
   "author": {
@@ -22,28 +21,27 @@
       "require": "./dist/index.umd.cjs"
     }
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "clean": "rimraf ./dist",
     "build": "vite build && tsc --emitDeclarationOnly",
     "prebuild": "bun run clean",
     "lint": "oxlint . --fix",
-    "format": "oxfmt --write ."
+    "format": "oxfmt --config ./oxfmt.json --write .",
+    "prepare": "lefthook install"
   },
   "dependencies": {
     "@sindresorhus/slugify": "^2.2.1"
   },
   "devDependencies": {
+    "@dirstack/kodeks": "^1.0.0",
     "@types/bun": "^1.2.21",
-    "oxfmt": "^0.31.0",
-    "oxlint": "^1.46.0",
     "rimraf": "^6.0.1",
-    "typescript": "^5.9.2",
     "vite": "^7.1.4"
   },
   "peerDependencies": {
     "@sindresorhus/slugify": "^2.2.1"
-  },
-  "publishConfig": {
-    "access": "public"
   }
 }

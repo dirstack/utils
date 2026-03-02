@@ -1,0 +1,17 @@
+{
+  "extends": [
+    "node_modules/@dirstack/kodeks/configs/lefthook-oxlint.json",
+    "node_modules/@dirstack/kodeks/configs/lefthook-typescript.json",
+    "node_modules/@dirstack/kodeks/configs/lefthook-commitlint.json"
+  ],
+  "pre-commit": {
+    "parallel": true,
+    "commands": {
+      "format:oxfmt": {
+        "glob": "*.{ts,tsx,js,jsx,json,jsonc,css}",
+        "run": "bunx oxfmt --config ./oxfmt.json --write {staged_files}",
+        "stage_fixed": true
+      }
+    }
+  }
+}
