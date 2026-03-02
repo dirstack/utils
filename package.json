@@ -29,16 +29,24 @@
     "build": "vite build && tsc --emitDeclarationOnly",
     "prebuild": "bun run clean",
     "lint": "oxlint . --fix",
-    "format": "oxfmt --config ./oxfmt.json --write .",
+    "format": "oxfmt --config ./node_modules/@dirstack/kodeks/configs/oxfmt.json --write .",
     "prepare": "lefthook install"
   },
   "dependencies": {
     "@sindresorhus/slugify": "^2.2.1"
   },
   "devDependencies": {
-    "@dirstack/kodeks": "^1.0.0",
+    "@commitlint/cli": "^20.4.2",
+    "@commitlint/config-conventional": "^20.4.2",
+    "@dirstack/kodeks": "^1.0.3",
     "@types/bun": "^1.2.21",
+    "conventional-changelog-conventionalcommits": "^9.1.0",
+    "lefthook": "^2.1.1",
+    "oxfmt": "^0.35.0",
+    "oxlint": "^1.50.0",
     "rimraf": "^6.0.1",
+    "semantic-release": "^25.0.3",
+    "typescript": "^5.9.3",
     "vite": "^7.1.4"
   },
   "peerDependencies": {

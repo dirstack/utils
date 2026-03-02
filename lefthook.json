@@ -1,8 +1,8 @@
 {
   "extends": [
-    "./node_modules/@dirstack/kodeks/configs/lefthook-oxfmt.json",
-    "./node_modules/@dirstack/kodeks/configs/lefthook-oxlint.json",
-    "./node_modules/@dirstack/kodeks/configs/lefthook-typescript.json",
-    "./node_modules/@dirstack/kodeks/configs/lefthook-commitlint.json"
+    "node_modules/@dirstack/kodeks/configs/lefthook-oxfmt.json",
+    "node_modules/@dirstack/kodeks/configs/lefthook-oxlint.json",
+    "node_modules/@dirstack/kodeks/configs/lefthook-typescript.json",
+    "node_modules/@dirstack/kodeks/configs/lefthook-commitlint.json"
   ]
 }

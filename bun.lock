@@ -8,9 +8,17 @@
         "@sindresorhus/slugify": "^2.2.1",
       },
       "devDependencies": {
-        "@dirstack/kodeks": "^1.0.0",
+        "@commitlint/cli": "^20.4.2",
+        "@commitlint/config-conventional": "^20.4.2",
+        "@dirstack/kodeks": "^1.0.3",
         "@types/bun": "^1.2.21",
+        "conventional-changelog-conventionalcommits": "^9.1.0",
+        "lefthook": "^2.1.1",
+        "oxfmt": "^0.35.0",
+        "oxlint": "^1.50.0",
         "rimraf": "^6.0.1",
+        "semantic-release": "^25.0.3",
+        "typescript": "^5.9.3",
         "vite": "^7.1.4",
       },
       "peerDependencies": {
@@ -67,7 +75,7 @@
 
     "@commitlint/types": ["@commitlint/types@20.4.0", "", { "dependencies": { "conventional-commits-parser": "^6.2.1", "picocolors": "^1.1.1" } }, "sha512-aO5l99BQJ0X34ft8b0h7QFkQlqxC6e7ZPVmBKz13xM9O8obDaM1Cld4sQlJDXXU/VFuUzQ30mVtHjVz74TuStw=="],
 
-    "@dirstack/kodeks": ["@dirstack/kodeks@1.0.0", "", { "peerDependencies": { "@commitlint/cli": ">=20.4.2", "@commitlint/config-conventional": ">=20.4.2", "conventional-changelog-conventionalcommits": ">=9.1.0", "lefthook": ">=2.1.1", "oxfmt": ">=0.35.0", "oxlint": ">=1.50.0", "semantic-release": ">=25.0.3", "typescript": ">=5.9.3" } }, "sha512-Kd5lkpk/Kj2Fl7UOW1gkvgqvMumXxdOzd00f7thJ54BmjUaDsZtc2m18ZQAnlmS2uleCZN997koCICUHmL3TQA=="],
+    "@dirstack/kodeks": ["@dirstack/kodeks@1.0.3", "", { "peerDependencies": { "@commitlint/cli": ">=20", "@commitlint/config-conventional": ">=20", "conventional-changelog-conventionalcommits": ">=9", "lefthook": ">=2", "oxfmt": ">=0.35", "oxlint": ">=1", "semantic-release": ">=25", "typescript": ">=5" }, "optionalPeers": ["@commitlint/cli", "@commitlint/config-conventional", "conventional-changelog-conventionalcommits", "lefthook", "oxfmt", "oxlint", "semantic-release", "typescript"] }, "sha512-Zvg8Fg9B37NA5hpdElI2E/xYSk0WL9VChJZPy50Nde564H7Av2k08L0JZcV+YalD7q0KPJKbk+ZpHclCAn471A=="],
 
     "@esbuild/aix-ppc64": ["@esbuild/aix-ppc64@0.27.3", "", { "os": "aix", "cpu": "ppc64" }, "sha512-9fJMTNFTWZMh5qwrBItuziu834eOCUcEqymSH7pY+zoMVEZg3gcPuBNxH1EvfVYe9h0x/Ptw8KBzv7qxb7l8dg=="],
 
