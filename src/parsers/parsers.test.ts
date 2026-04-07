@@ -54,14 +54,14 @@ describe("serialize", () => {
   })
 
   it("strips undefined values", () => {
-    const result = serialize({ a: 1, b: undefined })
+    const result = serialize({ a: 1, b: undefined } as Record<string, unknown>)
 
     expect(result).toEqual({ a: 1 })
     expect("b" in result).toBe(false)
   })
 
   it("strips functions", () => {
-    const result = serialize({ a: 1, fn: () => {} })
+    const result = serialize({ a: 1, fn: () => {} } as Record<string, unknown>)
 
     expect(result).toEqual({ a: 1 })
     expect("fn" in result).toBe(false)
@@ -70,7 +70,7 @@ describe("serialize", () => {
   it("converts Date to ISO string", () => {
     const result = serialize({ d: new Date("2025-01-15T12:00:00.000Z") })
 
-    expect(result.d).toBe("2025-01-15T12:00:00.000Z")
+    expect(result.d as unknown).toBe("2025-01-15T12:00:00.000Z")
   })
 
   it("handles null values", () => {
