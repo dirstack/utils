@@ -28,3 +28,45 @@ export const maybeStringifyJson = (value?: object | string) => {
 
   return value
 }
+
+/**
+ * A JSON-safe version of a type. Converts non-serializable types to their JSON representations:
+ * - `Date` → `string`
+ * - `Map`, `Set`, `Function`, `undefined`, `symbol`, `bigint` → stripped
+ */
+type JsonSafe<T> = T extends Date
+  ? string
+  : T extends Map<unknown, unknown> | Set<unknown> | ((...args: unknown[]) => unknown)
+    ? never
+    : T extends Array<infer U>
+      ? JsonSafe<U>[]
+      : T extends object
+        ? {
+            [K in keyof T as T[K] extends undefined
+              ? never
+              : JsonSafe<T[K]> extends never
+                ? never
+                : K]: JsonSafe<T[K]>
+          }
+        : T
+
+/**
+ * Serializes a value by converting it to JSON and back, producing a deep clone with only JSON-safe values.
+ * Strips functions, undefined, symbols, and other non-serializable values.
+ * @param data - The value to serialize.
+ * @returns A deep clone of the value with only JSON-serializable properties.
+ * @template T - The type of the value.
+ */
+export const serialize = <T>(data: T): JsonSafe<T> => {
+  return JSON.parse(JSON.stringify(data))
+}
+
+/**
+ * Deserializes a JSON string into a typed value.
+ * @param json - The JSON string to deserialize.
+ * @returns The parsed value.
+ * @template T - The expected type of the deserialized value.
+ */
+export const deserialize = <T>(json: string): T => {
+  return JSON.parse(json) as T
+}

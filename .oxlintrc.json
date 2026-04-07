@@ -1,3 +1,0 @@
-{
-  "extends": ["./node_modules/@dirstack/kodeks/configs/oxlint-base.json"]
-}
