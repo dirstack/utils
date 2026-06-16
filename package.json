@@ -1,6 +1,14 @@
 {
   "name": "@dirstack/utils",
   "description": "A lightweight set of utilities",
+  "keywords": [
+    "helpers",
+    "typescript",
+    "utilities",
+    "utils"
+  ],
+  "homepage": "https://github.com/dirstack/utils#readme",
+  "bugs": "https://github.com/dirstack/utils/issues",
   "license": "MIT",
   "author": {
     "name": "Piotr Kulpinski",
@@ -12,6 +20,7 @@
     "dist"
   ],
   "type": "module",
+  "sideEffects": false,
   "main": "./dist/index.umd.cjs",
   "module": "./dist/index.js",
   "exports": {
@@ -28,6 +37,8 @@
     "clean": "rimraf ./dist",
     "build": "vite build && tsc --emitDeclarationOnly",
     "prebuild": "bun run clean",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
     "lint": "oxlint --fix .",
     "format": "oxfmt --write .",
     "prepare": "lefthook install"
@@ -49,7 +60,7 @@
     "typescript": "^5.9.3",
     "vite": "^7.1.4"
   },
-  "peerDependencies": {
-    "@sindresorhus/slugify": "^2.2.1"
+  "engines": {
+    "node": ">=18"
   }
 }

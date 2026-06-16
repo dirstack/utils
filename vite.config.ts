@@ -11,6 +11,9 @@ export default defineConfig({
     },
     rollupOptions: {
       external: ["@sindresorhus/slugify"],
+      output: {
+        globals: { "@sindresorhus/slugify": "slugify" },
+      },
     },
     sourcemap: true,
   },

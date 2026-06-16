@@ -4,7 +4,6 @@
   "exclude": ["node_modules", "dist", "**/*.test.*", "**/*.spec.*"],
   "compilerOptions": {
     "declaration": true,
-    "declarationMap": true,
     "esModuleInterop": true,
     "incremental": false,
     "isolatedModules": true,
