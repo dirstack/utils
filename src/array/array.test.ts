@@ -5,6 +5,7 @@ import {
   countBy,
   groupBy,
   keyBy,
+  range,
   sortBy,
   splitArrayIntoChunks,
   sum,
@@ -167,5 +168,13 @@ describe("sumBy", () => {
   it("sums by the given key", () => {
     expect(sumBy([{ price: 10 }, { price: 5 }, { price: 15 }], i => i.price)).toBe(30)
     expect(sumBy([] as { price: number }[], i => i.price)).toBe(0)
+  })
+})
+
+describe("range", () => {
+  it("generates an array of numbers", () => {
+    expect(range(1, 5)).toEqual([1, 2, 3, 4, 5])
+    expect(range(0, 0)).toEqual([0])
+    expect(range(-3, 3)).toEqual([-3, -2, -1, 0, 1, 2, 3])
   })
 })

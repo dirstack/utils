@@ -1,5 +1,12 @@
 import { describe, expect, it } from "bun:test"
-import { isEmptyObject, isKeyInObject, pickFromObject, sortObject, sortObjectKeys } from "./objects"
+import {
+  isEmptyObject,
+  isKeyInObject,
+  nullsToUndefined,
+  pickFromObject,
+  sortObject,
+  sortObjectKeys,
+} from "./objects"
 
 describe("isEmptyObject", () => {
   it("returns true for an empty object", () => {
@@ -267,5 +274,118 @@ describe("pickFromObject", () => {
       false: false,
       nullValue: null,
     })
+  })
+})
+
+describe("nullsToUndefined", () => {
+  it("should convert null to undefined", () => {
+    expect(nullsToUndefined(null)).toEqual(undefined)
+  })
+
+  it("should preserve undefined values", () => {
+    expect(nullsToUndefined(undefined)).toEqual(undefined)
+  })
+
+  it("should preserve primitive values", () => {
+    expect(nullsToUndefined("hello")).toEqual("hello")
+    expect(nullsToUndefined(42)).toEqual(42)
+    expect(nullsToUndefined(true)).toEqual(true)
+    expect(nullsToUndefined(false)).toEqual(false)
+    expect(nullsToUndefined(0)).toEqual(0)
+  })
+
+  it("should convert null properties in objects to undefined", () => {
+    const input = {
+      name: "John",
+      age: null,
+      active: true,
+      description: null,
+    }
+
+    const result = nullsToUndefined(input)
+
+    expect(result).toEqual({
+      name: "John",
+      age: undefined,
+      active: true,
+      description: undefined,
+    })
+  })
+
+  it("should recursively convert null values in nested objects", () => {
+    const input = {
+      user: {
+        name: "John",
+        profile: {
+          bio: null,
+          avatar: "avatar.jpg",
+          settings: {
+            theme: null,
+            notifications: true,
+          },
+        },
+      },
+      data: null,
+    }
+
+    const result = nullsToUndefined(input)
+
+    expect(result).toEqual({
+      user: {
+        name: "John",
+        profile: {
+          bio: undefined,
+          avatar: "avatar.jpg",
+          settings: {
+            theme: undefined,
+            notifications: true,
+          },
+        },
+      },
+      data: undefined,
+    })
+  })
+
+  it("should handle empty objects", () => {
+    const input = {}
+    const result = nullsToUndefined(input)
+    expect(result).toEqual({})
+  })
+
+  it("should recurse into arrays and not mutate the input", () => {
+    const input = { items: [{ value: null }, { value: "ok" }], tags: [null, "a"] }
+    const result = nullsToUndefined(input)
+
+    expect(result).toEqual({
+      items: [{ value: undefined }, { value: "ok" }],
+      tags: [undefined, "a"],
+    })
+    // Input is untouched
+    expect(input.items[0]?.value).toBeNull()
+    expect(input.tags[0]).toBeNull()
+  })
+
+  it("should handle objects with only null values", () => {
+    const input = {
+      a: null,
+      b: null,
+      c: null,
+    }
+
+    const result = nullsToUndefined(input)
+
+    expect(result).toEqual({
+      a: undefined,
+      b: undefined,
+      c: undefined,
+    })
+  })
+
+  it("should return non-plain objects such as Date as-is", () => {
+    const date = new Date("2023-01-01")
+    const result = nullsToUndefined(date)
+
+    expect(result).toEqual(date)
+    expect(result).toBe(date)
   })
 })

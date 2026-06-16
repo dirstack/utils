@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, jest } from "bun:test"
-import { getElementPosition } from "./dom"
+import { getElementPosition, getShortcutLabel } from "./dom"
 
 // Mock DOM methods
 const mockGetElementById = jest.fn()
@@ -157,5 +157,22 @@ describe("getElementPosition", () => {
       id: "test-id",
       top: 150, // 200 + (-50) - 0
     })
+  })
+})
+
+describe("getShortcutLabel", () => {
+  it("returns the uppercase key if metaKey is not provided", () => {
+    expect(getShortcutLabel({ key: "a" })).toEqual("A")
+    expect(getShortcutLabel({ key: "z" })).toEqual("Z")
+  })
+
+  it("returns the uppercase key with metaKey symbol if metaKey is true", () => {
+    expect(getShortcutLabel({ key: "a", metaKey: true })).toEqual("⌘A")
+    expect(getShortcutLabel({ key: "z", metaKey: true })).toEqual("⌘Z")
+  })
+
+  it("returns the uppercase key without metaKey symbol if metaKey is false", () => {
+    expect(getShortcutLabel({ key: "a", metaKey: false })).toEqual("A")
+    expect(getShortcutLabel({ key: "z", metaKey: false })).toEqual("Z")
   })
 })

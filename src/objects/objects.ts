@@ -1,3 +1,5 @@
+import type { ReplaceNullWithUndefined } from ".."
+
 /**
  * Utility functions for working with objects.
  */
@@ -83,4 +85,33 @@ export const pickFromObject = <T extends object, K extends keyof T>(
     }
   }
   return result
+}
+
+/**
+ * Recursively converts all null values in an object or array to undefined.
+ * Returns a new object/array; the input is not mutated. Non-plain objects
+ * (e.g. `Date`) are returned as-is.
+ * @param obj - The object to convert.
+ * @returns The converted object.
+ */
+export const nullsToUndefined = <T>(obj: T): ReplaceNullWithUndefined<T> => {
+  if (obj === null) {
+    return undefined as any
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map(item => nullsToUndefined(item)) as any
+  }
+
+  // object check based on: https://stackoverflow.com/a/51458052/6489012
+  if ((obj as { constructor?: { name?: string } })?.constructor?.name === "Object") {
+    const source = obj as Record<string, unknown>
+    const result: Record<string, unknown> = {}
+    for (const key of Object.keys(source)) {
+      result[key] = nullsToUndefined(source[key])
+    }
+    return result as any
+  }
+
+  return obj as any
 }
