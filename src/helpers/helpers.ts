@@ -148,22 +148,6 @@ export const toBase64 = (file: File): Promise<string> => {
 }
 
 /**
- * Splits an array into chunks of a specified size.
- * @param items - The array of items to split into chunks.
- * @param chunkSize - The size of each chunk.
- * @returns An array of arrays, each containing a chunk of the original array.
- */
-export const splitArrayIntoChunks = <T>(items: T[], chunkSize: number) => {
-  const chunks: T[][] = []
-
-  for (let i = 0; i < items.length; i += chunkSize) {
-    chunks.push(items.slice(i, i + chunkSize))
-  }
-
-  return chunks
-}
-
-/**
  * Set the value of an HTMLInputElement using its native value setter.
  *
  * @param input - The HTMLInputElement to set the value of.

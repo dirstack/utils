@@ -1,3 +1,4 @@
+export * from "./array/array"
 export * from "./batch/batch"
 export * from "./colors/colors"
 export * from "./dom/dom"

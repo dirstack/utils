@@ -1,4 +1,5 @@
-import { sleep, splitArrayIntoChunks } from "../helpers/helpers"
+import { chunk } from "../array/array"
+import { sleep } from "../helpers/helpers"
 
 type ProcessBatchOptions = {
   batchSize: number
@@ -19,7 +20,7 @@ export const processBatch = async <T, R>(
   if (items.length === 0) return []
 
   const results: R[] = []
-  const batches = splitArrayIntoChunks(items, batchSize)
+  const batches = chunk(items, batchSize)
 
   for (const [i, batch] of batches.entries()) {
     console.log(`Processing batch ${i + 1}/${batches.length} (${batch.length} items)`)

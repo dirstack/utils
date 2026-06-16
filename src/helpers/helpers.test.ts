@@ -11,7 +11,6 @@ import {
   nullsToUndefined,
   range,
   slugify,
-  splitArrayIntoChunks,
   stripHtml,
   tryCatch,
 } from "./helpers"
@@ -147,14 +146,6 @@ describe("getInitials", () => {
 
   it("should return the initials of two names with limit greater than the number of initials", () => {
     expect(getInitials("John Doe", 5)).toEqual("JD")
-  })
-})
-
-describe("splitArrayIntoChunks", () => {
-  it("splits an array into chunks of specified size", () => {
-    expect(splitArrayIntoChunks([1, 2, 3, 4, 5, 6, 7], 3)).toEqual([[1, 2, 3], [4, 5, 6], [7]])
-    expect(splitArrayIntoChunks([1, 2, 3, 4, 5, 6], 5)).toEqual([[1, 2, 3, 4, 5], [6]])
-    expect(splitArrayIntoChunks([], 3)).toEqual([])
   })
 })
 
