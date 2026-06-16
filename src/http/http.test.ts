@@ -499,6 +499,12 @@ describe("isValidImageSrc", () => {
     expect(isValidImageSrc("not-a-url")).toBe(false)
   })
 
+  it("rejects unsafe protocols", () => {
+    expect(isValidImageSrc("javascript:alert(1)")).toBe(false)
+    expect(isValidImageSrc("mailto:test@example.com")).toBe(false)
+    expect(isValidImageSrc("tel:+123456789")).toBe(false)
+  })
+
   it("handles edge cases", () => {
     expect(isValidImageSrc("/")).toBe(false)
     expect(isValidImageSrc("/ space")).toBe(false)

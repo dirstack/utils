@@ -3,27 +3,16 @@
  */
 
 /**
- * Enhanced URL validation using regex pattern and URL constructor
- * Supports both regular domains and localhost/IP addresses
- */
-const URL_REGEX =
-  /^https?:\/\/(?:www\.)?(?:[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,63}\b|localhost(?::\d+)?|127\.0\.0\.1(?::\d+)?)(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$/
-
-/**
- * Checks if a URL is valid using both regex and URL constructor validation
+ * Checks if a URL is a valid http(s) URL using the URL constructor.
  * @param url - The URL to validate
  * @returns True if the URL is valid
  */
 export const isValidUrl = (url?: string): boolean => {
   if (!url || typeof url !== "string") return false
 
-  // First check with regex for basic format
-  if (!URL_REGEX.test(url)) return false
-
-  // Then validate with URL constructor
   try {
-    new URL(url)
-    return true
+    const { protocol } = new URL(url)
+    return protocol === "http:" || protocol === "https:"
   } catch {
     return false
   }
@@ -302,15 +291,22 @@ export const checkUrlAvailability = async (
 }
 
 /**
- * Checks if a string is a valid image source (relative path or absolute URL)
+ * Checks if a string is a valid image source: a relative path (e.g.
+ * "/images/photo.png") or an absolute URL using a safe image protocol
+ * (http, https, or data). Other protocols such as `javascript:` are rejected.
  * @param src - The image source string to validate
- * @returns True if the source is a valid relative path or absolute URL
+ * @returns True if the source is a valid relative path or safe absolute URL
  */
 export const isValidImageSrc = (src?: string | null): src is string => {
   if (!src) return false
+
+  // Relative path (e.g. "/images/photo.png")
   if (/^\/\w/.test(src)) return true
+
+  // Absolute URL with a safe image protocol
   try {
-    return !!new URL(src)
+    const { protocol } = new URL(src)
+    return protocol === "http:" || protocol === "https:" || protocol === "data:"
   } catch {
     return false
   }

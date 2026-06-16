@@ -8,7 +8,8 @@
  * @returns `true` if the object is empty, `false` otherwise.
  */
 export const isEmptyObject = (obj: Record<string, unknown> = {}) => {
-  return obj.constructor === Object && !Object.entries(obj).length
+  const proto = Object.getPrototypeOf(obj)
+  return (proto === Object.prototype || proto === null) && !Object.keys(obj).length
 }
 
 /**

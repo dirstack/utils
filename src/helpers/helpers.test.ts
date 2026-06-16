@@ -261,6 +261,19 @@ describe("nullsToUndefined", () => {
     expect(result).toEqual({})
   })
 
+  it("should recurse into arrays and not mutate the input", () => {
+    const input = { items: [{ value: null }, { value: "ok" }], tags: [null, "a"] }
+    const result = nullsToUndefined(input)
+
+    expect(result).toEqual({
+      items: [{ value: undefined }, { value: "ok" }],
+      tags: [undefined, "a"],
+    })
+    // Input is untouched
+    expect(input.items[0]?.value).toBeNull()
+    expect(input.tags[0]).toBeNull()
+  })
+
   it("should handle objects with only null values", () => {
     const input = {
       a: null,

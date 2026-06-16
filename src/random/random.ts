@@ -14,6 +14,10 @@ export const getRandomColor = (): string => {
 
 /**
  * Returns a random string of characters.
+ *
+ * Uses `Math.random()`, so it is not cryptographically secure. Do not use it
+ * for passwords, tokens, or anything security-sensitive; use
+ * `crypto.getRandomValues` for those.
  * @param length - The desired length of the random string
  * @returns A string representing a random string of characters.
  */
@@ -34,7 +38,11 @@ export const getRandomNumber = (min: number, max: number) => {
 }
 
 /**
- * Generate a random string of digits
+ * Generate a random string of digits.
+ *
+ * Uses `Math.random()`, so it is not cryptographically secure. Do not use it
+ * for one-time passwords, tokens, or anything security-sensitive; use
+ * `crypto.getRandomValues` for those.
  * @param length Length of the digits string
  * @returns Random digits string
  */
@@ -43,24 +51,24 @@ export const getRandomDigits = (length: number) => {
 }
 
 /**
- * Returns a random element from an array.
+ * Returns a random element from an array, or `undefined` if the array is empty.
  *
  * @param array - The array to get a random element from.
- * @returns A random element from the array.
+ * @returns A random element from the array, or `undefined` if it is empty.
  */
-export const getRandomElement = <T>(array: T[]): T => {
-  const index = Math.floor(Math.random() * array.length)
-  return array[index]!
+export const getRandomElement = <T>(array: T[]): T | undefined => {
+  return array[Math.floor(Math.random() * array.length)]
 }
 
 /**
- * Returns a random property value from an object.
+ * Returns a random property value from an object, or `undefined` if the object
+ * has no own enumerable properties.
  * @param obj - The object to get a random property value from.
- * @returns A random property value from the object.
+ * @returns A random property value, or `undefined` if the object is empty.
  */
-export const getRandomProperty = <T>(obj: Record<string, T>): T => {
+export const getRandomProperty = <T>(obj: Record<string, T>): T | undefined => {
   const keys = Object.keys(obj)
-  const randomKey = keys[Math.floor(keys.length * Math.random())]!
+  const randomKey = keys[Math.floor(Math.random() * keys.length)]
 
-  return obj[randomKey]!
+  return randomKey === undefined ? undefined : obj[randomKey]
 }

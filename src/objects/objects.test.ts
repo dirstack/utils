@@ -13,6 +13,10 @@ describe("isEmptyObject", () => {
   it("returns false for an object with properties", () => {
     expect(isEmptyObject({ a: 1 })).toBe(false)
   })
+
+  it("returns true for an empty null-prototype object", () => {
+    expect(isEmptyObject(Object.create(null))).toBe(true)
+  })
 })
 
 describe("isKeyInObject", () => {
