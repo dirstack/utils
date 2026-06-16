@@ -3,13 +3,14 @@
  */
 
 /**
- * Keep a number within a specified range.
- * @param value - The number to keep within the range.
+ * Clamp a number within a specified range. The lower and upper bounds are both
+ * optional.
+ * @param value - The number to clamp.
  * @param min - The minimum value of the range.
  * @param max - The maximum value of the range.
- * @returns The number within the specified range.
+ * @returns The number constrained to the specified range.
  */
-export const keepNumberInRange = (value: number, min?: number, max?: number) => {
+export const clamp = (value: number, min?: number, max?: number) => {
   if (min !== undefined && max !== undefined) {
     return Math.min(Math.max(value, min), max)
   }
@@ -22,6 +23,11 @@ export const keepNumberInRange = (value: number, min?: number, max?: number) => 
 
   return value
 }
+
+/**
+ * @deprecated Use {@link clamp} instead.
+ */
+export const keepNumberInRange = clamp
 
 /**
  * Parse a string into a numeric value.

@@ -74,7 +74,7 @@ export const sortObject = <T extends Record<K, unknown>, K extends keyof T>(
  * const publicUser = pick(user, ['id', 'name', 'email'])
  * // Result: { id: 1, name: 'John', email: 'john@example.com' }
  */
-export const pickFromObject = <T extends object, K extends keyof T>(
+export const pick = <T extends object, K extends keyof T>(
   obj: T,
   keys: readonly K[],
 ): Pick<T, K> => {
@@ -83,6 +83,35 @@ export const pickFromObject = <T extends object, K extends keyof T>(
     if (key in obj) {
       result[key] = obj[key]
     }
+  }
+  return result
+}
+
+/**
+ * @deprecated Use {@link pick} instead.
+ */
+export const pickFromObject = pick
+
+/**
+ * Creates a new object with the specified properties removed from the source
+ * object. The complement of {@link pick}.
+ *
+ * @param obj - The source object to omit properties from
+ * @param keys - Array of property keys to remove from the source object
+ * @returns A new object without the specified properties
+ *
+ * @example
+ * const user = { id: 1, name: 'John', password: 'secret' }
+ * const publicUser = omit(user, ['password'])
+ * // Result: { id: 1, name: 'John' }
+ */
+export const omit = <T extends object, K extends keyof T>(
+  obj: T,
+  keys: readonly K[],
+): Omit<T, K> => {
+  const result = { ...obj }
+  for (const key of keys) {
+    delete result[key]
   }
   return result
 }

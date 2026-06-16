@@ -63,8 +63,7 @@ describe("chunk", () => {
 })
 
 describe("splitArrayIntoChunks (deprecated alias)", () => {
-  it("behaves identically to chunk", () => {
-    expect(splitArrayIntoChunks([1, 2, 3, 4, 5, 6, 7], 3)).toEqual([[1, 2, 3], [4, 5, 6], [7]])
+  it("is an alias", () => {
     expect(splitArrayIntoChunks).toBe(chunk)
   })
 })
