@@ -163,6 +163,40 @@ describe("processBatch", () => {
 
     expect(results).toEqual([6, 2, 8, 4]) // Maintains input order
   })
+
+  it("should preserve order and not drop results with uneven completion times", async () => {
+    // Earlier items finish later than later items. A naive completion-ordered
+    // pool would reorder and drop results here.
+    const items = [1, 2, 3, 4, 5, 6]
+    const processor = async (item: number) => {
+      await new Promise(resolve => setTimeout(resolve, (7 - item) * 10))
+      return item * 2
+    }
+    const results = await processBatch(items, processor, { batchSize: 6, concurrency: 2 })
+
+    expect(results).toEqual([2, 4, 6, 8, 10, 12])
+  })
+
+  it("should report progress after each batch", async () => {
+    const items = [1, 2, 3, 4, 5]
+    const processor = createProcessor()
+    const progress: Array<{ batch: number; completed: number }> = []
+
+    await processBatch(items, processor, {
+      batchSize: 2,
+      onProgress: ({ batch, totalBatches, completed, total }) => {
+        expect(totalBatches).toBe(3)
+        expect(total).toBe(5)
+        progress.push({ batch, completed })
+      },
+    })
+
+    expect(progress).toEqual([
+      { batch: 1, completed: 2 },
+      { batch: 2, completed: 4 },
+      { batch: 3, completed: 5 },
+    ])
+  })
 })
 
 describe("processBatchWithErrorHandling", () => {

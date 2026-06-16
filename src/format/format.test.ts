@@ -160,9 +160,9 @@ describe("formatToDecimals", () => {
 
 describe("formatBytes", () => {
   it("formats bytes correctly", () => {
-    expect(formatBytes(0)).toEqual("0 KB")
-    expect(formatBytes(512)).toEqual("0 KB")
-    expect(formatBytes(512, 1)).toEqual("0.5 KB")
+    expect(formatBytes(0)).toEqual("0 B")
+    expect(formatBytes(512)).toEqual("512 B")
+    expect(formatBytes(1023)).toEqual("1023 B")
     expect(formatBytes(1024)).toEqual("1 KB")
     expect(formatBytes(1048576)).toEqual("1 MB")
     expect(formatBytes(1073741824)).toEqual("1 GB")

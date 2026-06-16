@@ -1,21 +1,38 @@
 import { chunk } from "../array/array"
 import { sleep } from "../helpers/helpers"
 
+/**
+ * Progress reported after each batch finishes processing.
+ */
+export type ProcessBatchProgress = {
+  /** The 1-based index of the batch that just finished. */
+  batch: number
+  /** The total number of batches. */
+  totalBatches: number
+  /** The number of items processed so far across all batches. */
+  completed: number
+  /** The total number of items. */
+  total: number
+}
+
 type ProcessBatchOptions = {
   batchSize: number
   concurrency?: number
   delay?: number
+  onProgress?: (progress: ProcessBatchProgress) => void
 }
+
 /**
- * Process items in batches with controlled concurrency and delays
- * Useful for handling external API rate limits
+ * Process items in batches with controlled concurrency and delays.
+ * Useful for handling external API rate limits. Results are returned in the
+ * same order as the input.
  */
 export const processBatch = async <T, R>(
   items: T[],
   processor: (item: T) => Promise<R>,
   options: ProcessBatchOptions,
 ): Promise<R[]> => {
-  const { batchSize, concurrency = batchSize, delay = 0 } = options
+  const { batchSize, concurrency = batchSize, delay = 0, onProgress } = options
 
   if (items.length === 0) return []
 
@@ -23,15 +40,19 @@ export const processBatch = async <T, R>(
   const batches = chunk(items, batchSize)
 
   for (const [i, batch] of batches.entries()) {
-    console.log(`Processing batch ${i + 1}/${batches.length} (${batch.length} items)`)
-
     // Process batch with controlled concurrency
     const batchResults = await processWithConcurrency(batch, processor, concurrency)
     results.push(...batchResults)
 
+    onProgress?.({
+      batch: i + 1,
+      totalBatches: batches.length,
+      completed: results.length,
+      total: items.length,
+    })
+
     // Add delay between batches (except for the last batch)
     if (delay > 0 && i < batches.length - 1) {
-      console.log(`Waiting ${delay}ms before next batch...`)
       await sleep(delay)
     }
   }
@@ -65,38 +86,27 @@ export const processBatchWithErrorHandling = async <T, R>(
 }
 
 /**
- * Process items with controlled concurrency using a semaphore-like approach
+ * Process items with a fixed pool of workers, capping in-flight work at
+ * `concurrency`. Results are written back at the item's original index, so the
+ * returned array always matches the input order.
  */
 const processWithConcurrency = async <T, R>(
   items: T[],
   processor: (item: T) => Promise<R>,
   concurrency: number,
 ): Promise<R[]> => {
-  if (concurrency >= items.length) {
-    // If concurrency is higher than items count, just process all at once
-    return Promise.all(items.map(processor))
-  }
+  const results = new Array<R>(items.length)
+  let next = 0
 
-  const results: R[] = []
-  const executing: Promise<void>[] = []
-
-  for (const item of items) {
-    const promise = processor(item).then(result => {
-      results.push(result)
-    })
-
-    executing.push(promise)
-
-    // If we've reached the concurrency limit, wait for one to finish
-    if (executing.length >= concurrency) {
-      await Promise.race(executing)
-      // Remove completed promises
-      executing.splice(0, executing.length - executing.filter(p => p !== promise).length)
+  const worker = async () => {
+    while (next < items.length) {
+      const index = next++
+      results[index] = await processor(items[index]!)
     }
   }
 
-  // Wait for all remaining promises to complete
-  await Promise.all(executing)
+  const workerCount = Math.max(1, Math.min(concurrency, items.length))
+  await Promise.all(Array.from({ length: workerCount }, worker))
 
   return results
 }
