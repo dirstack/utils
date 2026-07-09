@@ -12,7 +12,11 @@ import {
 // Whitespace/separator characters Intl.NumberFormat inserts, shared across the currency tests.
 const NBSP = "\u00A0" // Non-breaking space (thousands separator / after a currency code)
 const NNBSP = "\u202F" // Narrow no-break space (French locale)
-const SWISS_SEPARATOR = "'" // Apostrophe (Swiss thousands separator, Bun ICU)
+const SWISS_SEPARATOR = "'" // Swiss thousands separator, normalized to a plain apostrophe
+
+// de-CH's grouping glyph varies by ICU build (U+2019 on full ICU, U+0027 on some Bun builds);
+// normalize it so the assertion checks the formatting, not the glyph.
+const normalizeApostrophe = (value: string) => value.replace(/’/g, "'")
 
 describe("formatNumber", () => {
   it("formats numbers with standard notation (default)", () => {
@@ -134,15 +138,15 @@ describe("formatCurrency", () => {
     })
 
     it("formats currency with Swiss locale (de-CH)", () => {
-      expect(formatCurrency(1000, { currency: "CHF", locale: "de-CH" })).toBe(
+      expect(normalizeApostrophe(formatCurrency(1000, { currency: "CHF", locale: "de-CH" }))).toBe(
         `CHF${NBSP}1${SWISS_SEPARATOR}000`,
       )
-      expect(formatCurrency(1000.5, { currency: "CHF", locale: "de-CH" })).toBe(
-        `CHF${NBSP}1${SWISS_SEPARATOR}000.50`,
-      )
-      expect(formatCurrency(1234.56, { currency: "EUR", locale: "de-CH" })).toBe(
-        `EUR${NBSP}1${SWISS_SEPARATOR}234.56`,
-      )
+      expect(
+        normalizeApostrophe(formatCurrency(1000.5, { currency: "CHF", locale: "de-CH" })),
+      ).toBe(`CHF${NBSP}1${SWISS_SEPARATOR}000.50`)
+      expect(
+        normalizeApostrophe(formatCurrency(1234.56, { currency: "EUR", locale: "de-CH" })),
+      ).toBe(`EUR${NBSP}1${SWISS_SEPARATOR}234.56`)
     })
 
     it("handles zero amounts with different locales", () => {
