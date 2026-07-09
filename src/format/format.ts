@@ -20,7 +20,8 @@ export const formatNumber = (
 
 /**
  * Formats a number as currency, building on {@link formatNumber}.
- * Trailing zero fractions are stripped for whole amounts (e.g. `$1,000` not `$1,000.00`).
+ * Uses the narrow currency symbol (e.g. `$` not `US$`) and strips trailing zero
+ * fractions for whole amounts (e.g. `$1,000` not `$1,000.00`).
  * @param amount - The amount of money to format.
  * @param options - Any `Intl.NumberFormat` option, plus a `locale`. `currency` defaults to 'USD'.
  * @returns The formatted currency string.
@@ -32,6 +33,7 @@ export const formatCurrency = (
   return formatNumber(amount, {
     style: "currency",
     currency,
+    currencyDisplay: "narrowSymbol",
     trailingZeroDisplay: "stripIfInteger",
     ...options,
   })

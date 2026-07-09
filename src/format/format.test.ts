@@ -99,42 +99,38 @@ describe("formatCurrency", () => {
         `1${NNBSP}000,50${NBSP}€`,
       )
       expect(formatCurrency(1234.56, { currency: "USD", locale: "fr-FR" })).toBe(
-        `1${NNBSP}234,56${NBSP}$US`,
+        `1${NNBSP}234,56${NBSP}$`,
       )
     })
 
     it("formats currency with British locale (en-GB)", () => {
       expect(formatCurrency(1000, { currency: "GBP", locale: "en-GB" })).toBe("£1,000")
       expect(formatCurrency(1000.5, { currency: "GBP", locale: "en-GB" })).toBe("£1,000.50")
-      expect(formatCurrency(1234.56, { currency: "USD", locale: "en-GB" })).toBe("US$1,234.56")
+      expect(formatCurrency(1234.56, { currency: "USD", locale: "en-GB" })).toBe("$1,234.56")
     })
 
     it("formats currency with Spanish locale (es-ES)", () => {
       expect(formatCurrency(1000, { currency: "EUR", locale: "es-ES" })).toBe(`1000${NBSP}€`)
       expect(formatCurrency(1000.5, { currency: "EUR", locale: "es-ES" })).toBe(`1000,50${NBSP}€`)
-      expect(formatCurrency(1234.56, { currency: "USD", locale: "es-ES" })).toBe(
-        `1234,56${NBSP}US$`,
-      )
+      expect(formatCurrency(1234.56, { currency: "USD", locale: "es-ES" })).toBe(`1234,56${NBSP}$`)
     })
 
     it("formats currency with Canadian locale (en-CA)", () => {
       expect(formatCurrency(1000, { currency: "CAD", locale: "en-CA" })).toBe("$1,000")
       expect(formatCurrency(1000.5, { currency: "CAD", locale: "en-CA" })).toBe("$1,000.50")
-      expect(formatCurrency(1234.56, { currency: "USD", locale: "en-CA" })).toBe("US$1,234.56")
+      expect(formatCurrency(1234.56, { currency: "USD", locale: "en-CA" })).toBe("$1,234.56")
     })
 
     it("formats currency with Australian locale (en-AU)", () => {
       expect(formatCurrency(1000, { currency: "AUD", locale: "en-AU" })).toBe("$1,000")
       expect(formatCurrency(1000.5, { currency: "AUD", locale: "en-AU" })).toBe("$1,000.50")
-      expect(formatCurrency(1234.56, { currency: "USD", locale: "en-AU" })).toBe(
-        `USD${NBSP}1,234.56`,
-      )
+      expect(formatCurrency(1234.56, { currency: "USD", locale: "en-AU" })).toBe("$1,234.56")
     })
 
     it("formats currency with Chinese locale (zh-CN)", () => {
       expect(formatCurrency(1000, { currency: "CNY", locale: "zh-CN" })).toBe("¥1,000")
       expect(formatCurrency(1000.5, { currency: "CNY", locale: "zh-CN" })).toBe("¥1,000.50")
-      expect(formatCurrency(1234.56, { currency: "USD", locale: "zh-CN" })).toBe("US$1,234.56")
+      expect(formatCurrency(1234.56, { currency: "USD", locale: "zh-CN" })).toBe("$1,234.56")
     })
 
     it("formats currency with Swiss locale (de-CH)", () => {
