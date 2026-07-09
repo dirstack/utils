@@ -2,36 +2,39 @@
  * Utility functions for formatting data.
  */
 
-type Notation = Intl.NumberFormatOptions["notation"]
-type Currency = Intl.NumberFormatOptions["currency"]
+/** Any `Intl.NumberFormat` option, plus a `locale` shortcut. */
+export type FormatNumberOptions = Intl.NumberFormatOptions & { locale?: string }
 
 /**
- * Formats a number with thousands separators.
+ * Formats a number using `Intl.NumberFormat`.
  * @param number - The number to format.
- * @param notation - The notation to use for formatting. Defaults to 'compact'.
- * @param locale - The locale to use for formatting. Defaults to 'en-US'.
+ * @param options - Any `Intl.NumberFormat` option, plus a `locale` (defaults to 'en-US').
  * @returns The formatted number as a string.
  */
-export const formatNumber = (number: number, notation: Notation = "compact", locale = "en-US") => {
-  const formatter = new Intl.NumberFormat(locale, { notation })
-
-  return formatter.format(number)
+export const formatNumber = (
+  number: number,
+  { locale = "en-US", ...options }: FormatNumberOptions = {},
+) => {
+  return new Intl.NumberFormat(locale, options).format(number)
 }
 
 /**
- * Formats a given amount of money into a currency string.
- * @param amount The amount of money to format.
- * @param currency The currency to format the amount in. Defaults to 'USD'.
- * @param locale - The locale to use for formatting. Defaults to 'en-US'.
+ * Formats a number as currency, building on {@link formatNumber}.
+ * Trailing zero fractions are stripped for whole amounts (e.g. `$1,000` not `$1,000.00`).
+ * @param amount - The amount of money to format.
+ * @param options - Any `Intl.NumberFormat` option, plus a `locale`. `currency` defaults to 'USD'.
  * @returns The formatted currency string.
  */
-export const formatCurrency = (amount: number, currency: Currency = "USD", locale = "en-US") => {
-  const formatter = new Intl.NumberFormat(locale, {
+export const formatCurrency = (
+  amount: number,
+  { currency = "USD", ...options }: FormatNumberOptions = {},
+) => {
+  return formatNumber(amount, {
     style: "currency",
     currency,
+    trailingZeroDisplay: "stripIfInteger",
+    ...options,
   })
-
-  return formatter.format(amount).replace(/\D00(?=\D*$)/, "")
 }
 
 /**
