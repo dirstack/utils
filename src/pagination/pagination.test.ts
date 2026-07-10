@@ -36,4 +36,25 @@ describe("getPageLink", () => {
 
     expect(pageLink).toBe("/search?q=hello&sort=desc&page=2")
   })
+
+  it("drops the page param when page is 1", () => {
+    const searchParams = new URLSearchParams("q=hello&sort=desc")
+    const pageLink = getPageLink(searchParams, "/search", 1)
+
+    expect(pageLink).toBe("/search?q=hello&sort=desc")
+  })
+
+  it("returns the bare pathname when page is 1 and no other params", () => {
+    const searchParams = new URLSearchParams()
+    const pageLink = getPageLink(searchParams, "/search", 1)
+
+    expect(pageLink).toBe("/search")
+  })
+
+  it("removes an existing page param when page is 1", () => {
+    const searchParams = new URLSearchParams("page=3&q=hello")
+    const pageLink = getPageLink(searchParams, "/search", 1)
+
+    expect(pageLink).toBe("/search?q=hello")
+  })
 })

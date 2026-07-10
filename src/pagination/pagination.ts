@@ -46,7 +46,12 @@ export const getPageParams = <T extends object>(url: string, take: number) => {
  * @returns A link to the specified page of the paginated query.
  */
 export const getPageLink = (searchParams: URLSearchParams, pathname: string, page: number) => {
-  searchParams.set("page", page.toString())
+  if (page > 1) {
+    searchParams.set("page", page.toString())
+  } else {
+    searchParams.delete("page")
+  }
 
-  return `${pathname}?${searchParams.toString()}`
+  const query = searchParams.toString()
+  return query ? `${pathname}?${query}` : pathname
 }
