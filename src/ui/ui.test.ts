@@ -1,5 +1,35 @@
 import { describe, expect, it } from "bun:test"
-import { getCurrentPage, getPageLink, getShortcutLabel, isLightColor } from "./ui"
+import {
+  getBalancedColumns,
+  getCurrentPage,
+  getPageLink,
+  getShortcutLabel,
+  isLightColor,
+} from "./ui"
+
+describe("getBalancedColumns", () => {
+  it("prefers a column count that divides evenly", () => {
+    expect(getBalancedColumns(12, 5, 6)).toBe(6)
+    expect(getBalancedColumns(10, 5, 6)).toBe(5)
+    expect(getBalancedColumns(15, 5, 6)).toBe(5)
+    expect(getBalancedColumns(14, 6, 7)).toBe(7)
+  })
+
+  it("otherwise minimizes empty slots in the last row", () => {
+    // 11 in 6 cols leaves 1 empty slot, in 5 cols it leaves 4
+    expect(getBalancedColumns(11, 5, 6)).toBe(6)
+    expect(getBalancedColumns(16, 6, 7)).toBe(6)
+  })
+
+  it("breaks ties toward more columns, so fewer rows", () => {
+    expect(getBalancedColumns(30, 5, 6)).toBe(6)
+  })
+
+  it("handles fewer items than a full row", () => {
+    expect(getBalancedColumns(4, 5, 6)).toBe(5)
+    expect(getBalancedColumns(6, 5, 6)).toBe(6)
+  })
+})
 
 describe("getShortcutLabel", () => {
   it("returns the uppercase key if metaKey is not provided", () => {
