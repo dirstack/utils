@@ -19,29 +19,6 @@ export const getElementPosition = (id?: string) => {
 }
 
 /**
- * Returns a label for the first search key shortcut found.
- * @returns The label for the shortcut.
- */
-export const getShortcutLabel = ({ key, metaKey }: { key: string; metaKey?: boolean }) => {
-  const label = `${metaKey ? "⌘" : ""}${key.toUpperCase()}`
-  return label
-}
-
-/**
- * Converts a File object to a Base64 encoded string.
- * @param file - The File object to be converted.
- * @returns A promise that resolves with the Base64 encoded string.
- */
-export const toBase64 = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.readAsDataURL(file)
-    reader.onload = () => resolve(reader.result as string)
-    reader.onerror = error => reject(error)
-  })
-}
-
-/**
  * Set the value of an HTMLInputElement using its native value setter.
  *
  * @param input - The HTMLInputElement to set the value of.
