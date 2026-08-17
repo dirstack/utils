@@ -5,6 +5,30 @@
 import { getQueryParams } from "../http/http"
 
 /**
+ * Pick the column count within [min, max] that leaves the last grid row as
+ * full as possible: exact division wins (12 items, 5–6 → 6 cols; 10 → 5),
+ * otherwise the count with the fewest empty slots. Ties go to more columns.
+ * @param count - The number of items to lay out.
+ * @param min - The minimum number of columns per row.
+ * @param max - The maximum number of columns per row.
+ * @returns The column count that best balances the rows.
+ */
+export const getBalancedColumns = (count: number, min: number, max: number) => {
+  let best = min
+
+  for (let cols = min; cols <= max; cols++) {
+    const emptySlots = (cols - (count % cols)) % cols
+    const bestEmptySlots = (best - (count % best)) % best
+
+    if (emptySlots <= bestEmptySlots) {
+      best = cols
+    }
+  }
+
+  return best
+}
+
+/**
  * Returns a label for the first search key shortcut found.
  * @returns The label for the shortcut.
  */
