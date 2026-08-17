@@ -1,19 +1,19 @@
 export * from "./array/array"
 export * from "./batch/batch"
-export * from "./colors/colors"
 export * from "./dom/dom"
 export * from "./errors/errors"
 export * from "./events/events"
+export * from "./files/files"
 export * from "./format/format"
 export * from "./helpers/helpers"
 export * from "./http/http"
 export * from "./numbers/numbers"
 export * from "./objects/objects"
-export * from "./pagination/pagination"
 export * from "./parsers/parsers"
 export * from "./random/random"
 export * from "./string/string"
 export * from "./time/time"
+export * from "./ui/ui"
 
 export type WithOptional<Type, Key extends keyof Type> = Pick<Partial<Type>, Key> & Omit<Type, Key>
 export type WithRequired<Type, Key extends keyof Type> = Type & { [Prop in Key]-?: Type[Prop] }
