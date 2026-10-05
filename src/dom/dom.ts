@@ -30,6 +30,8 @@ export function setInputValue(
   value: unknown,
   triggerChange = false,
 ) {
+  if (!input) return
+
   const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
     HTMLInputElement.prototype,
     "value",
@@ -38,6 +40,6 @@ export function setInputValue(
   nativeInputValueSetter?.call(input, value)
 
   if (triggerChange) {
-    input?.dispatchEvent(new Event("input", { bubbles: true }))
+    input.dispatchEvent(new Event("input", { bubbles: true }))
   }
 }

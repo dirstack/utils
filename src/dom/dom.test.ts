@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, jest } from "bun:test"
-import { getElementPosition } from "./dom"
+import { getElementPosition, setInputValue } from "./dom"
 
 // Mock DOM methods
 const mockGetElementById = jest.fn()
@@ -157,5 +157,12 @@ describe("getElementPosition", () => {
       id: "test-id",
       top: 150, // 200 + (-50) - 0
     })
+  })
+})
+
+describe("setInputValue", () => {
+  it("does nothing when the input is missing", () => {
+    expect(() => setInputValue(null, "value", true)).not.toThrow()
+    expect(() => setInputValue(undefined, "value")).not.toThrow()
   })
 })
