@@ -15,6 +15,11 @@ const timestamp = "2022-01-01 00:00:00.000"
 const lateUtc = "2026-10-05T23:30:00Z"
 const earlyUtc = "2026-10-05T00:30:00Z"
 
+// ICU versions differ on some separators: macOS joins medium date and time with " at " and
+// spaces range dashes, while the ICU bundled with Linux Bun uses ", " and an unspaced dash
+const dateTimeJoin = "(,| at)"
+const rangeDash = "\\s?–\\s?"
+
 describe("formatDate", () => {
   it("formats date correctly", () => {
     expect(formatDate(timestamp)).toEqual("Jan 1, 2022")
@@ -104,8 +109,12 @@ describe("options object", () => {
     })
 
     it("formats date and time in UTC near midnight", () => {
-      expect(formatDateTime(lateUtc, { timeZone: "UTC" })).toBe("Oct 5, 2026 at 11:30 PM")
-      expect(formatDateTime(earlyUtc, { timeZone: "UTC" })).toBe("Oct 5, 2026 at 12:30 AM")
+      expect(formatDateTime(lateUtc, { timeZone: "UTC" })).toMatch(
+        new RegExp(`^Oct 5, 2026${dateTimeJoin} 11:30 PM$`),
+      )
+      expect(formatDateTime(earlyUtc, { timeZone: "UTC" })).toMatch(
+        new RegExp(`^Oct 5, 2026${dateTimeJoin} 12:30 AM$`),
+      )
     })
 
     it("formats date-only strings as the same calendar day", () => {
@@ -169,8 +178,8 @@ describe("options object", () => {
     it("passes options to the matching formatter", () => {
       expect(formatDateOrTime(lateUtc, "date", { timeZone: "UTC" })).toBe("Oct 5, 2026")
       expect(formatDateOrTime(lateUtc, "time", { timeZone: "UTC" })).toBe("11:30 PM")
-      expect(formatDateOrTime(lateUtc, "datetime", { timeZone: "UTC" })).toBe(
-        "Oct 5, 2026 at 11:30 PM",
+      expect(formatDateOrTime(lateUtc, "datetime", { timeZone: "UTC" })).toMatch(
+        new RegExp(`^Oct 5, 2026${dateTimeJoin} 11:30 PM$`),
       )
     })
   })
@@ -185,7 +194,9 @@ describe("options object", () => {
 
     it("formats a range with locale and individual fields", () => {
       const options = { timeZone: "UTC", locale: "es" }
-      expect(formatDateRange("2026-10-05", "2026-10-09", options)).toBe("5 – 9 oct 2026")
+      expect(formatDateRange("2026-10-05", "2026-10-09", options)).toMatch(
+        new RegExp(`^5${rangeDash}9 oct 2026$`),
+      )
 
       const fields = { day: "numeric", month: "short", timeZone: "UTC" } as const
       expect(formatDateRange("2026-10-05", "2026-11-09", fields)).toBe("Oct 5 – Nov 9")
