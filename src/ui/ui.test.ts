@@ -120,6 +120,15 @@ describe("getCurrentPage", () => {
 
     expect(currentPage).toBe(1)
   })
+
+  it("returns 1 for values that pass the number check but do not parse", () => {
+    expect(getCurrentPage("  ")).toBe(1)
+    expect(getCurrentPage(".5")).toBe(1)
+  })
+
+  it("returns the integer part of a decimal page", () => {
+    expect(getCurrentPage("2.7")).toBe(2)
+  })
 })
 
 describe("getPageLink", () => {

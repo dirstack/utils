@@ -70,7 +70,10 @@ export type GetPageParams<T> = T & {
  * @returns The current page number as a number.
  */
 export function getCurrentPage(page?: string | null) {
-  return Math.max(page && !Number.isNaN(Number(page)) ? Number.parseInt(page, 10) : 1, 1)
+  if (!page || Number.isNaN(Number(page))) return 1
+
+  // Strings such as "  " or ".5" pass the check above but parse to NaN.
+  return Math.max(Number.parseInt(page, 10) || 1, 1)
 }
 
 /**
