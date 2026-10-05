@@ -5,7 +5,7 @@
 /**
  * An error object with a message property.
  */
-export type ErrorWithMessage = {
+export interface ErrorWithMessage {
   message: string
 }
 
@@ -14,7 +14,7 @@ export type ErrorWithMessage = {
  * @param error - The object to check.
  * @returns True if the object is an ErrorWithMessage, false otherwise.
  */
-export const isErrorWithMessage = (error: unknown): error is ErrorWithMessage => {
+export function isErrorWithMessage(error: unknown): error is ErrorWithMessage {
   return (
     typeof error === "object" &&
     error !== null &&
@@ -30,7 +30,7 @@ export const isErrorWithMessage = (error: unknown): error is ErrorWithMessage =>
  * @param maybeError - The value to convert.
  * @returns An ErrorWithMessage object.
  */
-export const toErrorWithMessage = (maybeError: unknown): ErrorWithMessage => {
+export function toErrorWithMessage(maybeError: unknown): ErrorWithMessage {
   if (isErrorWithMessage(maybeError)) return maybeError
 
   try {
@@ -49,6 +49,6 @@ export const toErrorWithMessage = (maybeError: unknown): ErrorWithMessage => {
  * @param error - The value to get the error message from.
  * @returns The error message as a string.
  */
-export const getErrorMessage = (error: unknown) => {
+export function getErrorMessage(error: unknown) {
   return toErrorWithMessage(error).message
 }

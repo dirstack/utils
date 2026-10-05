@@ -40,8 +40,8 @@ describe("isValidUrl", () => {
   })
 
   it("handles edge cases", () => {
-    expect(isValidUrl(null as any)).toBe(false)
-    expect(isValidUrl(123 as any)).toBe(false)
+    expect(isValidUrl(null as never)).toBe(false)
+    expect(isValidUrl(123 as never)).toBe(false)
   })
 })
 

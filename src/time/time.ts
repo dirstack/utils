@@ -34,10 +34,10 @@ const FIELD_OPTIONS = [
 const FORMATTER_CACHE_LIMIT = 100
 const formatterCache = new Map<string, Intl.DateTimeFormat>()
 
-const getFormatter = (
+function getFormatter(
   { locale = DEFAULT_LOCALE, ...options }: FormatDateOptions,
   defaults: Pick<Intl.DateTimeFormatOptions, "dateStyle" | "timeStyle">,
-) => {
+) {
   if (!FIELD_OPTIONS.some(key => options[key] !== undefined)) {
     options.dateStyle ??= defaults.dateStyle
     options.timeStyle ??= defaults.timeStyle
@@ -238,7 +238,7 @@ export function formatDateRange(
  * @param wpm - The average words per minute to use for the calculation. Defaults to 265.
  * @returns The estimated read time in minutes.
  */
-export const getReadTime = (content: string | null, wpm = 265): number => {
+export function getReadTime(content: string | null, wpm = 265): number {
   if (!content) {
     return 0
   }

@@ -7,7 +7,7 @@
  * @param url - The URL to validate
  * @returns True if the URL is valid
  */
-export const isValidUrl = (url?: string): boolean => {
+export function isValidUrl(url?: string): boolean {
   if (!url || typeof url !== "string") return false
 
   try {
@@ -24,7 +24,7 @@ export const isValidUrl = (url?: string): boolean => {
  * @param secure - Whether to use https (default: true, false for localhost)
  * @returns URL with protocol added
  */
-export const addProtocol = (url?: string, secure?: boolean): string => {
+export function addProtocol(url?: string, secure?: boolean): string {
   if (!url) return ""
 
   // Don't add protocol if already present
@@ -42,7 +42,7 @@ export const addProtocol = (url?: string, secure?: boolean): string => {
  * @param url - The URL string with protocol
  * @returns URL without protocol
  */
-export const removeProtocol = (url?: string): string => {
+export function removeProtocol(url?: string): string {
   return url?.replace(/^https?:\/\//, "") ?? ""
 }
 
@@ -51,7 +51,7 @@ export const removeProtocol = (url?: string): string => {
  * @param url - The URL to normalize
  * @returns Normalized URL
  */
-export const normalizeUrl = (url?: string): string => {
+export function normalizeUrl(url?: string): string {
   if (!url) return ""
 
   let normalized = url.trim()
@@ -86,7 +86,7 @@ export const normalizeUrl = (url?: string): string => {
  * @param url - The URL string
  * @returns Base URL without path, search, or hash
  */
-export const getBaseUrl = (url: string): string => {
+export function getBaseUrl(url: string): string {
   try {
     const parsedUrl = new URL(url)
     return `${parsedUrl.protocol}//${parsedUrl.host}`
@@ -100,7 +100,7 @@ export const getBaseUrl = (url: string): string => {
  * @param url - The URL string
  * @returns Domain name without www prefix
  */
-export const getDomain = (url: string): string => {
+export function getDomain(url: string): string {
   try {
     if (!isValidUrl(url)) return url
 
@@ -116,7 +116,7 @@ export const getDomain = (url: string): string => {
  * @param url - The URL to check
  * @returns True if URL is external (contains protocol)
  */
-export const isExternalUrl = (url?: string): boolean => {
+export function isExternalUrl(url?: string): boolean {
   if (!url) return false
   return /^https?:\/\//.test(url)
 }
@@ -126,7 +126,7 @@ export const isExternalUrl = (url?: string): boolean => {
  * @param url - The URL to check
  * @returns True if URL points to localhost
  */
-export const isLocalhostUrl = (url?: string): boolean => {
+export function isLocalhostUrl(url?: string): boolean {
   if (!url) return false
 
   try {
@@ -144,7 +144,7 @@ export const isLocalhostUrl = (url?: string): boolean => {
  * @param paths - Path segments to join
  * @returns Combined URL
  */
-export const joinUrlPaths = (base: string, ...paths: string[]): string => {
+export function joinUrlPaths(base: string, ...paths: string[]): string {
   if (!base) return ""
 
   let result = normalizeUrl(base)
@@ -166,7 +166,7 @@ export const joinUrlPaths = (base: string, ...paths: string[]): string => {
  * @param url - The URL string
  * @returns Object containing query parameters
  */
-export const getQueryParams = (url: string): Record<string, string> => {
+export function getQueryParams(url: string): Record<string, string> {
   try {
     const parsedUrl = new URL(url)
     const params: Record<string, string> = {}
@@ -187,10 +187,10 @@ export const getQueryParams = (url: string): Record<string, string> => {
  * @param params - Parameters to add/update
  * @returns URL with updated parameters
  */
-export const setQueryParams = (
+export function setQueryParams(
   url: string,
   params: Record<string, string | number | boolean>,
-): string => {
+): string {
   try {
     const parsedUrl = new URL(url)
 
@@ -214,7 +214,7 @@ export const setQueryParams = (
  * @param url - The URL string
  * @returns URL without query parameters
  */
-export const removeQueryParams = (url?: string): string => {
+export function removeQueryParams(url?: string): string {
   if (!url) return ""
 
   try {
@@ -229,7 +229,7 @@ export const removeQueryParams = (url?: string): string => {
 }
 
 /** Options for checkUrlAvailability */
-export type CheckUrlAvailabilityOptions = {
+export interface CheckUrlAvailabilityOptions {
   /** Request timeout in milliseconds (default: 5000) */
   timeout?: number
   /** HTTP status codes below this value are considered successful (default: 400) */
@@ -245,10 +245,10 @@ export type CheckUrlAvailabilityOptions = {
  * @param options - Configuration options for the request
  * @returns True if the URL is accessible (status < 400), false otherwise
  */
-export const checkUrlAvailability = async (
+export async function checkUrlAvailability(
   url: string,
   options: CheckUrlAvailabilityOptions = {},
-): Promise<boolean> => {
+): Promise<boolean> {
   if (!url) {
     return false
   }
@@ -261,7 +261,7 @@ export const checkUrlAvailability = async (
 
   const normalizedUrl = normalizeUrl(url)
 
-  const makeRequest = async (method: "HEAD" | "GET"): Promise<Response | null> => {
+  async function makeRequest(method: "HEAD" | "GET"): Promise<Response | null> {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), timeout)
 
@@ -297,7 +297,7 @@ export const checkUrlAvailability = async (
  * @param src - The image source string to validate
  * @returns True if the source is a valid relative path or safe absolute URL
  */
-export const isValidImageSrc = (src?: string | null): src is string => {
+export function isValidImageSrc(src?: string | null): src is string {
   if (!src) return false
 
   // Relative path (e.g. "/images/photo.png")

@@ -10,7 +10,7 @@ import { isTruthy } from "../helpers/helpers"
  * @param end - The ending number of the range.
  * @returns An array of numbers within the specified range.
  */
-export const range = (start: number, end: number) => {
+export function range(start: number, end: number) {
   const length = end - start + 1
 
   return Array.from({ length }, (_, idx) => idx + start)
@@ -24,7 +24,7 @@ export const range = (start: number, end: number) => {
  * @param key - Maps an item to the value identifying its uniqueness.
  * @returns A new array with duplicates removed.
  */
-export const uniqBy = <T, K>(items: T[], key: (item: T) => K): T[] => {
+export function uniqBy<T, K>(items: T[], key: (item: T) => K): T[] {
   const seen = new Set<K>()
 
   return items.filter(item => {
@@ -40,7 +40,7 @@ export const uniqBy = <T, K>(items: T[], key: (item: T) => K): T[] => {
  * @param items - The array to deduplicate.
  * @returns A new array with duplicates removed.
  */
-export const uniq = <T>(items: T[]): T[] => {
+export function uniq<T>(items: T[]): T[] {
   return [...new Set(items)]
 }
 
@@ -51,7 +51,7 @@ export const uniq = <T>(items: T[]): T[] => {
  * @param size - The maximum size of each chunk.
  * @returns An array of chunks.
  */
-export const chunk = <T>(items: T[], size: number): T[][] => {
+export function chunk<T>(items: T[], size: number): T[][] {
   const chunks: T[][] = []
 
   for (let i = 0; i < items.length; i += size) {
@@ -72,10 +72,7 @@ export const splitArrayIntoChunks = chunk
  * @param key - Maps an item to its group key.
  * @returns An object mapping each key to the items that produced it.
  */
-export const groupBy = <T, K extends PropertyKey>(
-  items: T[],
-  key: (item: T) => K,
-): Record<K, T[]> => {
+export function groupBy<T, K extends PropertyKey>(items: T[], key: (item: T) => K): Record<K, T[]> {
   return items.reduce(
     (acc, item) => {
       const k = key(item)
@@ -93,7 +90,7 @@ export const groupBy = <T, K extends PropertyKey>(
  * @param key - Maps an item to its key.
  * @returns An object mapping each key to a single item.
  */
-export const keyBy = <T, K extends PropertyKey>(items: T[], key: (item: T) => K): Record<K, T> => {
+export function keyBy<T, K extends PropertyKey>(items: T[], key: (item: T) => K): Record<K, T> {
   return items.reduce(
     (acc, item) => {
       acc[key(item)] = item
@@ -109,10 +106,10 @@ export const keyBy = <T, K extends PropertyKey>(items: T[], key: (item: T) => K)
  * @param key - Maps an item to its key.
  * @returns An object mapping each key to its occurrence count.
  */
-export const countBy = <T, K extends PropertyKey>(
+export function countBy<T, K extends PropertyKey>(
   items: T[],
   key: (item: T) => K,
-): Record<K, number> => {
+): Record<K, number> {
   return items.reduce(
     (acc, item) => {
       const k = key(item)
@@ -129,7 +126,7 @@ export const countBy = <T, K extends PropertyKey>(
  * @param items - The array to compact.
  * @returns A new array without falsy values.
  */
-export const compact = <T>(items: (T | null | undefined | false)[]): T[] => {
+export function compact<T>(items: (T | null | undefined | false)[]): T[] {
   return items.filter(isTruthy)
 }
 
@@ -142,11 +139,11 @@ export const compact = <T>(items: (T | null | undefined | false)[]): T[] => {
  * @param order - Sort direction, ascending by default.
  * @returns A new sorted array.
  */
-export const sortBy = <T>(
+export function sortBy<T>(
   items: T[],
   key: (item: T) => number | string | Date,
   order: "asc" | "desc" = "asc",
-): T[] => {
+): T[] {
   const dir = order === "asc" ? 1 : -1
 
   return [...items].sort((a, b) => {
@@ -162,7 +159,7 @@ export const sortBy = <T>(
  * @param items - The numbers to sum.
  * @returns The total.
  */
-export const sum = (items: number[]): number => {
+export function sum(items: number[]): number {
   return items.reduce((acc, item) => acc + item, 0)
 }
 
@@ -172,6 +169,6 @@ export const sum = (items: number[]): number => {
  * @param key - Maps an item to the number to add.
  * @returns The total.
  */
-export const sumBy = <T>(items: T[], key: (item: T) => number): number => {
+export function sumBy<T>(items: T[], key: (item: T) => number): number {
   return items.reduce((acc, item) => acc + key(item), 0)
 }

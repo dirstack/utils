@@ -8,7 +8,7 @@
  * @returns The parsed JSON object or the original string.
  * @template T - The type of the parsed JSON object.
  */
-export const maybeParseJson = <T>(value: string) => {
+export function maybeParseJson<T>(value: string) {
   try {
     return JSON.parse(value) as T
   } catch {
@@ -21,7 +21,7 @@ export const maybeParseJson = <T>(value: string) => {
  * @param value - The value to stringify.
  * @returns The JSON string representation of the object, or the original string if it's not an object.
  */
-export const maybeStringifyJson = (value?: object | string) => {
+export function maybeStringifyJson(value?: object | string) {
   if (typeof value === "object") {
     return JSON.stringify(value)
   }
@@ -36,7 +36,7 @@ export const maybeStringifyJson = (value?: object | string) => {
  * @returns A deep clone of the value with only JSON-serializable properties.
  * @template T - The type of the value.
  */
-export const serialize = <T>(data: T): T => {
+export function serialize<T>(data: T): T {
   return JSON.parse(JSON.stringify(data))
 }
 
@@ -46,6 +46,6 @@ export const serialize = <T>(data: T): T => {
  * @returns The parsed value.
  * @template T - The expected type of the deserialized value.
  */
-export const deserialize = <T>(json: string): T => {
+export function deserialize<T>(json: string): T {
   return JSON.parse(json) as T
 }

@@ -7,7 +7,7 @@
  * @param id - The ID of the element to get the position of.
  * @returns An object with the ID and top position of the element, or undefined if the element is not found.
  */
-export const getElementPosition = (id?: string) => {
+export function getElementPosition(id?: string) {
   const el = document.getElementById(id || "")
   if (!el) return
 
@@ -24,11 +24,11 @@ export const getElementPosition = (id?: string) => {
  * @param input - The HTMLInputElement to set the value of.
  * @param value - The value to set on the input element.
  */
-export const setInputValue = (
+export function setInputValue(
   input: HTMLInputElement | null | undefined,
   value: unknown,
   triggerChange = false,
-) => {
+) {
   const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
     HTMLInputElement.prototype,
     "value",

@@ -9,7 +9,7 @@ import type { ReplaceNullWithUndefined } from ".."
  * @param obj - The object to check.
  * @returns `true` if the object is empty, `false` otherwise.
  */
-export const isEmptyObject = (obj: Record<string, unknown> = {}) => {
+export function isEmptyObject(obj: Record<string, unknown> = {}) {
   const proto = Object.getPrototypeOf(obj)
   return (proto === Object.prototype || proto === null) && !Object.keys(obj).length
 }
@@ -20,7 +20,7 @@ export const isEmptyObject = (obj: Record<string, unknown> = {}) => {
  * @param obj - The object to check.
  * @returns `true` if the key is present in the object, `false` otherwise.
  */
-export const isKeyInObject = <T extends object>(key: PropertyKey, obj: T): key is keyof T => {
+export function isKeyInObject<T extends object>(key: PropertyKey, obj: T): key is keyof T {
   return key in obj
 }
 
@@ -31,7 +31,7 @@ export const isKeyInObject = <T extends object>(key: PropertyKey, obj: T): key i
  * @param b - The second object to compare.
  * @returns A number indicating the sort order of the two objects.
  */
-export const sortObjectKeys = (keys: string[]) => {
+export function sortObjectKeys(keys: string[]) {
   return (a: Record<string, unknown>, b: Record<string, unknown>) => {
     const aIndex = keys.indexOf(Object.keys(a)[0] ?? "")
     const bIndex = keys.indexOf(Object.keys(b)[0] ?? "")
@@ -50,10 +50,10 @@ export const sortObjectKeys = (keys: string[]) => {
  * @param comparator - An optional comparator function to use when sorting the keys.
  * @returns - A new object with the sorted keys.
  */
-export const sortObject = <T extends Record<K, unknown>, K extends keyof T>(
+export function sortObject<T extends Record<K, unknown>, K extends keyof T>(
   obj: T,
   comparator?: (a: unknown, b: unknown) => number,
-) => {
+) {
   return Object.keys(obj)
     .sort(comparator)
     .reduce((result, key) => {
@@ -74,10 +74,7 @@ export const sortObject = <T extends Record<K, unknown>, K extends keyof T>(
  * const publicUser = pick(user, ['id', 'name', 'email'])
  * // Result: { id: 1, name: 'John', email: 'john@example.com' }
  */
-export const pick = <T extends object, K extends keyof T>(
-  obj: T,
-  keys: readonly K[],
-): Pick<T, K> => {
+export function pick<T extends object, K extends keyof T>(obj: T, keys: readonly K[]): Pick<T, K> {
   const result = {} as Pick<T, K>
   for (const key of keys) {
     if (key in obj) {
@@ -105,10 +102,7 @@ export const pickFromObject = pick
  * const publicUser = omit(user, ['password'])
  * // Result: { id: 1, name: 'John' }
  */
-export const omit = <T extends object, K extends keyof T>(
-  obj: T,
-  keys: readonly K[],
-): Omit<T, K> => {
+export function omit<T extends object, K extends keyof T>(obj: T, keys: readonly K[]): Omit<T, K> {
   const result = { ...obj }
   for (const key of keys) {
     delete result[key]
@@ -123,13 +117,13 @@ export const omit = <T extends object, K extends keyof T>(
  * @param obj - The object to convert.
  * @returns The converted object.
  */
-export const nullsToUndefined = <T>(obj: T): ReplaceNullWithUndefined<T> => {
+export function nullsToUndefined<T>(obj: T): ReplaceNullWithUndefined<T> {
   if (obj === null) {
-    return undefined as any
+    return undefined as ReplaceNullWithUndefined<T>
   }
 
   if (Array.isArray(obj)) {
-    return obj.map(item => nullsToUndefined(item)) as any
+    return obj.map(item => nullsToUndefined(item)) as ReplaceNullWithUndefined<T>
   }
 
   // object check based on: https://stackoverflow.com/a/51458052/6489012
@@ -139,8 +133,8 @@ export const nullsToUndefined = <T>(obj: T): ReplaceNullWithUndefined<T> => {
     for (const key of Object.keys(source)) {
       result[key] = nullsToUndefined(source[key])
     }
-    return result as any
+    return result as ReplaceNullWithUndefined<T>
   }
 
-  return obj as any
+  return obj as ReplaceNullWithUndefined<T>
 }

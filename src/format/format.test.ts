@@ -8,7 +8,9 @@ const SWISS_SEPARATOR = "'" // Swiss thousands separator, normalized to a plain 
 
 // de-CH's grouping glyph varies by ICU build (U+2019 on full ICU, U+0027 on some Bun builds);
 // normalize it so the assertion checks the formatting, not the glyph.
-const normalizeApostrophe = (value: string) => value.replace(/’/g, "'")
+function normalizeApostrophe(value: string) {
+  return value.replace(/’/g, "'")
+}
 
 describe("formatNumber", () => {
   it("formats numbers with standard notation (default)", () => {

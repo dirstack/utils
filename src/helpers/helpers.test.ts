@@ -102,7 +102,7 @@ describe("retry", () => {
 
   it("rethrows the last error once retries are exhausted", async () => {
     let attempts = 0
-    const onRetry = (_error: unknown, attempt: number) => {
+    function onRetry(_error: unknown, attempt: number) {
       expect(attempt).toBe(attempts)
     }
 

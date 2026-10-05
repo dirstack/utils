@@ -10,9 +10,8 @@ describe("processBatch", () => {
     processingOrder = []
   })
 
-  const createProcessor =
-    (delay = 0, shouldTrackOrder = false) =>
-    async (item: number) => {
+  function createProcessor(delay = 0, shouldTrackOrder = false) {
+    return async (item: number) => {
       if (shouldTrackOrder) {
         processingOrder.push(item)
       }
@@ -22,8 +21,11 @@ describe("processBatch", () => {
       processedItems.push(item)
       return item * 2
     }
+  }
 
-  const createSlowProcessor = (delay = 50) => createProcessor(delay, true)
+  function createSlowProcessor(delay = 50) {
+    return createProcessor(delay, true)
+  }
 
   it("should process an empty array and return empty results", async () => {
     const items: number[] = []
@@ -168,7 +170,7 @@ describe("processBatch", () => {
     // Earlier items finish later than later items. A naive completion-ordered
     // pool would reorder and drop results here.
     const items = [1, 2, 3, 4, 5, 6]
-    const processor = async (item: number) => {
+    async function processor(item: number) {
       await new Promise(resolve => setTimeout(resolve, (7 - item) * 10))
       return item * 2
     }
@@ -180,7 +182,7 @@ describe("processBatch", () => {
   it("should report progress after each batch", async () => {
     const items = [1, 2, 3, 4, 5]
     const processor = createProcessor()
-    const progress: Array<{ batch: number; completed: number }> = []
+    const progress: { batch: number; completed: number }[] = []
 
     await processBatch(items, processor, {
       batchSize: 2,
@@ -201,24 +203,24 @@ describe("processBatch", () => {
 
 describe("processBatchWithErrorHandling", () => {
   let processedItems: number[] = []
-  let errors: Array<{ error: Error; item: number }> = []
+  let errors: { error: Error; item: number }[] = []
 
   beforeEach(() => {
     processedItems = []
     errors = []
   })
 
-  const createProcessorWithErrors =
-    (errorItems: number[] = []) =>
-    async (item: number) => {
+  function createProcessorWithErrors(errorItems: number[] = []) {
+    return async (item: number) => {
       if (errorItems.includes(item)) {
         throw new Error(`Error processing item ${item}`)
       }
       processedItems.push(item)
       return item * 2
     }
+  }
 
-  const errorHandler = (error: Error, item: number) => {
+  function errorHandler(error: Error, item: number) {
     errors.push({ error, item })
   }
 
@@ -285,7 +287,7 @@ describe("processBatchWithErrorHandling", () => {
   })
 
   it("should handle non-Error exceptions", async () => {
-    const processor = async (item: number) => {
+    async function processor(item: number) {
       if (item === 2) {
         throw "String error"
       }
@@ -304,7 +306,7 @@ describe("processBatchWithErrorHandling", () => {
 
   it("should respect concurrency and timing options", async () => {
     const items = [1, 2, 3, 4, 5, 6]
-    const processor = async (item: number) => {
+    async function processor(item: number) {
       await new Promise(resolve => setTimeout(resolve, 20))
       if (item === 3) throw new Error("Test error")
       return item * 2
@@ -340,6 +342,11 @@ describe("processBatchWithErrorHandling", () => {
   })
 })
 
+interface ApiRequest {
+  id: number
+  data: string
+}
+
 describe("integration tests", () => {
   it("should handle complex real-world scenario", async () => {
     // Simulate processing API requests with rate limiting
@@ -351,7 +358,7 @@ describe("integration tests", () => {
     const failingIds = [5, 12, 18]
     let requestCount = 0
 
-    const mockApiCall = async (request: { id: number; data: string }) => {
+    async function mockApiCall(request: ApiRequest) {
       requestCount++
       await new Promise(resolve => setTimeout(resolve, 10)) // Simulate API delay
 
@@ -362,8 +369,8 @@ describe("integration tests", () => {
       return { id: request.id, result: `processed-${request.data}` }
     }
 
-    const errors: Array<{ error: Error; item: any }> = []
-    const errorHandler = (error: Error, item: any) => {
+    const errors: { error: Error; item: ApiRequest }[] = []
+    function errorHandler(error: Error, item: ApiRequest) {
       errors.push({ error, item })
     }
 
