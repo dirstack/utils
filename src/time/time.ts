@@ -1,6 +1,8 @@
 /**
  * Utility functions related to time.
  */
+import { createBoundedCache, serializeOptions } from "../internal/cache"
+
 type DateStyle = Intl.DateTimeFormatOptions["dateStyle"]
 type TimeStyle = Intl.DateTimeFormatOptions["timeStyle"]
 type Timestamp = string | number | Date
@@ -30,9 +32,7 @@ const FIELD_OPTIONS = [
   "timeZoneName",
 ] as const
 
-// Caps the cache so request-derived locales or time zones cannot grow it without limit
-const FORMATTER_CACHE_LIMIT = 100
-const formatterCache = new Map<string, Intl.DateTimeFormat>()
+const getCachedFormatter = createBoundedCache<Intl.DateTimeFormat>()
 
 function getFormatter(
   { locale = DEFAULT_LOCALE, ...options }: FormatDateOptions,
@@ -43,22 +43,10 @@ function getFormatter(
     options.timeStyle ??= defaults.timeStyle
   }
 
-  // Sorted keys make the cache key independent of the order the options were written in
-  const key = `${locale}:${JSON.stringify(options, Object.keys(options).sort())}`
-  let formatter = formatterCache.get(key)
-
-  if (!formatter) {
-    formatter = new Intl.DateTimeFormat(locale, options)
-
-    // Maps keep insertion order, so the first key is the oldest entry
-    if (formatterCache.size >= FORMATTER_CACHE_LIMIT) {
-      formatterCache.delete(formatterCache.keys().next().value!)
-    }
-
-    formatterCache.set(key, formatter)
-  }
-
-  return formatter
+  return getCachedFormatter(
+    `${locale}:${serializeOptions(options)}`,
+    () => new Intl.DateTimeFormat(locale, options),
+  )
 }
 
 /**
