@@ -253,8 +253,8 @@ describe("processBatchWithErrorHandling", () => {
     expect(results[3]).toBeInstanceOf(Error) // Item 4 failed
 
     expect(errors).toHaveLength(2)
-    expect(errors[0].item).toBe(2)
-    expect(errors[1].item).toBe(4)
+    expect(errors[0]?.item).toBe(2)
+    expect(errors[1]?.item).toBe(4)
     expect(processedItems).toEqual([1, 3])
   })
 
@@ -322,7 +322,7 @@ describe("processBatchWithErrorHandling", () => {
 
     expect(results).toHaveLength(6)
     expect(errors).toHaveLength(1)
-    expect(errors[0].item).toBe(3)
+    expect(errors[0]?.item).toBe(3)
 
     // Should take roughly 3 * 20ms for 3 sequential pairs
     const duration = endTime - startTime

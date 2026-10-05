@@ -98,7 +98,7 @@ describe("getRandomElement", () => {
   it("returns a value from the array", () => {
     const array = [1, 2, 3]
     const result = getRandomElement(array)
-    expect([1, 2, 3]).toContain(result)
+    expect(result).toBeOneOf([1, 2, 3])
   })
 })
 
@@ -106,6 +106,6 @@ describe("getRandomProperty", () => {
   it("returns a value from the object", () => {
     const obj = { a: 1, b: 2, c: 3 }
     const result = getRandomProperty(obj)
-    expect([1, 2, 3]).toContain(result)
+    expect(result).toBeOneOf([1, 2, 3])
   })
 })
