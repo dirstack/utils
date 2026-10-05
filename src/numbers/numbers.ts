@@ -3,7 +3,7 @@
  */
 
 /**
- * Clamp a number within a specified range. The lower and upper bounds are both
+ * Clamps a number within a specified range. The lower and upper bounds are both
  * optional.
  * @param value - The number to clamp.
  * @param min - The minimum value of the range.
@@ -30,12 +30,13 @@ export function clamp(value: number, min?: number, max?: number) {
 export const keepNumberInRange = clamp
 
 /**
- * Parse a string into a numeric value.
+ * Parses a string or number into a numeric value.
  * @param value - The value to parse into a numeric value.
  * @returns The parsed numeric value, or `undefined` if the value cannot be parsed.
  */
 export function parseNumericValue(value?: string | number | null) {
   if (value === undefined || value === null) return undefined
+
   const parsed = Number.parseFloat(value.toString())
 
   return Number.isNaN(parsed) ? undefined : parsed

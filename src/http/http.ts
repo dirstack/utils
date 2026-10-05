@@ -4,8 +4,8 @@
 
 /**
  * Checks if a URL is a valid http(s) URL using the URL constructor.
- * @param url - The URL to validate
- * @returns True if the URL is valid
+ * @param url - The URL to validate.
+ * @returns True if the URL is valid.
  */
 export function isValidUrl(url?: string): boolean {
   if (!url || typeof url !== "string") return false
@@ -19,72 +19,62 @@ export function isValidUrl(url?: string): boolean {
 }
 
 /**
- * Adds protocol to a URL string
- * @param url - The URL string without protocol
- * @param secure - Whether to use https (default: true, false for localhost)
- * @returns URL with protocol added
+ * Adds a protocol to a URL string that has none.
+ * @param url - The URL string without protocol.
+ * @param secure - Whether to use https. Defaults to true, or false for localhost URLs.
+ * @returns The URL with a protocol.
  */
 export function addProtocol(url?: string, secure?: boolean): string {
   if (!url) return ""
+  if (isExternalUrl(url)) return url
 
-  // Don't add protocol if already present
-  if (url.startsWith("http://") || url.startsWith("https://")) return url
-
-  // Determine protocol based on secure flag and URL
-  const protocol =
-    secure !== undefined ? (secure ? "https" : "http") : isLocalhostUrl(url) ? "http" : "https"
+  const protocol = (secure ?? !isLocalhostUrl(url)) ? "https" : "http"
 
   return `${protocol}://${url}`
 }
 
 /**
- * Removes protocol from a URL string
- * @param url - The URL string with protocol
- * @returns URL without protocol
+ * Removes the http(s) protocol from a URL string.
+ * @param url - The URL string with protocol.
+ * @returns The URL without protocol.
  */
 export function removeProtocol(url?: string): string {
   return url?.replace(/^https?:\/\//, "") ?? ""
 }
 
 /**
- * Normalizes a URL by removing trailing slashes and cleaning up format
- * @param url - The URL to normalize
- * @returns Normalized URL
+ * Removes one trailing slash, keeping a lone root slash.
+ */
+function removeTrailingSlash(value: string) {
+  return value.length > 1 && value.endsWith("/") ? value.slice(0, -1) : value
+}
+
+/**
+ * Normalizes a URL by trimming it and removing the trailing slash from its path.
+ * @param url - The URL to normalize.
+ * @returns The normalized URL.
  */
 export function normalizeUrl(url?: string): string {
   if (!url) return ""
 
-  let normalized = url.trim()
+  const normalized = url.trim()
 
-  // Handle URLs with query parameters or hash fragments
+  // With a query or hash, the trailing slash sits before it, so only the path is trimmed.
   if (normalized.includes("?") || normalized.includes("#")) {
     try {
       const parsedUrl = new URL(normalized)
-      // Remove trailing slash from pathname only
-      if (parsedUrl.pathname.length > 1 && parsedUrl.pathname.endsWith("/")) {
-        parsedUrl.pathname = parsedUrl.pathname.slice(0, -1)
-      }
+      parsedUrl.pathname = removeTrailingSlash(parsedUrl.pathname)
       return parsedUrl.toString()
-    } catch {
-      // Fallback for invalid URLs - just remove trailing slash if no query/hash
-      return normalized.length > 1 && normalized.endsWith("/")
-        ? normalized.slice(0, -1)
-        : normalized
-    }
+    } catch {}
   }
 
-  // Simple case: remove trailing slash but keep root slash
-  if (normalized.length > 1 && normalized.endsWith("/")) {
-    normalized = normalized.slice(0, -1)
-  }
-
-  return normalized
+  return removeTrailingSlash(normalized)
 }
 
 /**
- * Gets the base URL (protocol + hostname + port)
- * @param url - The URL string
- * @returns Base URL without path, search, or hash
+ * Gets the base URL: protocol, hostname and port.
+ * @param url - The URL string.
+ * @returns The base URL without path, search, or hash, or the input if it cannot be parsed.
  */
 export function getBaseUrl(url: string): string {
   try {
@@ -96,25 +86,21 @@ export function getBaseUrl(url: string): string {
 }
 
 /**
- * Extracts the domain name from a URL
- * @param url - The URL string
- * @returns Domain name without www prefix
+ * Extracts the domain name from a URL.
+ * @param url - The URL string.
+ * @returns The domain name without www prefix, or the input if it is not a valid URL.
  */
 export function getDomain(url: string): string {
-  try {
-    if (!isValidUrl(url)) return url
+  if (!isValidUrl(url)) return url
 
-    const hostname = new URL(url).hostname
-    return hostname.startsWith("www.") ? hostname.slice(4) : hostname
-  } catch {
-    return url
-  }
+  const { hostname } = new URL(url)
+  return hostname.startsWith("www.") ? hostname.slice(4) : hostname
 }
 
 /**
- * Checks if a URL is external (has protocol)
- * @param url - The URL to check
- * @returns True if URL is external (contains protocol)
+ * Checks if a URL is external, meaning it starts with an http(s) protocol.
+ * @param url - The URL to check.
+ * @returns True if the URL is external.
  */
 export function isExternalUrl(url?: string): boolean {
   if (!url) return false
@@ -122,17 +108,16 @@ export function isExternalUrl(url?: string): boolean {
 }
 
 /**
- * Checks if a URL is a localhost URL
- * @param url - The URL to check
- * @returns True if URL points to localhost
+ * Checks if a URL is a localhost URL.
+ * @param url - The URL to check.
+ * @returns True if the URL points to localhost.
  */
 export function isLocalhostUrl(url?: string): boolean {
   if (!url) return false
 
   try {
     // An explicit protocol keeps addProtocol from calling back into this function.
-    const parsedUrl = new URL(addProtocol(url, false))
-    const hostname = parsedUrl.hostname
+    const { hostname } = new URL(addProtocol(url, false))
     return hostname === "localhost" || hostname === "127.0.0.1" || hostname.endsWith(".localhost")
   } catch {
     return url.includes("localhost") || url.includes("127.0.0.1")
@@ -140,10 +125,10 @@ export function isLocalhostUrl(url?: string): boolean {
 }
 
 /**
- * Joins URL paths safely
- * @param base - Base URL
- * @param paths - Path segments to join
- * @returns Combined URL
+ * Joins URL path segments with single slashes.
+ * @param base - The base URL.
+ * @param paths - The path segments to join. Leading and trailing slashes are removed.
+ * @returns The combined URL.
  */
 export function joinUrlPaths(base: string, ...paths: string[]): string {
   if (!base) return ""
@@ -153,40 +138,31 @@ export function joinUrlPaths(base: string, ...paths: string[]): string {
   for (const path of paths) {
     if (!path) continue
 
-    const cleanPath = path.replace(/^\/+|\/+$/g, "") // Remove leading/trailing slashes
-    if (cleanPath) {
-      result += `/${cleanPath}`
-    }
+    const trimmedPath = path.replace(/^\/+|\/+$/g, "")
+    if (trimmedPath) result += `/${trimmedPath}`
   }
 
   return result
 }
 
 /**
- * Extracts query parameters from a URL
- * @param url - The URL string
- * @returns Object containing query parameters
+ * Extracts query parameters from a URL. When a key repeats, the last value wins.
+ * @param url - The URL string.
+ * @returns An object containing the query parameters.
  */
 export function getQueryParams(url: string): Record<string, string> {
   try {
-    const parsedUrl = new URL(url)
-    const params: Record<string, string> = {}
-
-    parsedUrl.searchParams.forEach((value, key) => {
-      params[key] = value
-    })
-
-    return params
+    return Object.fromEntries(new URL(url).searchParams)
   } catch {
     return {}
   }
 }
 
 /**
- * Adds or updates query parameters in a URL
- * @param url - The base URL
- * @param params - Parameters to add/update
- * @returns URL with updated parameters
+ * Adds or updates query parameters in a URL.
+ * @param url - The base URL.
+ * @param params - The parameters to add or update.
+ * @returns The URL with updated parameters, or the input if it cannot be parsed.
  */
 export function setQueryParams(
   url: string,
@@ -195,25 +171,21 @@ export function setQueryParams(
   try {
     const parsedUrl = new URL(url)
 
-    Object.entries(params).forEach(([key, value]) => {
+    for (const [key, value] of Object.entries(params)) {
       parsedUrl.searchParams.set(key, String(value))
-    })
+    }
 
-    let result = parsedUrl.toString()
-
-    // Special case: remove trailing slash before query parameters for cleaner URLs
-    result = result.replace(/\/\?/, "?")
-
-    return result
+    // Drop the slash before the query, so "example.com/?page=2" becomes "example.com?page=2".
+    return parsedUrl.toString().replace(/\/\?/, "?")
   } catch {
     return url
   }
 }
 
 /**
- * Removes query parameters from a URL
- * @param url - The URL string
- * @returns URL without query parameters
+ * Removes query parameters from a URL.
+ * @param url - The URL string.
+ * @returns The URL without query parameters.
  */
 export function removeQueryParams(url?: string): string {
   if (!url) return ""
@@ -223,36 +195,35 @@ export function removeQueryParams(url?: string): string {
     parsedUrl.search = ""
     return normalizeUrl(parsedUrl.toString())
   } catch {
-    // For invalid URLs, try simple string manipulation
     const questionIndex = url.indexOf("?")
     return questionIndex !== -1 ? url.substring(0, questionIndex) : url
   }
 }
 
-/** Options for checkUrlAvailability */
+/**
+ * Options for {@link checkUrlAvailability}.
+ */
 export interface CheckUrlAvailabilityOptions {
-  /** Request timeout in milliseconds (default: 5000) */
+  /** Request timeout in milliseconds (default: 5000). */
   timeout?: number
-  /** HTTP status codes below this value are considered successful (default: 400) */
+  /** HTTP status codes below this value are considered successful (default: 400). */
   successStatusBelow?: number
-  /** User-Agent header to send with requests */
+  /** User-Agent header to send with requests. */
   userAgent?: string
 }
 
 /**
  * Checks if a URL is accessible by making an HTTP request.
  * First tries a HEAD request, then falls back to GET if HEAD fails.
- * @param url - The URL to check
- * @param options - Configuration options for the request
- * @returns True if the URL is accessible (status < 400), false otherwise
+ * @param url - The URL to check.
+ * @param options - Configuration options for the request.
+ * @returns True if the URL responds with a status below `successStatusBelow`, false otherwise.
  */
 export async function checkUrlAvailability(
   url: string,
   options: CheckUrlAvailabilityOptions = {},
 ): Promise<boolean> {
-  if (!url) {
-    return false
-  }
+  if (!url) return false
 
   const {
     timeout = 5000,
@@ -267,17 +238,16 @@ export async function checkUrlAvailability(
     const timeoutId = setTimeout(() => controller.abort(), timeout)
 
     try {
-      const response = await fetch(normalizedUrl, {
+      return await fetch(normalizedUrl, {
         method,
         signal: controller.signal,
         redirect: "follow",
         headers: { "User-Agent": userAgent },
       })
-      clearTimeout(timeoutId)
-      return response
     } catch {
-      clearTimeout(timeoutId)
       return null
+    } finally {
+      clearTimeout(timeoutId)
     }
   }
 
@@ -295,16 +265,13 @@ export async function checkUrlAvailability(
  * Checks if a string is a valid image source: a relative path (e.g.
  * "/images/photo.png") or an absolute URL using a safe image protocol
  * (http, https, or data). Other protocols such as `javascript:` are rejected.
- * @param src - The image source string to validate
- * @returns True if the source is a valid relative path or safe absolute URL
+ * @param src - The image source string to validate.
+ * @returns True if the source is a valid relative path or safe absolute URL.
  */
 export function isValidImageSrc(src?: string | null): src is string {
   if (!src) return false
-
-  // Relative path (e.g. "/images/photo.png")
   if (/^\/\w/.test(src)) return true
 
-  // Absolute URL with a safe image protocol
   try {
     const { protocol } = new URL(src)
     return protocol === "http:" || protocol === "https:" || protocol === "data:"

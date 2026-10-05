@@ -5,9 +5,10 @@
 import { getQueryParams } from "../http/http"
 
 /**
- * Pick the column count within [min, max] that leaves the last grid row as
- * full as possible: exact division wins (12 items, 5–6 → 6 cols; 10 → 5),
- * otherwise the count with the fewest empty slots. Ties go to more columns.
+ * Picks the column count within [min, max] that leaves the last grid row as
+ * full as possible. Exact division wins (12 items with 5–6 columns gives 6;
+ * 10 items gives 5), otherwise the count with the fewest empty slots. Ties go
+ * to more columns.
  * @param count - The number of items to lay out.
  * @param min - The minimum number of columns per row.
  * @param max - The maximum number of columns per row.
@@ -16,45 +17,40 @@ import { getQueryParams } from "../http/http"
 export function getBalancedColumns(count: number, min: number, max: number) {
   let best = min
 
-  for (let cols = min; cols <= max; cols++) {
-    const emptySlots = (cols - (count % cols)) % cols
+  for (let columns = min; columns <= max; columns++) {
+    const emptySlots = (columns - (count % columns)) % columns
     const bestEmptySlots = (best - (count % best)) % best
 
-    if (emptySlots <= bestEmptySlots) {
-      best = cols
-    }
+    if (emptySlots <= bestEmptySlots) best = columns
   }
 
   return best
 }
 
 /**
- * Returns a label for the first search key shortcut found.
+ * Returns a display label for a keyboard shortcut, such as "⌘K".
+ * @param shortcut - The shortcut key, and whether it needs the meta key.
  * @returns The label for the shortcut.
  */
 export function getShortcutLabel({ key, metaKey }: { key: string; metaKey?: boolean }) {
-  const label = `${metaKey ? "⌘" : ""}${key.toUpperCase()}`
-  return label
+  return `${metaKey ? "⌘" : ""}${key.toUpperCase()}`
 }
 
 /**
- * Check if a given color in hexadecimal format is a light color.
- * Only supports 6-digit hex colors (RGB). If longer string is provided, it will be trimmed.
- *
- * @param hexa - The hexadecimal color code to check (e.g. "#FF0000").
+ * Checks if a hexadecimal color is light.
+ * Only supports 6-digit hex colors (RGB). Longer strings are cut to 6 digits.
+ * @param color - The hexadecimal color code to check (e.g. "#FF0000").
  * @returns A boolean indicating if the color is light.
  */
-export function isLightColor(hexa: string): boolean {
-  // Remove # if present and trim to 6 characters
-  const hex = hexa.replace("#", "").substring(0, 6)
+export function isLightColor(color: string): boolean {
+  const hex = color.replace("#", "").substring(0, 6)
 
-  // Parse RGB values
-  const r = Number.parseInt(hex.substring(0, 2), 16)
-  const g = Number.parseInt(hex.substring(2, 4), 16)
-  const b = Number.parseInt(hex.substring(4, 6), 16)
+  const red = Number.parseInt(hex.substring(0, 2), 16)
+  const green = Number.parseInt(hex.substring(2, 4), 16)
+  const blue = Number.parseInt(hex.substring(4, 6), 16)
 
-  // Calculate perceived brightness
-  const brightness = r * 0.299 + g * 0.587 + b * 0.114
+  // Perceived brightness, weighted by how sensitive the eye is to each channel (ITU-R BT.601).
+  const brightness = red * 0.299 + green * 0.587 + blue * 0.114
 
   return brightness > 186
 }
@@ -74,7 +70,7 @@ export type GetPageParams<T> = T & {
  * @returns The current page number as a number.
  */
 export function getCurrentPage(page?: string | null) {
-  return Math.max(page && !Number.isNaN(Number(page)) ? Number.parseInt(page || "1", 10) : 1, 1)
+  return Math.max(page && !Number.isNaN(Number(page)) ? Number.parseInt(page, 10) : 1, 1)
 }
 
 /**

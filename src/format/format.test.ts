@@ -65,9 +65,9 @@ describe("formatCurrency", () => {
     // 2-decimal: strip whole, keep partial
     expect(formatCurrency(1000)).toBe("$1,000")
     expect(formatCurrency(1000.5)).toBe("$1,000.50")
-    // 0-decimal currency (JPY) — no fraction to strip
+    // JPY has no decimals, so there is no fraction to strip.
     expect(formatCurrency(1500, { currency: "JPY" })).toBe("¥1,500")
-    // 3-decimal currency (BHD) — strips all three zeros when whole, keeps them otherwise
+    // BHD has 3 decimals: all three zeros are stripped when whole, and kept otherwise.
     expect(formatCurrency(1000, { currency: "BHD", locale: "en-US" })).toBe(`BHD${NBSP}1,000`)
     expect(formatCurrency(1000.5, { currency: "BHD", locale: "en-US" })).toBe(`BHD${NBSP}1,000.500`)
   })
