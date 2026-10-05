@@ -43,9 +43,23 @@ const { data, error } = await tryCatch(fetch("/api"))
 | `parsers` | `maybeParseJson`, `maybeStringifyJson`, `serialize`, `deserialize` |
 | `random` | `getRandomColor`, `getRandomString`, `getRandomNumber`, `getRandomElement` |
 | `string` | `ucFirst`, `lcFirst`, `stripHtml`, `getExcerpt`, `slugify`, `getInitials`, `joinAsSentence` |
-| `time` | `formatDate`, `formatTime`, `formatDateTime`, `formatDateRange`, `getReadTime` |
+| `time` | `formatDate`, `formatTime`, `formatDateTime`, `formatDateOrTime`, `formatDateRange`, `getReadTime` |
 
 > Some utilities (`dom`, `events`, `toBase64`, `setInputValue`) rely on browser APIs and are only usable in the browser.
+
+### Dates and time zones
+
+The date helpers accept any `Intl.DateTimeFormat` option plus a `locale` (defaults to `"en-US"`). Without a `timeZone`, they format in the time zone of the machine that runs them. On server-rendered pages, the server (often UTC) and the browser (the visitor's zone) can then produce different text, which causes React hydration errors. Pass a fixed `timeZone` to get the same output in both places:
+
+```ts
+import { formatDate, formatDateRange } from "@dirstack/utils"
+
+formatDate("2026-10-05T23:30:00Z", { dateStyle: "long", timeZone: "UTC", locale: "en-GB" }) // "5 October 2026"
+formatDate("2026-10-05", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" }) // "Oct 05, 2026"
+formatDateRange("2026-10-05", "2026-10-09", { timeZone: "UTC" }) // "Oct 5 – 9, 2026"
+```
+
+Date-only strings such as `"2026-10-05"` parse as UTC midnight, so format them with `timeZone: "UTC"` to keep the same calendar day everywhere. The positional form (`formatDate(date, "long", "en-GB")`) still works.
 
 ## Development
 
