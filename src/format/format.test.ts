@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test"
+import { describe, expect, it, spyOn } from "bun:test"
 import { formatCurrency, formatIntervalAmount, formatNumber, formatToDecimals } from "./format"
 
 // Whitespace/separator characters Intl.NumberFormat inserts, shared across the currency tests.
@@ -192,5 +192,33 @@ describe("formatToDecimals", () => {
     expect(formatToDecimals(1234.0, 2)).toEqual("1234")
     expect(formatToDecimals(1234.0, 0)).toEqual("1234")
     expect(formatToDecimals(1234.1, 2)).toEqual("1234.10")
+  })
+})
+
+describe("formatter cache", () => {
+  it("reuses a formatter for equal options in any key order", () => {
+    const spy = spyOn(Intl, "NumberFormat")
+
+    expect(formatNumber(1234.5, { locale: "de", maximumFractionDigits: 1 })).toBe("1.234,5")
+    expect(formatNumber(1234.5, { maximumFractionDigits: 1, locale: "de" })).toBe("1.234,5")
+    expect(spy).toHaveBeenCalledTimes(1)
+
+    spy.mockRestore()
+  })
+
+  it("reuses the formatter behind formatCurrency", () => {
+    formatCurrency(10, { currency: "JPY" })
+    const spy = spyOn(Intl, "NumberFormat")
+
+    expect(formatCurrency(1000, { currency: "JPY" })).toBe("¥1,000")
+    expect(spy).not.toHaveBeenCalled()
+
+    spy.mockRestore()
+  })
+
+  it("keeps separate formatters for different options", () => {
+    expect(formatNumber(1234.5, { locale: "de" })).toBe("1.234,5")
+    expect(formatNumber(1234.5, { locale: "en-US" })).toBe("1,234.5")
+    expect(formatNumber(1234.5, { locale: "de" })).toBe("1.234,5")
   })
 })

@@ -1,12 +1,16 @@
 /**
  * Utility functions for formatting data.
  */
+import { createBoundedCache, serializeOptions } from "../internal/cache"
 
 /** Any `Intl.NumberFormat` option, plus a `locale` shortcut. */
 export type FormatNumberOptions = Intl.NumberFormatOptions & { locale?: string }
 
+const getCachedFormatter = createBoundedCache<Intl.NumberFormat>()
+
 /**
  * Formats a number using `Intl.NumberFormat`.
+ * Formatter instances are cached by locale and options.
  * @param number - The number to format.
  * @param options - Any `Intl.NumberFormat` option, plus a `locale` (defaults to 'en-US').
  * @returns The formatted number as a string.
@@ -15,7 +19,12 @@ export function formatNumber(
   number: number,
   { locale = "en-US", ...options }: FormatNumberOptions = {},
 ) {
-  return new Intl.NumberFormat(locale, options).format(number)
+  const formatter = getCachedFormatter(
+    `${locale}:${serializeOptions(options)}`,
+    () => new Intl.NumberFormat(locale, options),
+  )
+
+  return formatter.format(number)
 }
 
 /**
