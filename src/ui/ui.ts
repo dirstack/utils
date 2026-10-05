@@ -94,18 +94,20 @@ export function getPageParams<T extends object>(url: string, take: number) {
 
 /**
  * Returns a link to a specific page of a paginated query.
- * @param searchParams - The search parameters object.
+ * @param searchParams - The current search parameters. They are copied, not modified.
  * @param pathname - The pathname of the URL.
- * @param page - The page number to link to.
+ * @param page - The page number to link to. Page 1 links without a `page` parameter.
  * @returns A link to the specified page of the paginated query.
  */
 export function getPageLink(searchParams: URLSearchParams, pathname: string, page: number) {
+  const params = new URLSearchParams(searchParams)
+
   if (page > 1) {
-    searchParams.set("page", page.toString())
+    params.set("page", page.toString())
   } else {
-    searchParams.delete("page")
+    params.delete("page")
   }
 
-  const query = searchParams.toString()
+  const query = params.toString()
   return query ? `${pathname}?${query}` : pathname
 }
