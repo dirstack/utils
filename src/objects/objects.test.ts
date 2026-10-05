@@ -30,58 +30,58 @@ describe("isEmptyObject", () => {
 
 describe("isKeyInObject", () => {
   it("returns true when string key exists in object", () => {
-    const obj = { name: "John", age: 30 }
-    expect(isKeyInObject("name", obj)).toBe(true)
-    expect(isKeyInObject("age", obj)).toBe(true)
+    const input = { name: "John", age: 30 }
+    expect(isKeyInObject("name", input)).toBe(true)
+    expect(isKeyInObject("age", input)).toBe(true)
   })
 
   it("returns false when string key does not exist in object", () => {
-    const obj = { name: "John", age: 30 }
-    expect(isKeyInObject("email", obj)).toBe(false)
-    expect(isKeyInObject("phone", obj)).toBe(false)
+    const input = { name: "John", age: 30 }
+    expect(isKeyInObject("email", input)).toBe(false)
+    expect(isKeyInObject("phone", input)).toBe(false)
   })
 
   it("returns true when number key exists in object", () => {
-    const obj = { 0: "first", 1: "second", 42: "answer" }
-    expect(isKeyInObject(0, obj)).toBe(true)
-    expect(isKeyInObject(1, obj)).toBe(true)
-    expect(isKeyInObject(42, obj)).toBe(true)
+    const input = { 0: "first", 1: "second", 42: "answer" }
+    expect(isKeyInObject(0, input)).toBe(true)
+    expect(isKeyInObject(1, input)).toBe(true)
+    expect(isKeyInObject(42, input)).toBe(true)
   })
 
   it("returns false when number key does not exist in object", () => {
-    const obj = { 0: "first", 1: "second" }
-    expect(isKeyInObject(2, obj)).toBe(false)
-    expect(isKeyInObject(99, obj)).toBe(false)
+    const input = { 0: "first", 1: "second" }
+    expect(isKeyInObject(2, input)).toBe(false)
+    expect(isKeyInObject(99, input)).toBe(false)
   })
 
   it("returns true when symbol key exists in object", () => {
     const sym1 = Symbol("test1")
     const sym2 = Symbol("test2")
-    const obj = { [sym1]: "value1", [sym2]: "value2", regular: "normal" }
-    expect(isKeyInObject(sym1, obj)).toBe(true)
-    expect(isKeyInObject(sym2, obj)).toBe(true)
+    const input = { [sym1]: "value1", [sym2]: "value2", regular: "normal" }
+    expect(isKeyInObject(sym1, input)).toBe(true)
+    expect(isKeyInObject(sym2, input)).toBe(true)
   })
 
   it("returns false when symbol key does not exist in object", () => {
     const sym1 = Symbol("test1")
     const sym2 = Symbol("test2")
-    const obj = { [sym1]: "value1", regular: "normal" }
-    expect(isKeyInObject(sym2, obj)).toBe(false)
+    const input = { [sym1]: "value1", regular: "normal" }
+    expect(isKeyInObject(sym2, input)).toBe(false)
   })
 
   it("works with mixed property types", () => {
     const sym = Symbol("mixed")
-    const obj = {
+    const input = {
       stringKey: "string",
       42: "number",
       [sym]: "symbol",
       true: "boolean as key",
     }
-    expect(isKeyInObject("stringKey", obj)).toBe(true)
-    expect(isKeyInObject(42, obj)).toBe(true)
-    expect(isKeyInObject(sym, obj)).toBe(true)
-    expect(isKeyInObject("true", obj)).toBe(true)
-    expect(isKeyInObject("missing", obj)).toBe(false)
+    expect(isKeyInObject("stringKey", input)).toBe(true)
+    expect(isKeyInObject(42, input)).toBe(true)
+    expect(isKeyInObject(sym, input)).toBe(true)
+    expect(isKeyInObject("true", input)).toBe(true)
+    expect(isKeyInObject("missing", input)).toBe(false)
   })
 
   it("returns true for inherited properties", () => {
@@ -93,27 +93,27 @@ describe("isKeyInObject", () => {
   })
 
   it("handles empty objects", () => {
-    const obj = {}
-    expect(isKeyInObject("anyKey", obj)).toBe(false)
-    expect(isKeyInObject(0, obj)).toBe(false)
-    expect(isKeyInObject(Symbol("any"), obj)).toBe(false)
+    const input = {}
+    expect(isKeyInObject("anyKey", input)).toBe(false)
+    expect(isKeyInObject(0, input)).toBe(false)
+    expect(isKeyInObject(Symbol("any"), input)).toBe(false)
   })
 
   it("handles objects with undefined values", () => {
-    const obj = { undefinedValue: undefined, nullValue: null, defined: "value" }
-    expect(isKeyInObject("undefinedValue", obj)).toBe(true)
-    expect(isKeyInObject("nullValue", obj)).toBe(true)
-    expect(isKeyInObject("defined", obj)).toBe(true)
-    expect(isKeyInObject("missing", obj)).toBe(false)
+    const input = { undefinedValue: undefined, nullValue: null, defined: "value" }
+    expect(isKeyInObject("undefinedValue", input)).toBe(true)
+    expect(isKeyInObject("nullValue", input)).toBe(true)
+    expect(isKeyInObject("defined", input)).toBe(true)
+    expect(isKeyInObject("missing", input)).toBe(false)
   })
 
   it("provides proper type narrowing", () => {
-    const obj = { name: "John", age: 30 }
+    const input = { name: "John", age: 30 }
     const key: string = "name"
 
-    if (isKeyInObject(key, obj)) {
-      // TypeScript should know that obj[key] is valid here
-      expect(obj[key]).toBe("John")
+    if (isKeyInObject(key, input)) {
+      // TypeScript should know that input[key] is valid here
+      expect(input[key]).toBe("John")
     } else {
       throw new Error("This should not happen")
     }
@@ -162,16 +162,16 @@ describe("sortObjectKeys", () => {
 
 describe("sortObject", () => {
   it("sorts the keys of an object in alphabetical order", () => {
-    const obj = { b: 2, a: 1, c: 3 }
-    const sortedObj = sortObject(obj)
+    const input = { b: 2, a: 1, c: 3 }
+    const sortedObj = sortObject(input)
 
     expect(sortedObj).toEqual({ a: 1, b: 2, c: 3 })
   })
 
   it("sorts the keys of an object using a custom comparator function", () => {
-    const obj = { b: 2, a: 1, c: 3 }
+    const input = { b: 2, a: 1, c: 3 }
     const comparator = sortObjectKeys(["c", "b", "a"]) as (a: unknown, b: unknown) => number
-    const sortedObj = sortObject(obj, comparator)
+    const sortedObj = sortObject(input, comparator)
 
     expect(sortedObj).toEqual({ c: 3, b: 2, a: 1 })
   })
@@ -205,18 +205,18 @@ describe("pick", () => {
       num: 42,
       bool: true,
       arr: [1, 2, 3],
-      obj: { nested: "value" },
+      input: { nested: "value" },
       nil: null,
       undef: undefined,
     }
-    const result = pick(data, ["str", "num", "bool", "arr", "obj"])
+    const result = pick(data, ["str", "num", "bool", "arr", "input"])
 
     expect(result).toEqual({
       str: "hello",
       num: 42,
       bool: true,
       arr: [1, 2, 3],
-      obj: { nested: "value" },
+      input: { nested: "value" },
     })
   })
 
@@ -236,15 +236,15 @@ describe("pick", () => {
 
   it("handles objects with symbol keys", () => {
     const sym = Symbol("test")
-    const obj = { [sym]: "symbol value", regular: "regular value" }
-    const result = pick(obj, ["regular"])
+    const input = { [sym]: "symbol value", regular: "regular value" }
+    const result = pick(input, ["regular"])
 
     expect(result).toEqual({ regular: "regular value" })
   })
 
   it("preserves property order", () => {
-    const obj = { c: 3, a: 1, b: 2 }
-    const result = pick(obj, ["a", "b", "c"])
+    const input = { c: 3, a: 1, b: 2 }
+    const result = pick(input, ["a", "b", "c"])
 
     // While object property order isn't guaranteed in all cases,
     // modern JS engines preserve insertion order for string keys

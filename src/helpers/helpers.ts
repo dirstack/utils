@@ -3,17 +3,17 @@
  */
 
 /**
- * Delays the execution of the function by the specified amount of time.
- * @param delay - The amount of time to delay the execution of the function, in milliseconds.
+ * Returns a promise that resolves after the specified delay.
+ * @param delay - The delay in milliseconds.
  */
-export async function sleep(delay: number) {
+export function sleep(delay: number) {
   return new Promise(resolve => setTimeout(resolve, delay))
 }
 
 /**
- * Check if a value is truthy
- * @param value - The value to check
- * @returns A boolean indicating if the value is truthy
+ * Checks if a value is truthy. Works as a type guard in `filter` calls.
+ * @param value - The value to check.
+ * @returns A boolean indicating if the value is truthy.
  */
 export function isTruthy<T>(value?: T | undefined | null | false): value is T {
   return !!value
@@ -41,9 +41,9 @@ interface Failure<E> {
 type Result<T, E = Error> = Success<T> | Failure<E>
 
 /**
- * Wraps a promise and returns a result object with the data or error
- * @param promise - The promise to wrap
- * @returns A result object with the data or error
+ * Wraps a promise and returns a result object with the data or error.
+ * @param promise - The promise to wrap.
+ * @returns A result object with the data or error.
  */
 export async function tryCatch<T, E = Error>(promise: Promise<T>): Promise<Result<T, E>> {
   try {
@@ -55,19 +55,19 @@ export async function tryCatch<T, E = Error>(promise: Promise<T>): Promise<Resul
 }
 
 /**
- * Returns a debounced version of `fn` that delays invoking it until `delay`
+ * Returns a debounced version of `callback` that delays invoking it until `delay`
  * milliseconds have passed since the last call. Call `.cancel()` to drop a
  * pending invocation.
- * @param fn - The function to debounce.
+ * @param callback - The function to debounce.
  * @param delay - The delay in milliseconds.
  * @returns The debounced function with a `cancel` method.
  */
-export function debounce<Args extends unknown[]>(fn: (...args: Args) => void, delay: number) {
+export function debounce<Args extends unknown[]>(callback: (...args: Args) => void, delay: number) {
   let timer: ReturnType<typeof setTimeout> | undefined
 
   function debounced(...args: Args) {
     if (timer !== undefined) clearTimeout(timer)
-    timer = setTimeout(() => fn(...args), delay)
+    timer = setTimeout(() => callback(...args), delay)
   }
 
   debounced.cancel = () => {
@@ -79,33 +79,36 @@ export function debounce<Args extends unknown[]>(fn: (...args: Args) => void, de
 }
 
 /**
- * Returns a throttled version of `fn` that invokes it at most once per
+ * Returns a throttled version of `callback` that invokes it at most once per
  * `interval` milliseconds. The first call fires immediately (leading edge) and
  * the last call within the interval fires at the end (trailing edge).
- * @param fn - The function to throttle.
+ * @param callback - The function to throttle.
  * @param interval - The minimum interval between calls, in milliseconds.
  * @returns The throttled function.
  */
-export function throttle<Args extends unknown[]>(fn: (...args: Args) => void, interval: number) {
-  let last = 0
+export function throttle<Args extends unknown[]>(
+  callback: (...args: Args) => void,
+  interval: number,
+) {
+  let lastCallTime = 0
   let timer: ReturnType<typeof setTimeout> | undefined
   let lastArgs: Args | undefined
 
   return (...args: Args) => {
     const now = Date.now()
-    const remaining = interval - (now - last)
+    const remaining = interval - (now - lastCallTime)
 
     if (remaining <= 0) {
-      last = now
-      fn(...args)
+      lastCallTime = now
+      callback(...args)
     } else {
       // Remember the most recent args so the trailing call uses them.
       lastArgs = args
       if (timer === undefined) {
         timer = setTimeout(() => {
-          last = Date.now()
+          lastCallTime = Date.now()
           timer = undefined
-          if (lastArgs) fn(...lastArgs)
+          if (lastArgs) callback(...lastArgs)
         }, remaining)
       }
     }
@@ -129,16 +132,16 @@ export interface RetryOptions {
 /**
  * Runs an async function, retrying it on failure with exponential backoff.
  * Rethrows the last error once all retries are exhausted.
- * @param fn - The async function to run.
+ * @param callback - The async function to run.
  * @param options - Retry configuration.
- * @returns The resolved value of `fn`.
+ * @returns The resolved value of `callback`.
  */
-export async function retry<T>(fn: () => Promise<T>, options: RetryOptions = {}): Promise<T> {
+export async function retry<T>(callback: () => Promise<T>, options: RetryOptions = {}): Promise<T> {
   const { retries = 3, delay = 0, factor = 2, onRetry } = options
 
   for (let attempt = 0; ; attempt++) {
     try {
-      return await fn()
+      return await callback()
     } catch (error) {
       if (attempt >= retries) throw error
       onRetry?.(error, attempt + 1)

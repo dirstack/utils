@@ -21,7 +21,7 @@ describe("uniqBy", () => {
       { id: 2, name: "b" },
       { id: 1, name: "c" },
     ]
-    expect(uniqBy(items, i => i.id)).toEqual([
+    expect(uniqBy(items, item => item.id)).toEqual([
       { id: 1, name: "a" },
       { id: 2, name: "b" },
     ])
@@ -32,7 +32,7 @@ describe("uniqBy", () => {
       { id: 1, v: "first" },
       { id: 1, v: "second" },
     ]
-    expect(uniqBy(items, i => i.id)).toEqual([{ id: 1, v: "first" }])
+    expect(uniqBy(items, item => item.id)).toEqual([{ id: 1, v: "first" }])
   })
 
   it("preserves order", () => {
@@ -75,7 +75,7 @@ describe("groupBy", () => {
       { type: "b", n: 2 },
       { type: "a", n: 3 },
     ]
-    expect(groupBy(items, i => i.type)).toEqual({
+    expect(groupBy(items, item => item.type)).toEqual({
       a: [
         { type: "a", n: 1 },
         { type: "a", n: 3 },
@@ -85,7 +85,7 @@ describe("groupBy", () => {
   })
 
   it("returns an empty object for an empty array", () => {
-    expect(groupBy([] as { type: string }[], i => i.type)).toEqual({})
+    expect(groupBy([] as { type: string }[], item => item.type)).toEqual({})
   })
 })
 
@@ -95,7 +95,7 @@ describe("keyBy", () => {
       { id: "x", n: 1 },
       { id: "y", n: 2 },
     ]
-    expect(keyBy(items, i => i.id)).toEqual({
+    expect(keyBy(items, item => item.id)).toEqual({
       x: { id: "x", n: 1 },
       y: { id: "y", n: 2 },
     })
@@ -106,7 +106,7 @@ describe("keyBy", () => {
       { id: "x", n: 1 },
       { id: "x", n: 2 },
     ]
-    expect(keyBy(items, i => i.id)).toEqual({ x: { id: "x", n: 2 } })
+    expect(keyBy(items, item => item.id)).toEqual({ x: { id: "x", n: 2 } })
   })
 })
 
@@ -128,11 +128,15 @@ describe("compact", () => {
 
 describe("sortBy", () => {
   it("sorts numbers ascending by default", () => {
-    expect(sortBy([{ n: 3 }, { n: 1 }, { n: 2 }], i => i.n)).toEqual([{ n: 1 }, { n: 2 }, { n: 3 }])
+    expect(sortBy([{ n: 3 }, { n: 1 }, { n: 2 }], item => item.n)).toEqual([
+      { n: 1 },
+      { n: 2 },
+      { n: 3 },
+    ])
   })
 
   it("sorts descending when requested", () => {
-    expect(sortBy([{ n: 1 }, { n: 3 }, { n: 2 }], i => i.n, "desc")).toEqual([
+    expect(sortBy([{ n: 1 }, { n: 3 }, { n: 2 }], item => item.n, "desc")).toEqual([
       { n: 3 },
       { n: 2 },
       { n: 1 },
@@ -146,7 +150,7 @@ describe("sortBy", () => {
   it("sorts dates", () => {
     const a = { d: new Date("2023-01-01") }
     const b = { d: new Date("2024-01-01") }
-    expect(sortBy([b, a], i => i.d)).toEqual([a, b])
+    expect(sortBy([b, a], item => item.d)).toEqual([a, b])
   })
 
   it("does not mutate the input", () => {
@@ -165,8 +169,8 @@ describe("sum", () => {
 
 describe("sumBy", () => {
   it("sums by the given key", () => {
-    expect(sumBy([{ price: 10 }, { price: 5 }, { price: 15 }], i => i.price)).toBe(30)
-    expect(sumBy([] as { price: number }[], i => i.price)).toBe(0)
+    expect(sumBy([{ price: 10 }, { price: 5 }, { price: 15 }], item => item.price)).toBe(30)
+    expect(sumBy([] as { price: number }[], item => item.price)).toBe(0)
   })
 })
 

@@ -104,8 +104,8 @@ describe("getRandomElement", () => {
 
 describe("getRandomProperty", () => {
   it("returns a value from the object", () => {
-    const obj = { a: 1, b: 2, c: 3 }
-    const result = getRandomProperty(obj)
+    const input = { a: 1, b: 2, c: 3 }
+    const result = getRandomProperty(input)
     expect(result).toBeOneOf([1, 2, 3])
   })
 })

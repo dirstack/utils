@@ -11,18 +11,16 @@ import { formatToDecimals } from "../format/format"
  * @returns The formatted size as a string.
  */
 export function formatBytes(bytes: number, precision = 0): string {
-  const k = 1024
-  const sizes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
+  const base = 1024
+  const units = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
 
   // Values below 1 KB are reported in bytes, which are always whole numbers.
-  if (bytes < k) {
-    return `${bytes} B`
-  }
+  if (bytes < base) return `${bytes} B`
 
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  const size = formatToDecimals(bytes / k ** i, precision)
+  const exponent = Math.floor(Math.log(bytes) / Math.log(base))
+  const size = formatToDecimals(bytes / base ** exponent, precision)
 
-  return `${size} ${sizes[i]}`
+  return `${size} ${units[exponent]}`
 }
 
 /**
@@ -32,16 +30,8 @@ export function formatBytes(bytes: number, precision = 0): string {
  */
 export function formatMimeType(mimeType: string): string | undefined {
   const [, subtype] = mimeType.split("/")
-  let type: string | undefined
 
-  switch (subtype) {
-    case "*":
-      return undefined
-    default:
-      type = subtype
-  }
-
-  return type?.toUpperCase()
+  return subtype === "*" ? undefined : subtype?.toUpperCase()
 }
 
 /**
@@ -60,19 +50,14 @@ export function formatMimeType(mimeType: string): string | undefined {
  * ```
  */
 export function isMimeTypeMatch(mimeType: string, patterns: string[]) {
+  const [type, subtype] = mimeType.split("/")
+
   return patterns.some(pattern => {
-    // Split type/subtype for both mimeType and pattern
-    const [type, subtype] = mimeType.split("/")
-    const [pType, pSubtype] = pattern.split("/")
+    const [patternType, patternSubtype] = pattern.split("/")
 
-    // Type must match
-    if (type !== pType) return false
+    if (type !== patternType) return false
 
-    // Wildcard matches any subtype
-    if (pSubtype === "*") return true
-
-    // Exact subtype match
-    return subtype === pSubtype
+    return patternSubtype === "*" || subtype === patternSubtype
   })
 }
 

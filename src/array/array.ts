@@ -1,8 +1,8 @@
-import { isTruthy } from "../helpers/helpers"
-
 /**
  * A collection of array utilities.
  */
+
+import { isTruthy } from "../helpers/helpers"
 
 /**
  * A utility function that generates an array of numbers within a specified range.
@@ -13,7 +13,7 @@ import { isTruthy } from "../helpers/helpers"
 export function range(start: number, end: number) {
   const length = end - start + 1
 
-  return Array.from({ length }, (_, idx) => idx + start)
+  return Array.from({ length }, (_, index) => index + start)
 }
 
 /**
@@ -28,9 +28,9 @@ export function uniqBy<T, K>(items: T[], key: (item: T) => K): T[] {
   const seen = new Set<K>()
 
   return items.filter(item => {
-    const k = key(item)
-    if (seen.has(k)) return false
-    seen.add(k)
+    const itemKey = key(item)
+    if (seen.has(itemKey)) return false
+    seen.add(itemKey)
     return true
   })
 }
@@ -54,8 +54,8 @@ export function uniq<T>(items: T[]): T[] {
 export function chunk<T>(items: T[], size: number): T[][] {
   const chunks: T[][] = []
 
-  for (let i = 0; i < items.length; i += size) {
-    chunks.push(items.slice(i, i + size))
+  for (let index = 0; index < items.length; index += size) {
+    chunks.push(items.slice(index, index + size))
   }
 
   return chunks
@@ -73,14 +73,15 @@ export const splitArrayIntoChunks = chunk
  * @returns An object mapping each key to the items that produced it.
  */
 export function groupBy<T, K extends PropertyKey>(items: T[], key: (item: T) => K): Record<K, T[]> {
-  return items.reduce(
-    (acc, item) => {
-      const k = key(item)
-      ;(acc[k] ??= []).push(item)
-      return acc
-    },
-    {} as Record<K, T[]>,
-  )
+  const groups = {} as Record<K, T[]>
+
+  for (const item of items) {
+    const groupKey = key(item)
+    groups[groupKey] ??= []
+    groups[groupKey].push(item)
+  }
+
+  return groups
 }
 
 /**
@@ -91,13 +92,13 @@ export function groupBy<T, K extends PropertyKey>(items: T[], key: (item: T) => 
  * @returns An object mapping each key to a single item.
  */
 export function keyBy<T, K extends PropertyKey>(items: T[], key: (item: T) => K): Record<K, T> {
-  return items.reduce(
-    (acc, item) => {
-      acc[key(item)] = item
-      return acc
-    },
-    {} as Record<K, T>,
-  )
+  const indexed = {} as Record<K, T>
+
+  for (const item of items) {
+    indexed[key(item)] = item
+  }
+
+  return indexed
 }
 
 /**
@@ -110,14 +111,14 @@ export function countBy<T, K extends PropertyKey>(
   items: T[],
   key: (item: T) => K,
 ): Record<K, number> {
-  return items.reduce(
-    (acc, item) => {
-      const k = key(item)
-      acc[k] = (acc[k] ?? 0) + 1
-      return acc
-    },
-    {} as Record<K, number>,
-  )
+  const counts = {} as Record<K, number>
+
+  for (const item of items) {
+    const itemKey = key(item)
+    counts[itemKey] = (counts[itemKey] ?? 0) + 1
+  }
+
+  return counts
 }
 
 /**
@@ -144,13 +145,17 @@ export function sortBy<T>(
   key: (item: T) => number | string | Date,
   order: "asc" | "desc" = "asc",
 ): T[] {
-  const dir = order === "asc" ? 1 : -1
+  const direction = order === "asc" ? 1 : -1
 
   return [...items].sort((a, b) => {
-    const ka = key(a)
-    const kb = key(b)
-    if (typeof ka === "string" && typeof kb === "string") return ka.localeCompare(kb) * dir
-    return (ka < kb ? -1 : ka > kb ? 1 : 0) * dir
+    const keyA = key(a)
+    const keyB = key(b)
+
+    if (typeof keyA === "string" && typeof keyB === "string") {
+      return keyA.localeCompare(keyB) * direction
+    }
+
+    return (keyA < keyB ? -1 : keyA > keyB ? 1 : 0) * direction
   })
 }
 
@@ -160,7 +165,7 @@ export function sortBy<T>(
  * @returns The total.
  */
 export function sum(items: number[]): number {
-  return items.reduce((acc, item) => acc + item, 0)
+  return items.reduce((total, item) => total + item, 0)
 }
 
 /**
@@ -170,5 +175,5 @@ export function sum(items: number[]): number {
  * @returns The total.
  */
 export function sumBy<T>(items: T[], key: (item: T) => number): number {
-  return items.reduce((acc, item) => acc + key(item), 0)
+  return items.reduce((total, item) => total + key(item), 0)
 }

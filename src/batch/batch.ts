@@ -1,3 +1,7 @@
+/**
+ * Utility functions for processing items in batches.
+ */
+
 import { chunk } from "../array/array"
 import { sleep } from "../helpers/helpers"
 
@@ -20,69 +24,6 @@ interface ProcessBatchOptions {
   concurrency?: number
   delay?: number
   onProgress?: (progress: ProcessBatchProgress) => void
-}
-
-/**
- * Process items in batches with controlled concurrency and delays.
- * Useful for handling external API rate limits. Results are returned in the
- * same order as the input.
- */
-export async function processBatch<T, R>(
-  items: T[],
-  processor: (item: T) => Promise<R>,
-  options: ProcessBatchOptions,
-): Promise<R[]> {
-  const { batchSize, concurrency = batchSize, delay = 0, onProgress } = options
-
-  if (items.length === 0) return []
-
-  const results: R[] = []
-  const batches = chunk(items, batchSize)
-
-  for (const [i, batch] of batches.entries()) {
-    // Process batch with controlled concurrency
-    const batchResults = await processWithConcurrency(batch, processor, concurrency)
-    results.push(...batchResults)
-
-    onProgress?.({
-      batch: i + 1,
-      totalBatches: batches.length,
-      completed: results.length,
-      total: items.length,
-    })
-
-    // Add delay between batches (except for the last batch)
-    if (delay > 0 && i < batches.length - 1) {
-      await sleep(delay)
-    }
-  }
-
-  return results
-}
-
-/**
- * Batch processing with error handling - continues processing even if some items fail
- */
-export async function processBatchWithErrorHandling<T, R>(
-  items: T[],
-  processor: (item: T) => Promise<R>,
-  options: ProcessBatchOptions & {
-    onError?: (error: Error, item: T) => void
-  },
-): Promise<(R | Error)[]> {
-  const { onError } = options
-
-  async function wrappedProcessor(item: T): Promise<R | Error> {
-    try {
-      return await processor(item)
-    } catch (error) {
-      const err = error instanceof Error ? error : new Error(String(error))
-      onError?.(err, item)
-      return err
-    }
-  }
-
-  return processBatch(items, wrappedProcessor, options)
 }
 
 /**
@@ -109,4 +50,66 @@ async function processWithConcurrency<T, R>(
   await Promise.all(Array.from({ length: workerCount }, worker))
 
   return results
+}
+
+/**
+ * Process items in batches with controlled concurrency and delays.
+ * Useful for handling external API rate limits. Results are returned in the
+ * same order as the input.
+ */
+export async function processBatch<T, R>(
+  items: T[],
+  processor: (item: T) => Promise<R>,
+  options: ProcessBatchOptions,
+): Promise<R[]> {
+  const { batchSize, concurrency = batchSize, delay = 0, onProgress } = options
+
+  if (items.length === 0) return []
+
+  const results: R[] = []
+  const batches = chunk(items, batchSize)
+
+  for (const [index, batch] of batches.entries()) {
+    const batchResults = await processWithConcurrency(batch, processor, concurrency)
+    results.push(...batchResults)
+
+    onProgress?.({
+      batch: index + 1,
+      totalBatches: batches.length,
+      completed: results.length,
+      total: items.length,
+    })
+
+    if (delay > 0 && index < batches.length - 1) {
+      await sleep(delay)
+    }
+  }
+
+  return results
+}
+
+/**
+ * Processes items like {@link processBatch}, but keeps going when an item fails.
+ * A failed item's result is its `Error`, and `onError` is called with it.
+ */
+export async function processBatchWithErrorHandling<T, R>(
+  items: T[],
+  processor: (item: T) => Promise<R>,
+  options: ProcessBatchOptions & {
+    onError?: (error: Error, item: T) => void
+  },
+): Promise<(R | Error)[]> {
+  const { onError } = options
+
+  async function wrappedProcessor(item: T): Promise<R | Error> {
+    try {
+      return await processor(item)
+    } catch (error) {
+      const normalizedError = error instanceof Error ? error : new Error(String(error))
+      onError?.(normalizedError, item)
+      return normalizedError
+    }
+  }
+
+  return processBatch(items, wrappedProcessor, options)
 }

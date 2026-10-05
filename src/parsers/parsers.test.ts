@@ -18,10 +18,10 @@ describe("maybeParseJson", () => {
 
 describe("maybeStringifyJson", () => {
   it("stringifies an object", () => {
-    const obj = { name: "John", age: 30 }
+    const input = { name: "John", age: 30 }
     const expected = '{"name":"John","age":30}'
 
-    expect(maybeStringifyJson(obj)).toEqual(expected)
+    expect(maybeStringifyJson(input)).toEqual(expected)
   })
 
   it("returns the input value if it is not an object", () => {
@@ -37,12 +37,12 @@ describe("maybeStringifyJson", () => {
 
 describe("serialize", () => {
   it("deep clones plain objects", () => {
-    const obj = { a: 1, b: { c: 2 } }
-    const result = serialize(obj)
+    const input = { a: 1, b: { c: 2 } }
+    const result = serialize(input)
 
-    expect(result).toEqual(obj)
-    expect(result).not.toBe(obj)
-    expect(result.b).not.toBe(obj.b)
+    expect(result).toEqual(input)
+    expect(result).not.toBe(input)
+    expect(result.b).not.toBe(input.b)
   })
 
   it("deep clones arrays", () => {
@@ -80,11 +80,11 @@ describe("serialize", () => {
   })
 
   it("handles nested objects and arrays", () => {
-    const obj = { users: [{ name: "John", scores: [1, 2] }] }
-    const result = serialize(obj)
+    const input = { users: [{ name: "John", scores: [1, 2] }] }
+    const result = serialize(input)
 
-    expect(result).toEqual(obj)
-    expect(result.users[0]?.scores).not.toBe(obj.users[0]?.scores)
+    expect(result).toEqual(input)
+    expect(result.users[0]?.scores).not.toBe(input.users[0]?.scores)
   })
 })
 

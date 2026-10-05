@@ -19,7 +19,7 @@ export function isErrorWithMessage(error: unknown): error is ErrorWithMessage {
     typeof error === "object" &&
     error !== null &&
     "message" in error &&
-    typeof (error as Record<string, unknown>).message === "string"
+    typeof error.message === "string"
   )
 }
 
@@ -36,8 +36,7 @@ export function toErrorWithMessage(maybeError: unknown): ErrorWithMessage {
   try {
     return new Error(JSON.stringify(maybeError))
   } catch {
-    // fallback in case there's an error stringifying the maybeError
-    // like with circular references for example.
+    // JSON.stringify throws on circular references and BigInt values.
     return new Error(String(maybeError))
   }
 }
