@@ -130,7 +130,8 @@ export function isLocalhostUrl(url?: string): boolean {
   if (!url) return false
 
   try {
-    const parsedUrl = new URL(addProtocol(url))
+    // An explicit protocol keeps addProtocol from calling back into this function.
+    const parsedUrl = new URL(addProtocol(url, false))
     const hostname = parsedUrl.hostname
     return hostname === "localhost" || hostname === "127.0.0.1" || hostname.endsWith(".localhost")
   } catch {

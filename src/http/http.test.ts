@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, mock } from "bun:test"
+import { afterEach, describe, expect, it, mock, spyOn } from "bun:test"
 import {
   addProtocol,
   checkUrlAvailability,
@@ -225,6 +225,16 @@ describe("isExternalUrl", () => {
 })
 
 describe("isLocalhostUrl", () => {
+  it("parses a URL without a protocol only once", () => {
+    const spy = spyOn(globalThis, "URL")
+
+    expect(isLocalhostUrl("localhost:3000")).toBe(true)
+    expect(addProtocol("example.com")).toBe("https://example.com")
+    expect(spy).toHaveBeenCalledTimes(2)
+
+    spy.mockRestore()
+  })
+
   it("identifies localhost URLs", () => {
     expect(isLocalhostUrl("http://localhost:3000")).toBe(true)
     expect(isLocalhostUrl("https://localhost")).toBe(true)
