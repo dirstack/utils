@@ -84,7 +84,7 @@ describe("serialize", () => {
     const result = serialize(obj)
 
     expect(result).toEqual(obj)
-    expect(result.users[0].scores).not.toBe(obj.users[0].scores)
+    expect(result.users[0]?.scores).not.toBe(obj.users[0]?.scores)
   })
 })
 
@@ -114,8 +114,8 @@ describe("deserialize", () => {
     const json = '{"users":[{"name":"John","tags":["admin"]}]}'
     const result = deserialize<{ users: { name: string; tags: string[] }[] }>(json)
 
-    expect(result.users[0].name).toBe("John")
-    expect(result.users[0].tags).toEqual(["admin"])
+    expect(result.users[0]?.name).toBe("John")
+    expect(result.users[0]?.tags).toEqual(["admin"])
   })
 
   it("throws on invalid JSON", () => {

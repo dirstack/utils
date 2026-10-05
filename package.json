@@ -35,7 +35,7 @@
   },
   "scripts": {
     "clean": "rimraf ./dist",
-    "build": "vite build && tsc --emitDeclarationOnly",
+    "build": "vite build && tsc -p tsconfig.build.json --emitDeclarationOnly",
     "prebuild": "bun run clean",
     "test": "bun test",
     "typecheck": "tsc --noEmit",
