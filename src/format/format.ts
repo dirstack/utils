@@ -49,21 +49,35 @@ export function formatCurrency(
 }
 
 /**
- * Formats a given amount with an interval
- * @param amount The amount of money to format.
- * @param interval The interval, either 'month' or 'year'. Defaults to 'month'.
- * @returns The formatted amount per interval.
+ * Formats the monthly equivalent of an amount, to 2 decimal places.
+ * A yearly amount is divided by 12. A monthly amount is formatted as is.
+ * @param amount - The amount of money for the interval.
+ * @param interval - The interval the amount covers, either 'month' or 'year'. Defaults to 'month'.
+ * @returns The formatted monthly amount, for example "83.33" for 1000 per year.
  */
 export function formatIntervalAmount(amount: number, interval: "month" | "year" = "month") {
   return formatToDecimals(amount / (interval === "year" ? 12 : 1), 2)
 }
 
 /**
- * Formats a number to a specified number of decimal places.
+ * Formats a number to a specified number of decimal places, without thousands separators.
+ * Whole results drop their fraction (e.g. "1234" not "1234.00"), and values that round
+ * to zero never get a minus sign.
  * @param number - The number to format.
- * @param precision - The number of decimal places to format to.
+ * @param precision - The number of decimal places to format to. Negative values count as 0.
  * @returns The formatted number as a string.
  */
 export function formatToDecimals(number: number, precision = 0): string {
-  return number.toFixed(precision < 0 ? 0 : precision).replace(/\.0+$/, "")
+  // `Intl.NumberFormat` renders Infinity as "∞", so non-finite values keep their plain form
+  if (!Number.isFinite(number)) return String(number)
+
+  const digits = Math.max(0, precision)
+
+  return formatNumber(number, {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+    useGrouping: false,
+    trailingZeroDisplay: "stripIfInteger",
+    signDisplay: "negative",
+  })
 }
