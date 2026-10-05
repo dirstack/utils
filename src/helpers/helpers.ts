@@ -6,7 +6,7 @@
  * Delays the execution of the function by the specified amount of time.
  * @param delay - The amount of time to delay the execution of the function, in milliseconds.
  */
-export const sleep = async (delay: number) => {
+export async function sleep(delay: number) {
   return new Promise(resolve => setTimeout(resolve, delay))
 }
 
@@ -15,14 +15,14 @@ export const sleep = async (delay: number) => {
  * @param value - The value to check
  * @returns A boolean indicating if the value is truthy
  */
-export const isTruthy = <T>(value?: T | undefined | null | false): value is T => {
+export function isTruthy<T>(value?: T | undefined | null | false): value is T {
   return !!value
 }
 
 /**
  * A type representing a successful result with data and no error.
  */
-type Success<T> = {
+interface Success<T> {
   data: T
   error: null
 }
@@ -30,7 +30,7 @@ type Success<T> = {
 /**
  * A type representing a failed result with no data and an error.
  */
-type Failure<E> = {
+interface Failure<E> {
   data: null
   error: E
 }
@@ -45,7 +45,7 @@ type Result<T, E = Error> = Success<T> | Failure<E>
  * @param promise - The promise to wrap
  * @returns A result object with the data or error
  */
-export const tryCatch = async <T, E = Error>(promise: Promise<T>): Promise<Result<T, E>> => {
+export async function tryCatch<T, E = Error>(promise: Promise<T>): Promise<Result<T, E>> {
   try {
     const data = await promise
     return { data, error: null }
@@ -62,10 +62,10 @@ export const tryCatch = async <T, E = Error>(promise: Promise<T>): Promise<Resul
  * @param delay - The delay in milliseconds.
  * @returns The debounced function with a `cancel` method.
  */
-export const debounce = <Args extends unknown[]>(fn: (...args: Args) => void, delay: number) => {
+export function debounce<Args extends unknown[]>(fn: (...args: Args) => void, delay: number) {
   let timer: ReturnType<typeof setTimeout> | undefined
 
-  const debounced = (...args: Args) => {
+  function debounced(...args: Args) {
     if (timer !== undefined) clearTimeout(timer)
     timer = setTimeout(() => fn(...args), delay)
   }
@@ -86,7 +86,7 @@ export const debounce = <Args extends unknown[]>(fn: (...args: Args) => void, de
  * @param interval - The minimum interval between calls, in milliseconds.
  * @returns The throttled function.
  */
-export const throttle = <Args extends unknown[]>(fn: (...args: Args) => void, interval: number) => {
+export function throttle<Args extends unknown[]>(fn: (...args: Args) => void, interval: number) {
   let last = 0
   let timer: ReturnType<typeof setTimeout> | undefined
   let lastArgs: Args | undefined
@@ -115,7 +115,7 @@ export const throttle = <Args extends unknown[]>(fn: (...args: Args) => void, in
 /**
  * Options for {@link retry}.
  */
-export type RetryOptions = {
+export interface RetryOptions {
   /** Maximum number of retries after the initial attempt (default: 3). */
   retries?: number
   /** Base delay between attempts in milliseconds (default: 0). */
@@ -133,7 +133,7 @@ export type RetryOptions = {
  * @param options - Retry configuration.
  * @returns The resolved value of `fn`.
  */
-export const retry = async <T>(fn: () => Promise<T>, options: RetryOptions = {}): Promise<T> => {
+export async function retry<T>(fn: () => Promise<T>, options: RetryOptions = {}): Promise<T> {
   const { retries = 3, delay = 0, factor = 2, onRetry } = options
 
   for (let attempt = 0; ; attempt++) {

@@ -10,7 +10,7 @@
  * @param max - The maximum value of the range.
  * @returns The number constrained to the specified range.
  */
-export const clamp = (value: number, min?: number, max?: number) => {
+export function clamp(value: number, min?: number, max?: number) {
   if (min !== undefined && max !== undefined) {
     return Math.min(Math.max(value, min), max)
   }
@@ -34,7 +34,7 @@ export const keepNumberInRange = clamp
  * @param value - The value to parse into a numeric value.
  * @returns The parsed numeric value, or `undefined` if the value cannot be parsed.
  */
-export const parseNumericValue = (value?: string | number | null) => {
+export function parseNumericValue(value?: string | number | null) {
   if (value === undefined || value === null) return undefined
   const parsed = Number.parseFloat(value.toString())
 
@@ -47,7 +47,7 @@ export const parseNumericValue = (value?: string | number | null) => {
  * @param decimals - The number of decimal places to round to. Defaults to 2.
  * @returns The rounded number.
  */
-export const preciseRound = (value: number, decimals = 2) => {
+export function preciseRound(value: number, decimals = 2) {
   const factor = 10 ** decimals
 
   return Math.round((value + Number.EPSILON) * factor) / factor

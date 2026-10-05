@@ -10,7 +10,7 @@ import { isTruthy } from "../helpers/helpers"
  * @param string - The string to uppercase the first character of.
  * @returns The string with the first character in uppercase.
  */
-export const ucFirst = (string: string) => {
+export function ucFirst(string: string) {
   if (typeof string !== "string") {
     return ""
   }
@@ -27,7 +27,7 @@ export const ucFirst = (string: string) => {
  * @param string - The string to lowercase the first character of.
  * @returns The string with the first character in lowercase.
  */
-export const lcFirst = (string: string) => {
+export function lcFirst(string: string) {
   if (typeof string !== "string") {
     return ""
   }
@@ -44,7 +44,7 @@ export const lcFirst = (string: string) => {
  * @param string - string to strip tags from
  * @returns string without html tags
  */
-export const stripHtml = (string: string) => {
+export function stripHtml(string: string) {
   return string.replace(/<[^>]*>?/gm, "")
 }
 
@@ -54,7 +54,7 @@ export const stripHtml = (string: string) => {
  * @param replacement - replacement to convert newlines to
  * @returns string with newlines converted to specified element
  */
-export const convertNewlines = (string: string, replacement = " ") => {
+export function convertNewlines(string: string, replacement = " ") {
   return string.replace(/\n+/g, replacement)
 }
 
@@ -64,7 +64,7 @@ export const convertNewlines = (string: string, replacement = " ") => {
  * @param length - The length of the excerpt
  * @returns An excerpt from the string
  */
-export const getExcerpt = (content: string | undefined | null, length = 250) => {
+export function getExcerpt(content: string | undefined | null, length = 250) {
   if (!content) {
     return null
   }
@@ -86,7 +86,7 @@ export const getExcerpt = (content: string | undefined | null, length = 250) => 
  * @param decamelize Whether to decamelize the string. Defaults to false.
  * @returns The slugified string.
  */
-export const slugify = (input: string, decamelize = false): string => {
+export function slugify(input: string, decamelize = false): string {
   return slugifyString(input, {
     decamelize,
     customReplacements: [
@@ -101,7 +101,7 @@ export const slugify = (input: string, decamelize = false): string => {
  * @param id A string to check
  * @returns A boolean indicating if the string is a cuid
  */
-export const isCuid = (id: string) => {
+export function isCuid(id: string) {
   return id.length === 25 && id[0] === "c"
 }
 
@@ -111,7 +111,7 @@ export const isCuid = (id: string) => {
  * @param limit The maximum number of initials to return
  * @returns The initials from the string
  */
-export const getInitials = (value?: string | null, limit = 0) => {
+export function getInitials(value?: string | null, limit = 0) {
   const val = (value || "").trim()
 
   // If the value is empty, a single character, or two characters (already initials)
@@ -136,7 +136,7 @@ export const getInitials = (value?: string | null, limit = 0) => {
  * @param maxItems The maximum number of items to include in the sentence.
  * @returns The joined sentence.
  */
-export const joinAsSentence = (items: string[], maxItems = 3, lastItem = "and") => {
+export function joinAsSentence(items: string[], maxItems = 3, lastItem = "and") {
   return items
     .slice(0, maxItems)
     .join(", ")

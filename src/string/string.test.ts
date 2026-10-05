@@ -27,9 +27,9 @@ describe("ucFirst", () => {
   })
 
   test("should handle non-string inputs", () => {
-    expect(ucFirst(null as any)).toBe("")
-    expect(ucFirst(undefined as any)).toBe("")
-    expect(ucFirst(123 as any)).toBe("")
+    expect(ucFirst(null as never)).toBe("")
+    expect(ucFirst(undefined as never)).toBe("")
+    expect(ucFirst(123 as never)).toBe("")
   })
 
   test("should preserve the rest of the string", () => {
@@ -54,9 +54,9 @@ describe("lcFirst", () => {
   })
 
   test("should handle non-string inputs", () => {
-    expect(lcFirst(null as any)).toBe("")
-    expect(lcFirst(undefined as any)).toBe("")
-    expect(lcFirst(123 as any)).toBe("")
+    expect(lcFirst(null as never)).toBe("")
+    expect(lcFirst(undefined as never)).toBe("")
+    expect(lcFirst(123 as never)).toBe("")
   })
 
   test("should preserve the rest of the string", () => {

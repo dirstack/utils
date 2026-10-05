@@ -10,7 +10,7 @@ import { formatToDecimals } from "../format/format"
  * @param precision - The number of decimal places to format the size to.
  * @returns The formatted size as a string.
  */
-export const formatBytes = (bytes: number, precision = 0): string => {
+export function formatBytes(bytes: number, precision = 0): string {
   const k = 1024
   const sizes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
 
@@ -30,7 +30,7 @@ export const formatBytes = (bytes: number, precision = 0): string => {
  * @param mimeType - The MIME type string to format.
  * @returns The formatted MIME type string.
  */
-export const formatMimeType = (mimeType: string): string | undefined => {
+export function formatMimeType(mimeType: string): string | undefined {
   const [, subtype] = mimeType.split("/")
   let type: string | undefined
 
@@ -59,7 +59,7 @@ export const formatMimeType = (mimeType: string): string | undefined => {
  * isMimeTypeMatch("application/json", ["image/*"]) // returns false
  * ```
  */
-export const isMimeTypeMatch = (mimeType: string, patterns: string[]) => {
+export function isMimeTypeMatch(mimeType: string, patterns: string[]) {
   return patterns.some(pattern => {
     // Split type/subtype for both mimeType and pattern
     const [type, subtype] = mimeType.split("/")
@@ -81,7 +81,7 @@ export const isMimeTypeMatch = (mimeType: string, patterns: string[]) => {
  * @param file - The File object to be converted.
  * @returns A promise that resolves with the Base64 encoded string.
  */
-export const toBase64 = (file: File): Promise<string> => {
+export function toBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.readAsDataURL(file)

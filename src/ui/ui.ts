@@ -13,7 +13,7 @@ import { getQueryParams } from "../http/http"
  * @param max - The maximum number of columns per row.
  * @returns The column count that best balances the rows.
  */
-export const getBalancedColumns = (count: number, min: number, max: number) => {
+export function getBalancedColumns(count: number, min: number, max: number) {
   let best = min
 
   for (let cols = min; cols <= max; cols++) {
@@ -32,7 +32,7 @@ export const getBalancedColumns = (count: number, min: number, max: number) => {
  * Returns a label for the first search key shortcut found.
  * @returns The label for the shortcut.
  */
-export const getShortcutLabel = ({ key, metaKey }: { key: string; metaKey?: boolean }) => {
+export function getShortcutLabel({ key, metaKey }: { key: string; metaKey?: boolean }) {
   const label = `${metaKey ? "⌘" : ""}${key.toUpperCase()}`
   return label
 }
@@ -44,7 +44,7 @@ export const getShortcutLabel = ({ key, metaKey }: { key: string; metaKey?: bool
  * @param hexa - The hexadecimal color code to check (e.g. "#FF0000").
  * @returns A boolean indicating if the color is light.
  */
-export const isLightColor = (hexa: string): boolean => {
+export function isLightColor(hexa: string): boolean {
   // Remove # if present and trim to 6 characters
   const hex = hexa.replace("#", "").substring(0, 6)
 
@@ -73,7 +73,7 @@ export type GetPageParams<T> = T & {
  * @param page - The page number as a string.
  * @returns The current page number as a number.
  */
-export const getCurrentPage = (page?: string | null) => {
+export function getCurrentPage(page?: string | null) {
   return Math.max(page && !Number.isNaN(Number(page)) ? Number.parseInt(page || "1", 10) : 1, 1)
 }
 
@@ -84,7 +84,7 @@ export const getCurrentPage = (page?: string | null) => {
  * @param take - The number of items to take per page.
  * @returns An object containing the parameters for a paginated query.
  */
-export const getPageParams = <T extends object>(url: string, take: number) => {
+export function getPageParams<T extends object>(url: string, take: number) {
   const { page, ...params } = getQueryParams(url)
 
   const currentPage = getCurrentPage(page)
@@ -100,7 +100,7 @@ export const getPageParams = <T extends object>(url: string, take: number) => {
  * @param page - The page number to link to.
  * @returns A link to the specified page of the paginated query.
  */
-export const getPageLink = (searchParams: URLSearchParams, pathname: string, page: number) => {
+export function getPageLink(searchParams: URLSearchParams, pathname: string, page: number) {
   if (page > 1) {
     searchParams.set("page", page.toString())
   } else {

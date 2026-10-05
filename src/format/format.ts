@@ -11,10 +11,10 @@ export type FormatNumberOptions = Intl.NumberFormatOptions & { locale?: string }
  * @param options - Any `Intl.NumberFormat` option, plus a `locale` (defaults to 'en-US').
  * @returns The formatted number as a string.
  */
-export const formatNumber = (
+export function formatNumber(
   number: number,
   { locale = "en-US", ...options }: FormatNumberOptions = {},
-) => {
+) {
   return new Intl.NumberFormat(locale, options).format(number)
 }
 
@@ -26,10 +26,10 @@ export const formatNumber = (
  * @param options - Any `Intl.NumberFormat` option, plus a `locale`. `currency` defaults to 'USD'.
  * @returns The formatted currency string.
  */
-export const formatCurrency = (
+export function formatCurrency(
   amount: number,
   { currency = "USD", ...options }: FormatNumberOptions = {},
-) => {
+) {
   return formatNumber(amount, {
     style: "currency",
     currency,
@@ -45,7 +45,7 @@ export const formatCurrency = (
  * @param interval The interval, either 'month' or 'year'. Defaults to 'month'.
  * @returns The formatted amount per interval.
  */
-export const formatIntervalAmount = (amount: number, interval: "month" | "year" = "month") => {
+export function formatIntervalAmount(amount: number, interval: "month" | "year" = "month") {
   return formatToDecimals(amount / (interval === "year" ? 12 : 1), 2)
 }
 
@@ -55,6 +55,6 @@ export const formatIntervalAmount = (amount: number, interval: "month" | "year" 
  * @param precision - The number of decimal places to format to.
  * @returns The formatted number as a string.
  */
-export const formatToDecimals = (number: number, precision = 0): string => {
+export function formatToDecimals(number: number, precision = 0): string {
   return number.toFixed(precision < 0 ? 0 : precision).replace(/\.0+$/, "")
 }

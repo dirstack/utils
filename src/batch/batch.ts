@@ -4,7 +4,7 @@ import { sleep } from "../helpers/helpers"
 /**
  * Progress reported after each batch finishes processing.
  */
-export type ProcessBatchProgress = {
+export interface ProcessBatchProgress {
   /** The 1-based index of the batch that just finished. */
   batch: number
   /** The total number of batches. */
@@ -15,7 +15,7 @@ export type ProcessBatchProgress = {
   total: number
 }
 
-type ProcessBatchOptions = {
+interface ProcessBatchOptions {
   batchSize: number
   concurrency?: number
   delay?: number
@@ -27,11 +27,11 @@ type ProcessBatchOptions = {
  * Useful for handling external API rate limits. Results are returned in the
  * same order as the input.
  */
-export const processBatch = async <T, R>(
+export async function processBatch<T, R>(
   items: T[],
   processor: (item: T) => Promise<R>,
   options: ProcessBatchOptions,
-): Promise<R[]> => {
+): Promise<R[]> {
   const { batchSize, concurrency = batchSize, delay = 0, onProgress } = options
 
   if (items.length === 0) return []
@@ -63,16 +63,16 @@ export const processBatch = async <T, R>(
 /**
  * Batch processing with error handling - continues processing even if some items fail
  */
-export const processBatchWithErrorHandling = async <T, R>(
+export async function processBatchWithErrorHandling<T, R>(
   items: T[],
   processor: (item: T) => Promise<R>,
   options: ProcessBatchOptions & {
     onError?: (error: Error, item: T) => void
   },
-): Promise<Array<R | Error>> => {
+): Promise<(R | Error)[]> {
   const { onError } = options
 
-  const wrappedProcessor = async (item: T): Promise<R | Error> => {
+  async function wrappedProcessor(item: T): Promise<R | Error> {
     try {
       return await processor(item)
     } catch (error) {
@@ -90,15 +90,15 @@ export const processBatchWithErrorHandling = async <T, R>(
  * `concurrency`. Results are written back at the item's original index, so the
  * returned array always matches the input order.
  */
-const processWithConcurrency = async <T, R>(
+async function processWithConcurrency<T, R>(
   items: T[],
   processor: (item: T) => Promise<R>,
   concurrency: number,
-): Promise<R[]> => {
+): Promise<R[]> {
   const results = new Array<R>(items.length)
   let next = 0
 
-  const worker = async () => {
+  async function worker() {
     while (next < items.length) {
       const index = next++
       results[index] = await processor(items[index]!)

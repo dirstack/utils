@@ -196,7 +196,7 @@ describe("pick", () => {
     const user = { id: 1, name: "John" }
     const result = pick(user, ["id", "age" as keyof typeof user])
 
-    expect(result).toEqual({ id: 1 } as any)
+    expect(result).toEqual({ id: 1 } as typeof result)
   })
 
   it("picks properties with different data types", () => {
