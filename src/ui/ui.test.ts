@@ -132,6 +132,14 @@ describe("getCurrentPage", () => {
 })
 
 describe("getPageLink", () => {
+  it("does not modify the search params passed in", () => {
+    const searchParams = new URLSearchParams("q=hello&page=3")
+
+    expect(getPageLink(searchParams, "/search", 2)).toBe("/search?q=hello&page=2")
+    expect(getPageLink(searchParams, "/search", 1)).toBe("/search?q=hello")
+    expect(searchParams.toString()).toBe("q=hello&page=3")
+  })
+
   it("returns a link with the provided page", () => {
     const searchParams = new URLSearchParams("q=hello&sort=desc")
     const pathname = "/search"
