@@ -31,18 +31,18 @@ const { data, error } = await tryCatch(fetch("/api"))
 | `array` | `uniq`, `uniqBy`, `chunk`, `groupBy`, `keyBy`, `countBy`, `compact`, `sortBy`, `sum`, `sumBy`, `range` |
 | `batch` | `processBatch`, `processBatchWithErrorHandling` (ordered, concurrency-limited, with `onProgress`) |
 | `dom` | `getElementPosition`, `setInputValue` |
-| `errors` | `isErrorWithMessage`, `toErrorWithMessage`, `getErrorMessage` |
+| `errors` | `isErrorWithMessage`, `toErrorWithMessage`, `getErrorMessage`, `toError` |
 | `events` | `subscribe`, `unsubscribe`, `publish`, `publishEscape` |
 | `files` | `formatBytes`, `formatMimeType`, `isMimeTypeMatch`, `toBase64` |
-| `format` | `formatNumber`, `formatCurrency`, `formatIntervalAmount`, `formatToDecimals` |
+| `format` | `formatNumber`, `formatCurrency`, `formatIntervalAmount`, `formatToDecimals`, `currencyExponent`, `minorUnits` |
 | `helpers` | `sleep`, `isTruthy`, `tryCatch`, `debounce`, `throttle`, `retry` |
-| `http` | `isValidUrl`, `normalizeUrl`, `getDomain`, `joinUrlPaths`, query-param helpers, `checkUrlAvailability` |
+| `http` | `isValidUrl`, `normalizeUrl`, `getDomain`, `joinUrlPaths`, query-param helpers, `checkUrlAvailability`, `isHostname`, `normalizeHostname`, `stripWildcard`, `isWithinDomain` |
 | `numbers` | `clamp`, `parseNumericValue`, `preciseRound` |
 | `objects` | `pick`, `omit`, `isEmptyObject`, `sortObject`, `nullsToUndefined` |
 | `parsers` | `maybeParseJson`, `maybeStringifyJson`, `serialize`, `deserialize` |
 | `random` | `getRandomColor`, `getRandomString`, `getRandomNumber`, `getRandomElement` |
 | `string` | `ucFirst`, `lcFirst`, `stripHtml`, `getExcerpt`, `slugify`, `getInitials`, `joinAsSentence` |
-| `time` | `formatDate`, `formatTime`, `formatDateTime`, `formatDateOrTime`, `formatDateRange`, `getReadTime` |
+| `time` | `formatDate`, `formatTime`, `formatDateTime`, `formatDateOrTime`, `formatDateRange`, `getReadTime`, `dayKey`, `shiftDayKey`, `dayIn`, `fromUnix`, `toUnix`, `MINUTE_MS`, `HOUR_MS`, `DAY_MS`, `HOUR_SECONDS`, `DAY_SECONDS` |
 | `ui` | `getBalancedColumns`, `getShortcutLabel`, `isLightColor`, `getCurrentPage`, `getPageParams`, `getPageLink` |
 
 > Some utilities (`dom`, `events`, `toBase64`, `setInputValue`) rely on browser APIs and are only usable in the browser.

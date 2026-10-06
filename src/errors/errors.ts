@@ -51,3 +51,13 @@ export function toErrorWithMessage(maybeError: unknown): ErrorWithMessage {
 export function getErrorMessage(error: unknown) {
   return toErrorWithMessage(error).message
 }
+
+/**
+ * Converts a thrown value to an `Error`, keeping its stack when it already is one.
+ * A string or object thrown bare is wrapped, with the value stringified as the message.
+ * @param error - The thrown value.
+ * @returns The value as an `Error`.
+ */
+export function toError(error: unknown): Error {
+  return error instanceof Error ? error : new Error(String(error))
+}

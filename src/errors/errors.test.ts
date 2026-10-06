@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test"
-import { getErrorMessage, isErrorWithMessage, toErrorWithMessage } from "./errors"
+import { getErrorMessage, isErrorWithMessage, toError, toErrorWithMessage } from "./errors"
 
 describe("isErrorWithMessage", () => {
   it("returns true for ErrorWithMessage", () => {
@@ -38,5 +38,18 @@ describe("getErrorMessage", () => {
   it("returns message for non-ErrorWithMessage", () => {
     const error = new Error("test error")
     expect(getErrorMessage(error)).toBe("test error")
+  })
+})
+
+describe("toError", () => {
+  it("returns an Error as is", () => {
+    const error = new TypeError("test error")
+    expect(toError(error)).toBe(error)
+  })
+
+  it("wraps anything else", () => {
+    const result = toError("test error")
+    expect(result).toBeInstanceOf(Error)
+    expect(result.message).toBe("test error")
   })
 })

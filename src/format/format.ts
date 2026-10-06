@@ -81,3 +81,34 @@ export function formatToDecimals(number: number, precision = 0): string {
     signDisplay: "negative",
   })
 }
+
+const getCachedExponent = createBoundedCache<number>()
+
+/**
+ * Gets a currency's minor-unit exponent (USD 2, JPY 0, KWD 3) from the runtime's ISO 4217 data.
+ * Useful when amounts are stored in minor units, such as cents.
+ * @param currency - The ISO 4217 currency code.
+ * @returns The number of decimal places the currency uses.
+ */
+export function currencyExponent(currency: string): number {
+  return getCachedExponent(currency, () => {
+    const { maximumFractionDigits } = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency,
+    }).resolvedOptions()
+
+    // ISO 4217 itself falls back to 2 for a currency without an explicit exponent
+    return maximumFractionDigits ?? 2
+  })
+}
+
+/**
+ * Gets how many minor units make one major unit of a currency.
+ * @param currency - The ISO 4217 currency code.
+ * @returns The divisor: 100 for USD, 1 for JPY, 1000 for KWD.
+ * @example
+ * 12_950 / minorUnits("USD") // 129.5
+ */
+export function minorUnits(currency: string): number {
+  return 10 ** currencyExponent(currency)
+}

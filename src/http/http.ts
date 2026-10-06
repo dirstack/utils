@@ -279,3 +279,49 @@ export function isValidImageSrc(src?: string | null): src is string {
     return false
   }
 }
+
+// Dot-separated labels ending in an alphabetic top-level domain: a hostname, not a brand name.
+const HOSTNAME = /^(?!-)[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/i
+
+/**
+ * Checks if a string is a bare hostname, such as "example.com", rather than a name like "Reddit".
+ * @param value - The string to check.
+ * @returns True if the string is a hostname with a top-level domain.
+ */
+export function isHostname(value: string): boolean {
+  return HOSTNAME.test(value)
+}
+
+/**
+ * Normalizes a hostname as typed or sent: trimmed, lowercased, without the root's trailing dot.
+ * @param hostname - The hostname to normalize.
+ * @returns The normalized hostname.
+ */
+export function normalizeHostname(hostname: string): string {
+  return hostname.trim().toLowerCase().replace(/\.$/, "")
+}
+
+/**
+ * Removes a leading wildcard label: `*.example.com` covers what `example.com` does.
+ * @param domain - The domain, with or without a wildcard.
+ * @returns The domain without its wildcard label.
+ */
+export function stripWildcard(domain: string): string {
+  return domain.replace(/^\*\./, "")
+}
+
+/**
+ * Checks if a hostname is a domain or one of its subdomains.
+ * `example.com` and `*.example.com` both cover `example.com` and `app.example.com`.
+ * @param hostname - The hostname to check.
+ * @param domain - The domain, with or without a wildcard.
+ * @returns True if the hostname is the domain or sits under it.
+ */
+export function isWithinDomain(hostname: string, domain: string): boolean {
+  const host = normalizeHostname(hostname)
+  const base = normalizeHostname(stripWildcard(domain))
+
+  if (!host || !base) return false
+
+  return host === base || host.endsWith(`.${base}`)
+}

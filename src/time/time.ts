@@ -233,3 +233,88 @@ export function getReadTime(content: string | null, wpm = 265): number {
 
   return Math.ceil(content.trim().split(/\s+/).length / wpm)
 }
+
+/** One minute in milliseconds. */
+export const MINUTE_MS = 60_000
+
+/** One hour in milliseconds. */
+export const HOUR_MS = 3_600_000
+
+/**
+ * One day in milliseconds. A UTC day: a local day across a daylight-saving change is an hour
+ * longer or shorter, so calendar arithmetic in a time zone needs a date library.
+ */
+export const DAY_MS = 86_400_000
+
+/** One hour in seconds, for Unix timestamps. */
+export const HOUR_SECONDS = 3600
+
+/** One day in seconds, for Unix timestamps. */
+export const DAY_SECONDS = 86_400
+
+/**
+ * Converts a Unix timestamp, in seconds (as Stripe and JWTs write it), to a date.
+ * @param seconds - The Unix timestamp in seconds.
+ * @returns The date.
+ */
+export function fromUnix(seconds: number): Date {
+  return new Date(seconds * 1000)
+}
+
+/**
+ * Converts a date to a Unix timestamp in whole seconds.
+ * @param timestamp - The timestamp to convert.
+ * @returns The Unix timestamp in seconds, rounded down.
+ */
+export function toUnix(timestamp: Timestamp): number {
+  return Math.floor(new Date(timestamp).getTime() / 1000)
+}
+
+/**
+ * Gets the UTC calendar day of a timestamp as "YYYY-MM-DD".
+ * @param timestamp - The timestamp.
+ * @returns The day key.
+ * @example
+ * dayKey("2026-10-05T23:30:00Z") // "2026-10-05"
+ */
+export function dayKey(timestamp: Timestamp): string {
+  return new Date(timestamp).toISOString().slice(0, 10)
+}
+
+/**
+ * Moves a "YYYY-MM-DD" day key by whole days.
+ * @param day - The day key.
+ * @param days - How many days to move, negative to move back.
+ * @returns The new day key.
+ * @example
+ * shiftDayKey("2026-12-31", 1) // "2027-01-01"
+ */
+export function shiftDayKey(day: string, days: number): string {
+  return dayKey(Date.parse(`${day}T00:00:00Z`) + days * DAY_MS)
+}
+
+const getCachedDayFormatter = createBoundedCache<Intl.DateTimeFormat>()
+
+/**
+ * Gets the calendar day a timestamp falls on in a time zone, as "YYYY-MM-DD".
+ * @param timestamp - The timestamp.
+ * @param timeZone - An IANA time zone, such as 'Europe/Warsaw'.
+ * @returns The day key in that time zone.
+ * @example
+ * dayIn("2026-10-05T23:30:00Z", "Asia/Tokyo") // "2026-10-06"
+ */
+export function dayIn(timestamp: Timestamp, timeZone: string): string {
+  const formatter = getCachedDayFormatter(
+    timeZone,
+    () =>
+      new Intl.DateTimeFormat("en-US", {
+        timeZone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }),
+  )
+  const parts = formatter.formatToParts(new Date(timestamp))
+  const { year, month, day } = Object.fromEntries(parts.map(({ type, value }) => [type, value]))
+  return `${year}-${month}-${day}`
+}

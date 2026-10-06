@@ -1,5 +1,12 @@
 import { describe, expect, it, spyOn } from "bun:test"
-import { formatCurrency, formatIntervalAmount, formatNumber, formatToDecimals } from "./format"
+import {
+  currencyExponent,
+  formatCurrency,
+  formatIntervalAmount,
+  formatNumber,
+  formatToDecimals,
+  minorUnits,
+} from "./format"
 
 // Whitespace/separator characters Intl.NumberFormat inserts, shared across the currency tests.
 const NBSP = "\u00A0" // Non-breaking space (thousands separator / after a currency code)
@@ -244,5 +251,21 @@ describe("formatter cache", () => {
     expect(formatNumber(1234.5, { locale: "de" })).toBe("1.234,5")
     expect(formatNumber(1234.5, { locale: "en-US" })).toBe("1,234.5")
     expect(formatNumber(1234.5, { locale: "de" })).toBe("1.234,5")
+  })
+})
+
+describe("currencyExponent", () => {
+  it("knows each currency's minor-unit exponent", () => {
+    expect(currencyExponent("USD")).toBe(2)
+    expect(currencyExponent("JPY")).toBe(0)
+    expect(currencyExponent("KWD")).toBe(3)
+  })
+})
+
+describe("minorUnits", () => {
+  it("returns the divisor from minor to major units", () => {
+    expect(minorUnits("USD")).toBe(100)
+    expect(minorUnits("JPY")).toBe(1)
+    expect(minorUnits("KWD")).toBe(1000)
   })
 })

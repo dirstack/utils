@@ -1,11 +1,21 @@
 import { describe, expect, it, spyOn } from "bun:test"
 import {
+  DAY_MS,
+  DAY_SECONDS,
+  dayIn,
+  dayKey,
   formatDate,
   formatDateOrTime,
   formatDateRange,
   formatDateTime,
   formatTime,
+  fromUnix,
   getReadTime,
+  HOUR_MS,
+  HOUR_SECONDS,
+  MINUTE_MS,
+  shiftDayKey,
+  toUnix,
 } from "./time"
 
 // Local time without a zone, so the legacy positional calls below give the same output in every TZ
@@ -268,5 +278,49 @@ describe("positional arguments", () => {
     expect(formatDateOrTime(timestamp, "date", "long", undefined, "en-GB")).toBe("1 January 2022")
     expect(formatDateOrTime(timestamp, "time", undefined, "short", "en-GB")).toBe("00:00")
     expect(formatDateOrTime(timestamp, "datetime", "short", "short")).toBe("1/1/22, 12:00 AM")
+  })
+})
+
+describe("fromUnix and toUnix", () => {
+  it("convert between dates and Unix seconds", () => {
+    expect(fromUnix(1_759_708_800).toISOString()).toBe("2025-10-06T00:00:00.000Z")
+    expect(toUnix("2025-10-06T00:00:00.750Z")).toBe(1_759_708_800)
+  })
+})
+
+describe("dayKey", () => {
+  it("names the UTC day", () => {
+    expect(dayKey(lateUtc)).toBe("2026-10-05")
+    expect(dayKey(new Date(earlyUtc))).toBe("2026-10-05")
+  })
+})
+
+describe("shiftDayKey", () => {
+  it("moves across month, year and leap-day boundaries", () => {
+    expect(shiftDayKey("2026-09-30", 1)).toBe("2026-10-01")
+    expect(shiftDayKey("2027-01-01", -1)).toBe("2026-12-31")
+    expect(shiftDayKey("2028-02-28", 1)).toBe("2028-02-29")
+    expect(shiftDayKey("2026-03-01", -30)).toBe("2026-01-30")
+  })
+})
+
+describe("dayIn", () => {
+  it("names the day on the given clock", () => {
+    expect(dayIn(lateUtc, "Asia/Tokyo")).toBe("2026-10-06")
+    expect(dayIn(lateUtc, "America/New_York")).toBe("2026-10-05")
+    expect(dayIn(earlyUtc, "America/Los_Angeles")).toBe("2026-10-04")
+  })
+
+  it("keeps the day across a daylight-saving change", () => {
+    expect(dayIn("2026-03-29T01:30:00Z", "Europe/Warsaw")).toBe("2026-03-29")
+  })
+})
+
+describe("time constants", () => {
+  it("agree with each other", () => {
+    expect(DAY_MS).toBe(24 * HOUR_MS)
+    expect(HOUR_MS).toBe(60 * MINUTE_MS)
+    expect(DAY_SECONDS * 1000).toBe(DAY_MS)
+    expect(HOUR_SECONDS * 1000).toBe(HOUR_MS)
   })
 })

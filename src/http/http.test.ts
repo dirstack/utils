@@ -6,14 +6,18 @@ import {
   getDomain,
   getQueryParams,
   isExternalUrl,
+  isHostname,
   isLocalhostUrl,
   isValidImageSrc,
   isValidUrl,
+  isWithinDomain,
   joinUrlPaths,
+  normalizeHostname,
   normalizeUrl,
   removeProtocol,
   removeQueryParams,
   setQueryParams,
+  stripWildcard,
 } from "./http"
 
 describe("isValidUrl", () => {
@@ -518,5 +522,48 @@ describe("isValidImageSrc", () => {
   it("handles edge cases", () => {
     expect(isValidImageSrc("/")).toBe(false)
     expect(isValidImageSrc("/ space")).toBe(false)
+  })
+})
+
+describe("isHostname", () => {
+  it("accepts a hostname with a top-level domain", () => {
+    expect(isHostname("example.com")).toBe(true)
+    expect(isHostname("app.9tools.io")).toBe(true)
+  })
+
+  it("rejects names, URLs and leading hyphens", () => {
+    expect(isHostname("Reddit")).toBe(false)
+    expect(isHostname("https://example.com")).toBe(false)
+    expect(isHostname("-example.com")).toBe(false)
+  })
+})
+
+describe("normalizeHostname", () => {
+  it("trims, lowercases and drops the trailing dot", () => {
+    expect(normalizeHostname(" Example.COM. ")).toBe("example.com")
+  })
+})
+
+describe("stripWildcard", () => {
+  it("removes only a leading wildcard label", () => {
+    expect(stripWildcard("*.example.com")).toBe("example.com")
+    expect(stripWildcard("example.com")).toBe("example.com")
+  })
+})
+
+describe("isWithinDomain", () => {
+  it("matches the domain and its subdomains only", () => {
+    for (const host of ["example.com", "www.example.com", "a.b.example.com", "Example.COM."]) {
+      expect(isWithinDomain(host, "example.com")).toBe(true)
+    }
+
+    for (const host of ["example.de", "notexample.com", "example.com.evil.io", ""]) {
+      expect(isWithinDomain(host, "example.com")).toBe(false)
+    }
+  })
+
+  it("treats a wildcard domain like the bare one", () => {
+    expect(isWithinDomain("app.example.com", "*.example.com")).toBe(true)
+    expect(isWithinDomain("example.com", "*.example.com")).toBe(true)
   })
 })
