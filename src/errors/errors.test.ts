@@ -2,14 +2,42 @@ import { describe, expect, it } from "vitest"
 import { getErrorMessage, toError } from "./errors"
 
 describe("getErrorMessage", () => {
-  it("returns message for ErrorWithMessage", () => {
-    const error = { message: "test error" }
-    expect(getErrorMessage(error)).toBe("test error")
+  it("returns the message of an Error", () => {
+    expect(getErrorMessage(new TypeError("Upload failed"))).toBe("Upload failed")
   })
 
-  it("returns message for non-ErrorWithMessage", () => {
-    const error = new Error("test error")
-    expect(getErrorMessage(error)).toBe("test error")
+  it("returns the message of an object with a string message", () => {
+    expect(getErrorMessage({ message: "Quota exceeded" })).toBe("Quota exceeded")
+  })
+
+  it("returns a thrown string as is", () => {
+    expect(getErrorMessage("Network down")).toBe("Network down")
+  })
+
+  it("returns the fallback when the value has no message", () => {
+    expect(getErrorMessage({ code: 500 }, "Something went wrong")).toBe("Something went wrong")
+    expect(getErrorMessage(null, "Something went wrong")).toBe("Something went wrong")
+    expect(getErrorMessage(new Error(""), "Something went wrong")).toBe("Something went wrong")
+  })
+
+  it("prefers the value's own message over the fallback", () => {
+    expect(getErrorMessage(new Error("Upload failed"), "Something went wrong")).toBe(
+      "Upload failed",
+    )
+  })
+
+  it("stringifies a value without a message when there is no fallback", () => {
+    expect(getErrorMessage({ code: 500 })).toBe('{"code":500}')
+    expect(getErrorMessage(42)).toBe("42")
+    expect(getErrorMessage(undefined)).toBe("undefined")
+  })
+
+  it("survives values JSON cannot represent", () => {
+    const circular: Record<string, unknown> = {}
+    circular.self = circular
+
+    expect(getErrorMessage(circular)).toBe("[object Object]")
+    expect(getErrorMessage(10n)).toBe("10")
   })
 })
 
