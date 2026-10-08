@@ -3,14 +3,14 @@
  */
 
 /**
- * Removes one trailing slash, keeping a lone root slash.
+ * Removes every trailing slash, keeping a lone root slash.
  */
 function removeTrailingSlash(value: string) {
-  return value.length > 1 && value.endsWith("/") ? value.slice(0, -1) : value
+  return value.replace(/(?<=.)\/+$/, "")
 }
 
 /**
- * Normalizes a URL by trimming it and removing the trailing slash from its path.
+ * Normalizes a URL by trimming it and removing the trailing slashes from its path.
  * @param url - The URL to normalize.
  * @returns The normalized URL.
  */

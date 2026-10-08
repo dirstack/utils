@@ -68,7 +68,7 @@ export function isExternalUrl(url?: string): boolean {
 
 /**
  * Joins URL path segments with single slashes.
- * @param base - The base URL.
+ * @param base - The base URL. Trailing slashes are removed.
  * @param paths - The path segments to join. Leading and trailing slashes are removed.
  * @returns The combined URL.
  */

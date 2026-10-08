@@ -4,6 +4,14 @@ import { isLocalhostUrl, normalizeUrl } from "./url"
 describe("normalizeUrl", () => {
   it("removes trailing slashes", () => {
     expect(normalizeUrl("https://example.com/")).toBe("https://example.com")
+    expect(normalizeUrl("https://example.com/docs//")).toBe("https://example.com/docs")
+    expect(normalizeUrl("https://example.com/docs//?page=2")).toBe(
+      "https://example.com/docs?page=2",
+    )
+  })
+
+  it("keeps a lone root slash", () => {
+    expect(normalizeUrl("/")).toBe("/")
     expect(normalizeUrl("https://example.com/path/")).toBe("https://example.com/path")
   })
 
