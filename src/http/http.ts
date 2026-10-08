@@ -57,10 +57,11 @@ export function getDomain(url: string): string {
 }
 
 /**
- * Checks if a URL is external, meaning it starts with an http(s) protocol (in any letter case)
- * or is protocol-relative ("//host/path").
+ * Checks if a URL is absolute, meaning it starts with an http(s) protocol (in any letter case)
+ * or is protocol-relative ("//host/path"), as opposed to a path such as "/about".
+ * It does not compare hosts: a full URL to your own site counts as external too.
  * @param url - The URL to check.
- * @returns True if the URL is external.
+ * @returns True if the URL starts with a protocol or "//".
  */
 export function isExternalUrl(url?: string): boolean {
   if (!url) return false
