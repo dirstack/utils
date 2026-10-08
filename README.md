@@ -33,7 +33,7 @@ Each module is also available on its own path, such as `@dirstack/utils/array` o
 | Module | Highlights |
 | --- | --- |
 | `array` | `uniq`, `uniqBy`, `chunk`, `groupBy`, `keyBy`, `countBy`, `compact`, `sortBy`, `sum`, `sumBy`, `range` |
-| `batch` | `processBatch`, `processBatchWithErrorHandling` (ordered, concurrency-limited, with `onProgress`) |
+| `batch` | `processBatch`, `processBatchSettled` (ordered, concurrency-limited, with `onProgress`) |
 | `errors` | `getErrorMessage`, `toError` |
 | `files` | `formatBytes`, `isMimeTypeMatch`, `toBase64`, `toDataUrl` |
 | `format` | `formatNumber`, `formatCurrency`, `formatIntervalAmount`, `currencyExponent`, `minorUnits` |
@@ -134,6 +134,20 @@ No project used these, so v3 drops them. Each has a short native or library repl
 | `getShortcutLabel` | A `<Kbd>` component that knows the platform's modifier key |
 | `DeepIdx`, `DeepIndex`, `ValidatePath` | `Path` and `PathValue` from `react-hook-form`, or `Get` and `Paths` from `type-fest` |
 | `NestedPartial`, `NestedRequired` | `PartialDeep` and `RequiredDeep` from `type-fest` |
+
+### `processBatchWithErrorHandling` is now `processBatchSettled`
+
+Like `Promise.allSettled`, each result now says whether its item succeeded and carries the item, instead of mixing values and `Error` objects in one array. Options, including `onError`, are unchanged.
+
+```ts
+// Before
+const results = await processBatchWithErrorHandling(items, processor, { batchSize: 10 })
+const failed = results.filter(result => result instanceof Error)
+
+// After
+const results = await processBatchSettled(items, processor, { batchSize: 10 })
+const failed = results.filter(result => result.status === "rejected") // { item, error }
+```
 
 ### `toBase64` returns plain Base64, and `toDataUrl` returns the data URL
 
