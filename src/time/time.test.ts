@@ -66,6 +66,11 @@ describe("getReadTime", () => {
 
   it("returns 0 for empty content", () => {
     expect(getReadTime(null)).toEqual(0)
+    expect(getReadTime("")).toEqual(0)
+  })
+
+  it("returns 0 for whitespace-only content", () => {
+    expect(getReadTime("   \n\t ")).toEqual(0)
   })
 })
 
