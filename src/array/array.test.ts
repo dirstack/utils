@@ -7,7 +7,6 @@ import {
   keyBy,
   range,
   sortBy,
-  splitArrayIntoChunks,
   sum,
   sumBy,
   uniq,
@@ -59,12 +58,6 @@ describe("chunk", () => {
     expect(chunk([1, 2, 3, 4, 5, 6, 7], 3)).toEqual([[1, 2, 3], [4, 5, 6], [7]])
     expect(chunk([1, 2, 3, 4, 5, 6], 5)).toEqual([[1, 2, 3, 4, 5], [6]])
     expect(chunk([], 3)).toEqual([])
-  })
-})
-
-describe("splitArrayIntoChunks (deprecated alias)", () => {
-  it("is an alias", () => {
-    expect(splitArrayIntoChunks).toBe(chunk)
   })
 })
 

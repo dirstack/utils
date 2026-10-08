@@ -25,11 +25,6 @@ export function clamp(value: number, min?: number, max?: number) {
 }
 
 /**
- * @deprecated Use {@link clamp} instead.
- */
-export const keepNumberInRange = clamp
-
-/**
  * Parses a string or number into a numeric value.
  * @param value - The value to parse into a numeric value.
  * @returns The parsed numeric value, or `undefined` if the value cannot be parsed.

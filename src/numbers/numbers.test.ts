@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test"
-import { clamp, keepNumberInRange, parseNumericValue, preciseRound } from "./numbers"
+import { clamp, parseNumericValue, preciseRound } from "./numbers"
 
 describe("clamp", () => {
   it("returns the same value if no range is specified", () => {
@@ -24,12 +24,6 @@ describe("clamp", () => {
 
   it("returns the maximum value if the value is equal to the maximum", () => {
     expect(clamp(10, 5, 10)).toBe(10)
-  })
-})
-
-describe("keepNumberInRange (deprecated alias)", () => {
-  it("is an alias", () => {
-    expect(keepNumberInRange).toBe(clamp)
   })
 })
 

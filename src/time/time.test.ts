@@ -20,7 +20,7 @@ import {
   toUnix,
 } from "./time"
 
-// Local time without a zone, so the legacy positional calls below give the same output in every TZ
+// Local time without a zone, so calls below without a `timeZone` give the same output in every TZ
 const timestamp = "2022-01-01 00:00:00.000"
 
 // Near midnight UTC: the date differs between UTC and zones far from it
@@ -87,19 +87,19 @@ describe("formatDateRange", () => {
   it("formats date range correctly with different locale", () => {
     const start = "2022-01-01T00:00:00"
     const end = "2022-12-31T00:00:00"
-    expect(formatDateRange(start, end, "medium", "es")).toBe("1 ene – 31 dic 2022")
+    expect(formatDateRange(start, end, { locale: "es" })).toBe("1 ene – 31 dic 2022")
   })
 
   it("formats date range with short date style", () => {
     const start = "2022-01-01T00:00:00"
     const end = "2022-12-31T00:00:00"
-    expect(formatDateRange(start, end, "short")).toBe("1/1/22 – 12/31/22")
+    expect(formatDateRange(start, end, { dateStyle: "short" })).toBe("1/1/22 – 12/31/22")
   })
 
   it("formats date range with long date style", () => {
     const start = "2022-01-01T00:00:00"
     const end = "2022-12-31T00:00:00"
-    expect(formatDateRange(start, end, "long")).toBe("January 1 – December 31, 2022")
+    expect(formatDateRange(start, end, { dateStyle: "long" })).toBe("January 1 – December 31, 2022")
   })
 
   it("handles same day range", () => {
@@ -257,29 +257,6 @@ describe("options object", () => {
       expect(formatTime(lateUtc, { timeZone: "Asia/Tokyo" })).toBe("8:30 AM")
       expect(formatTime(lateUtc, { timeZone: "UTC" })).toBe("11:30 PM")
     })
-  })
-})
-
-describe("positional arguments", () => {
-  it("formats dates with a style and locale", () => {
-    expect(formatDate(timestamp, "long", "en-GB")).toBe("1 January 2022")
-    expect(formatDate(timestamp, undefined, "pl")).toBe("1 sty 2022")
-  })
-
-  it("formats times with a style and locale", () => {
-    expect(formatTime(timestamp, "short", "en-GB")).toBe("00:00")
-    expect(formatTime(timestamp, undefined, "pl")).toBe("00:00")
-  })
-
-  it("formats date and time with styles and locale", () => {
-    expect(formatDateTime(timestamp, "short", "short", "en-GB")).toBe("01/01/2022, 00:00")
-    expect(formatDateTime(timestamp, "long")).toBe("January 1, 2022 at 12:00 AM")
-  })
-
-  it("formats date or time with styles and locale", () => {
-    expect(formatDateOrTime(timestamp, "date", "long", undefined, "en-GB")).toBe("1 January 2022")
-    expect(formatDateOrTime(timestamp, "time", undefined, "short", "en-GB")).toBe("00:00")
-    expect(formatDateOrTime(timestamp, "datetime", "short", "short")).toBe("1/1/22, 12:00 AM")
   })
 })
 

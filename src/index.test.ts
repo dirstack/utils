@@ -1,5 +1,5 @@
 import { expect, it } from "bun:test"
-import type { DeepIdx, DeepIndex } from "."
+import type { DeepIndex } from "."
 
 interface User {
   address: { city: string }
@@ -7,8 +7,7 @@ interface User {
 
 it("resolves dot-separated paths", () => {
   const city: DeepIndex<User, "address.city"> = "Warsaw"
-  const legacyCity: DeepIdx<User, "address.city"> = city
-  expect(legacyCity).toBe("Warsaw")
+  expect(city).toBe("Warsaw")
 
   // @ts-expect-error The path resolves to a string, not a number.
   const wrongCity: DeepIndex<User, "address.city"> = 5

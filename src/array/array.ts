@@ -62,11 +62,6 @@ export function chunk<T>(items: readonly T[], size: number): T[][] {
 }
 
 /**
- * @deprecated Use {@link chunk} instead.
- */
-export const splitArrayIntoChunks = chunk
-
-/**
  * Groups items into an object of arrays, keyed by the value returned from `key`.
  * @param items - The array to group.
  * @param key - Maps an item to its group key.

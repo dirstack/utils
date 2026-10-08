@@ -82,11 +82,6 @@ export function pick<T extends object, K extends keyof T>(
 }
 
 /**
- * @deprecated Use {@link pick} instead.
- */
-export const pickFromObject = pick
-
-/**
  * Creates a new object with the specified properties removed from the source
  * object. The complement of {@link pick}.
  * @param source - The source object to omit properties from.

@@ -31,11 +31,6 @@ export type DeepIndex<T, K extends string> = K extends ""
         : never
       : never
 
-/**
- * @deprecated Use {@link DeepIndex} instead.
- */
-export type DeepIdx<T, K extends string> = DeepIndex<T, K>
-
 export type ValidatePath<T, K extends string> = K extends ""
   ? ""
   : K extends keyof T
