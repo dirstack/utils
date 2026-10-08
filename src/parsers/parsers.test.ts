@@ -2,6 +2,17 @@ import { describe, expect, it } from "vitest"
 import { serialize } from "./parsers"
 
 describe("serialize", () => {
+  it("returns undefined for values JSON cannot represent", () => {
+    expect(serialize(undefined)).toBeUndefined()
+    expect(serialize(() => 1)).toBeUndefined()
+  })
+
+  it("turns dates into ISO strings", () => {
+    expect(serialize({ at: new Date("2026-10-05T00:00:00Z") })).toEqual({
+      at: "2026-10-05T00:00:00.000Z",
+    })
+  })
+
   it("deep clones plain objects", () => {
     const input = { a: 1, b: { c: 2 } }
     const result = serialize(input)
