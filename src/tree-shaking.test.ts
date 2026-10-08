@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it } from "bun:test"
 import { rm } from "node:fs/promises"
 import { relative, resolve } from "node:path"
 import { build as bundle } from "esbuild"
-import { build } from "vite"
+import { build } from "tsdown"
 
 const root = resolve(import.meta.dir, "..")
 
@@ -41,9 +41,15 @@ async function bundleExport(name: string) {
 beforeAll(async () => {
   await rm(outDir, { recursive: true, force: true })
   await build({
-    configFile: resolve(root, "vite.config.ts"),
+    config: resolve(root, "tsdown.config.ts"),
+    cwd: root,
+    outDir,
+    dts: false,
+    sourcemap: false,
+    publint: false,
+    attw: false,
+    report: false,
     logLevel: "silent",
-    build: { outDir, emptyOutDir: true, sourcemap: false },
   })
 }, 30_000)
 
