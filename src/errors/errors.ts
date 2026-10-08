@@ -33,10 +33,11 @@ export function getErrorMessage(error: unknown, fallback?: string): string {
 
 /**
  * Converts a thrown value to an `Error`, keeping its stack when it already is one.
- * A string or object thrown bare is wrapped, with the value stringified as the message.
+ * Anything else is wrapped: the message comes from {@link getErrorMessage}, and the original
+ * value is kept as the error's `cause`.
  * @param error - The thrown value.
  * @returns The value as an `Error`.
  */
 export function toError(error: unknown): Error {
-  return error instanceof Error ? error : new Error(String(error))
+  return error instanceof Error ? error : new Error(getErrorMessage(error), { cause: error })
 }
