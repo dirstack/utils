@@ -13,13 +13,14 @@ export function isEmptyObject(value: Record<string, unknown> = {}): boolean {
 }
 
 /**
- * Checks if a key is present in an object.
+ * Checks if a key is an own property of an object, and narrows the key's type when it is.
+ * Inherited keys such as "toString" or "constructor" do not count.
  * @param key - The key to check.
  * @param target - The object to check.
- * @returns `true` if the key is present in the object, `false` otherwise.
+ * @returns `true` if the object has the key as its own property, `false` otherwise.
  */
 export function isKeyInObject<T extends object>(key: PropertyKey, target: T): key is keyof T {
-  return key in target
+  return Object.hasOwn(target, key)
 }
 
 /**

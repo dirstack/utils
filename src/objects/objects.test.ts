@@ -26,6 +26,12 @@ describe("isKeyInObject", () => {
     expect(isKeyInObject("age", input)).toBe(true)
   })
 
+  it("ignores keys inherited from Object.prototype", () => {
+    const prefixes = { user: "usr", team: "team" }
+    expect(isKeyInObject("toString", prefixes)).toBe(false)
+    expect(isKeyInObject("constructor", prefixes)).toBe(false)
+  })
+
   it("returns false when string key does not exist in object", () => {
     const input = { name: "John", age: 30 }
     expect(isKeyInObject("email", input)).toBe(false)
@@ -75,12 +81,12 @@ describe("isKeyInObject", () => {
     expect(isKeyInObject("missing", input)).toBe(false)
   })
 
-  it("returns true for inherited properties", () => {
+  it("returns false for properties inherited through the prototype chain", () => {
     const parent = { inherited: "value" }
     const child = Object.create(parent)
     child.own = "own property"
     expect(isKeyInObject("own", child)).toBe(true)
-    expect(isKeyInObject("inherited", child)).toBe(true)
+    expect(isKeyInObject("inherited", child)).toBe(false)
   })
 
   it("handles empty objects", () => {
