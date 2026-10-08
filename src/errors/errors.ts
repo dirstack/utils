@@ -5,8 +5,9 @@
 /**
  * Gets a readable message from a thrown value.
  * An `Error` (or any object with a non-empty string `message`) returns its message, and a
- * non-empty string returns itself. Anything else returns `fallback` when one is given, and is
- * stringified otherwise.
+ * non-empty string returns itself. Anything else returns `fallback` when one is given. Without
+ * one, an `Error` with an empty message returns its name (such as "TypeError"), and other values
+ * are stringified.
  * @param error - The thrown value.
  * @param fallback - The message to use when the value carries no message of its own.
  * @returns The error message.
@@ -23,10 +24,13 @@ export function getErrorMessage(error: unknown, fallback?: string): string {
 
   if (fallback !== undefined) return fallback
 
+  // An Error's properties are not enumerable, so JSON would give "{}". Its name is more useful.
+  if (error instanceof Error) return String(error)
+
   try {
     return JSON.stringify(error) ?? String(error)
   } catch {
-    // JSON.stringify throws on circular references and BigInt values
+    // JSON.stringify throws on circular references and BigInt values.
     return String(error)
   }
 }

@@ -26,6 +26,11 @@ describe("getErrorMessage", () => {
     )
   })
 
+  it("returns the name of an Error with an empty message when there is no fallback", () => {
+    expect(getErrorMessage(new Error())).toBe("Error")
+    expect(getErrorMessage(new TypeError())).toBe("TypeError")
+  })
+
   it("stringifies a value without a message when there is no fallback", () => {
     expect(getErrorMessage({ code: 500 })).toBe('{"code":500}')
     expect(getErrorMessage(42)).toBe("42")
