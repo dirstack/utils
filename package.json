@@ -48,7 +48,7 @@
     "prepare": "lefthook install || true"
   },
   "dependencies": {
-    "@sindresorhus/slugify": "^2.2.1"
+    "@sindresorhus/slugify": "^3.0.1"
   },
   "devDependencies": {
     "@arethetypeswrong/core": "^0.18.5",
