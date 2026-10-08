@@ -121,7 +121,8 @@ export function getReadTime(content: string | null, wpm = 265): number {
     return 0
   }
 
-  return Math.ceil(content.trim().split(/\s+/).length / wpm)
+  const words = content.split(/\s+/).filter(Boolean).length
+  return Math.ceil(words / wpm)
 }
 
 /** One second in milliseconds. */
