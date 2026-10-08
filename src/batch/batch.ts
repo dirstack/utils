@@ -19,10 +19,15 @@ export interface ProcessBatchProgress {
   total: number
 }
 
-interface ProcessBatchOptions {
+/** Options for {@link processBatch} and {@link processBatchWithErrorHandling}. */
+export interface ProcessBatchOptions {
+  /** The number of items in each batch. Must be at least 1. */
   batchSize: number
+  /** The maximum number of items processed at once within a batch. Defaults to `batchSize`. */
   concurrency?: number
+  /** Milliseconds to wait between batches. Defaults to 0. */
   delay?: number
+  /** Called after each batch finishes. */
   onProgress?: (progress: ProcessBatchProgress) => void
 }
 
