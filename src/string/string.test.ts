@@ -165,19 +165,83 @@ describe("getInitials", () => {
 })
 
 describe("joinAsSentence", () => {
-  it("joins an array of strings into a sentence", () => {
-    expect(joinAsSentence(["apple"])).toEqual("apple")
-    expect(joinAsSentence(["apple", "banana"])).toEqual("apple and banana")
-    expect(joinAsSentence(["apple", "banana", "cherry"])).toEqual("apple, banana and cherry")
+  it("returns an empty string for no items", () => {
+    expect(joinAsSentence([])).toBe("")
   })
 
-  it("joins an array of strings into a sentence with a custom last item", () => {
-    expect(joinAsSentence(["apple", "banana", "cherry"], undefined, "or")).toEqual(
-      "apple, banana or cherry",
+  it("returns a single item as is", () => {
+    expect(joinAsSentence(["apple"])).toBe("apple")
+  })
+
+  it("joins two items without a comma", () => {
+    expect(joinAsSentence(["apple", "banana"])).toBe("apple and banana")
+  })
+
+  it("joins three or more items with a serial comma in en-US", () => {
+    expect(joinAsSentence(["apple", "banana", "cherry"])).toBe("apple, banana, and cherry")
+    expect(joinAsSentence(["apple", "banana", "cherry", "date", "elderberry"])).toBe(
+      "apple, banana, cherry, date, and elderberry",
     )
   })
 
-  it("joins an array with custom max items", () => {
-    expect(joinAsSentence(["apple", "banana", "cherry"], 2)).toEqual("apple and banana")
+  it("leaves out the serial comma in en-GB", () => {
+    expect(joinAsSentence(["apple", "banana", "cherry"], { locale: "en-GB" })).toBe(
+      "apple, banana and cherry",
+    )
+  })
+
+  it("keeps an item that contains a comma whole", () => {
+    expect(joinAsSentence(["Paris", "Austin, Texas"])).toBe("Paris and Austin, Texas")
+  })
+
+  it("treats replacement patterns in items literally", () => {
+    expect(joinAsSentence(["$&", "$1"])).toBe("$& and $1")
+  })
+
+  it("joins with 'or' for a disjunction", () => {
+    expect(joinAsSentence(["apple", "banana", "cherry"], { type: "disjunction" })).toBe(
+      "apple, banana, or cherry",
+    )
+  })
+
+  it("uses the words and punctuation of the locale", () => {
+    expect(joinAsSentence(["a", "b", "c"], { locale: "de" })).toBe("a, b und c")
+    expect(joinAsSentence(["a", "b", "c"], { locale: "de", type: "disjunction" })).toBe(
+      "a, b oder c",
+    )
+  })
+
+  it("collapses the items past the limit into one trailing item", () => {
+    expect(joinAsSentence(["a", "b", "c", "d"], { limit: 2 })).toBe("a, b, and 2 more")
+    expect(joinAsSentence(["a", "b", "c", "d", "e"], { limit: 3, locale: "en-GB" })).toBe(
+      "a, b, c and 2 more",
+    )
+  })
+
+  it("shows the last item instead of hiding exactly one", () => {
+    expect(joinAsSentence(["a", "b", "c"], { limit: 2 })).toBe("a, b, and c")
+  })
+
+  it("ignores a limit the list does not reach", () => {
+    expect(joinAsSentence(["a", "b"], { limit: 5 })).toBe("a and b")
+  })
+
+  it("collapses every item for a limit of 0", () => {
+    expect(joinAsSentence(["a", "b", "c"], { limit: 0 })).toBe("3 more")
+  })
+
+  it("labels the collapsed rest with formatRest", () => {
+    expect(
+      joinAsSentence(["a", "b", "c", "d"], {
+        limit: 1,
+        locale: "de",
+        formatRest: count => `${count} weitere`,
+      }),
+    ).toBe("a und 3 weitere")
+  })
+
+  it("accepts a readonly array", () => {
+    const fruits = ["apple", "banana"] as const
+    expect(joinAsSentence(fruits)).toBe("apple and banana")
   })
 })

@@ -4,6 +4,7 @@
 
 import slugifyString from "@sindresorhus/slugify"
 import { isTruthy } from "../helpers/helpers.js"
+import { createBoundedCache } from "../internal/cache.js"
 
 /**
  * Uppercases the first character in the `string`.
@@ -104,16 +105,56 @@ export function getInitials(value?: string | null, limit = 0) {
   return limit > 0 ? initials.slice(0, limit) : initials
 }
 
+/** Options for {@link joinAsSentence}. */
+export interface JoinAsSentenceOptions {
+  /** "and" lists (default) or "or" lists. */
+  type?: "conjunction" | "disjunction"
+  /** BCP 47 locale for the list's words and punctuation. Defaults to "en-US", like formatNumber and formatDate. */
+  locale?: string
+  /** Show at most this many items; the rest collapse into one trailing item. No limit by default. */
+  limit?: number
+  /** The trailing item for the collapsed rest. Defaults to `${count} more`. */
+  formatRest?: (count: number) => string
+}
+
+const getCachedListFormat = /* @__PURE__ */ createBoundedCache<Intl.ListFormat>()
+
 /**
- * Joins an array of strings into a sentence, such as "a, b and c".
+ * Joins strings into a sentence with `Intl.ListFormat`, such as "a, b, and c".
+ * The locale sets the words and punctuation, and each item is kept whole, so items may contain commas.
+ * `en-US` adds a serial comma before the last item; pass `locale: "en-GB"` for "a, b and c".
+ * Formatters are cached by locale and type.
  * @param items - The strings to join.
- * @param maxItems - The maximum number of items to include. Defaults to 3.
- * @param conjunction - The word before the last item. Defaults to "and".
- * @returns The joined sentence.
+ * @param options - The list type, locale, item limit and rest label.
+ * @returns The joined sentence, or an empty string for no items.
+ * @example
+ * joinAsSentence(["a", "b", "c"]) // "a, b, and c"
+ * joinAsSentence(["a", "b", "c"], { locale: "en-GB" }) // "a, b and c"
+ * joinAsSentence(["a", "b"], { type: "disjunction" }) // "a or b"
+ *
+ * // A limit collapses the rest into one item, but never hides a single item
+ * joinAsSentence(["a", "b", "c", "d"], { limit: 2 }) // "a, b, and 2 more"
+ * joinAsSentence(["a", "b", "c"], { limit: 2 }) // "a, b, and c"
  */
-export function joinAsSentence(items: string[], maxItems = 3, conjunction = "and") {
-  return items
-    .slice(0, maxItems)
-    .join(", ")
-    .replace(/, ([^,]*)$/, ` ${conjunction} $1`)
+export function joinAsSentence(
+  items: readonly string[],
+  {
+    type = "conjunction",
+    locale = "en-US",
+    limit = Number.POSITIVE_INFINITY,
+    formatRest = count => `${count} more`,
+  }: JoinAsSentenceOptions = {},
+) {
+  const formatter = getCachedListFormat(
+    `${locale}:${type}`,
+    () => new Intl.ListFormat(locale, { type, style: "long" }),
+  )
+
+  const shown = Math.max(0, limit)
+  const hidden = items.length - shown
+
+  // "1 more" is never shorter than the item it hides, so only collapse two or more items
+  if (hidden < 2) return formatter.format(items)
+
+  return formatter.format([...items.slice(0, shown), formatRest(hidden)])
 }
