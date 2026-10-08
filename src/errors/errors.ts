@@ -3,16 +3,25 @@
  */
 
 /**
- * Gets the error message from an unknown value.
- * A value with a string `message` property, such as an `Error`, returns that message.
- * Anything else is stringified as JSON, or with `String()` when JSON cannot represent it.
- * @param error - The value to get the error message from.
- * @returns The error message as a string.
+ * Gets a readable message from a thrown value.
+ * An `Error` (or any object with a non-empty string `message`) returns its message, and a
+ * non-empty string returns itself. Anything else returns `fallback` when one is given, and is
+ * stringified otherwise.
+ * @param error - The thrown value.
+ * @param fallback - The message to use when the value carries no message of its own.
+ * @returns The error message.
+ * @example
+ * getErrorMessage(new Error("Upload failed")) // "Upload failed"
+ * getErrorMessage({ code: 500 }, "Something went wrong") // "Something went wrong"
  */
-export function getErrorMessage(error: unknown): string {
+export function getErrorMessage(error: unknown, fallback?: string): string {
+  if (typeof error === "string" && error) return error
+
   if (typeof error === "object" && error !== null && "message" in error) {
-    if (typeof error.message === "string") return error.message
+    if (typeof error.message === "string" && error.message) return error.message
   }
+
+  if (fallback !== undefined) return fallback
 
   try {
     return JSON.stringify(error) ?? String(error)
