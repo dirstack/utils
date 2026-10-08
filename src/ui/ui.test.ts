@@ -2,6 +2,15 @@ import { describe, expect, it } from "vitest"
 import { getBalancedColumns, getCurrentPage, getPageLink, getPagination, isLightColor } from "./ui"
 
 describe("getBalancedColumns", () => {
+  it("never returns fewer than one column", () => {
+    expect(getBalancedColumns(10, 0, 3)).toBe(2)
+    expect(getBalancedColumns(10, -2, 0)).toBe(1)
+  })
+
+  it("treats a max below min as min", () => {
+    expect(getBalancedColumns(10, 4, 2)).toBe(4)
+  })
+
   it("prefers a column count that divides evenly", () => {
     expect(getBalancedColumns(12, 5, 6)).toBe(6)
     expect(getBalancedColumns(10, 5, 6)).toBe(5)
@@ -36,6 +45,24 @@ describe("isLightColor", () => {
   })
 
   // Edge cases
+  it("should handle 3 and 4-digit hex codes", () => {
+    expect(isLightColor("#fff")).toBe(true)
+    expect(isLightColor("#000")).toBe(false)
+    expect(isLightColor("#ffff")).toBe(true)
+    expect(isLightColor("ff0")).toBe(true)
+  })
+
+  it("should ignore an alpha channel", () => {
+    expect(isLightColor("#ffffff00")).toBe(true)
+    expect(isLightColor("#00000080")).toBe(false)
+  })
+
+  it("should treat invalid colors as dark", () => {
+    expect(isLightColor("")).toBe(false)
+    expect(isLightColor("#ggg")).toBe(false)
+    expect(isLightColor("white")).toBe(false)
+  })
+
   it("should handle hex without #", () => {
     expect(isLightColor("FFFFFF")).toBe(true)
     expect(isLightColor("000000")).toBe(false)
