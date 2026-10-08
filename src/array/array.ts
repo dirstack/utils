@@ -48,14 +48,21 @@ export function uniq<T>(items: readonly T[]): T[] {
  * Splits an array into chunks of a specified size. The final chunk holds the
  * remainder when the length isn't an exact multiple of `size`.
  * @param items - The array to split.
- * @param size - The maximum size of each chunk.
+ * @param size - The maximum size of each chunk. Fractions are rounded down.
  * @returns An array of chunks.
+ * @throws {RangeError} When `size` is below 1 or not a number, which would never finish.
  */
 export function chunk<T>(items: readonly T[], size: number): T[][] {
+  const chunkSize = Math.floor(size)
+
+  if (!(chunkSize >= 1)) {
+    throw new RangeError(`chunk size must be at least 1, received ${size}`)
+  }
+
   const chunks: T[][] = []
 
-  for (let index = 0; index < items.length; index += size) {
-    chunks.push(items.slice(index, index + size))
+  for (let index = 0; index < items.length; index += chunkSize) {
+    chunks.push(items.slice(index, index + chunkSize))
   }
 
   return chunks

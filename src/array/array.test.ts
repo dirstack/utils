@@ -59,6 +59,17 @@ describe("chunk", () => {
     expect(chunk([1, 2, 3, 4, 5, 6], 5)).toEqual([[1, 2, 3, 4, 5], [6]])
     expect(chunk([], 3)).toEqual([])
   })
+
+  it("rounds a fractional size down", () => {
+    expect(chunk([1, 2, 3, 4, 5], 2.9)).toEqual([[1, 2], [3, 4], [5]])
+  })
+
+  it("throws for a size that would never finish", () => {
+    expect(() => chunk([1, 2], 0)).toThrow(RangeError)
+    expect(() => chunk([1, 2], -1)).toThrow(RangeError)
+    expect(() => chunk([1, 2], 0.5)).toThrow(RangeError)
+    expect(() => chunk([1, 2], Number.NaN)).toThrow(RangeError)
+  })
 })
 
 describe("groupBy", () => {

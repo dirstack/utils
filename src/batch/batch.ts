@@ -56,6 +56,7 @@ async function processWithConcurrency<T, R>(
  * Process items in batches with controlled concurrency and delays.
  * Useful for handling external API rate limits. Results are returned in the
  * same order as the input.
+ * @throws {RangeError} When `batchSize` is below 1 and there are items to process.
  */
 export async function processBatch<T, R>(
   items: readonly T[],
