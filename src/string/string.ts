@@ -28,38 +28,60 @@ export function lcFirst(string: string): string {
   return `${string.charAt(0).toLowerCase()}${string.slice(1)}`
 }
 
+/** Options for {@link truncate}. */
+export interface TruncateOptions {
+  /** The text that marks the cut. It counts toward the length. Defaults to "…". */
+  ellipsis?: string
+  /** Cut after the last whole word that fits (default), or exactly at the length. */
+  wordBoundary?: boolean
+}
+
+// Created on first use, so importing the module has no side effects
+let segmenter: Intl.Segmenter | undefined
+
 /**
- * Strips HTML tags from a string.
- * @param string - The string to strip tags from.
- * @returns The string without HTML tags.
+ * Splits text into user-perceived characters, so an emoji or an accented letter is never cut apart.
  */
-export function stripHtml(string: string): string {
-  return string.replace(/<[^>]*>?/gm, "")
+function toGraphemes(text: string) {
+  segmenter ??= new Intl.Segmenter()
+  return Array.from(segmenter.segment(text), ({ segment }) => segment)
 }
 
 /**
- * Replaces each run of newlines in a string.
- * @param string - The string to convert.
- * @param replacement - The text that replaces each run of newlines. Defaults to a space.
- * @returns The string with newlines replaced.
+ * Shortens plain text to at most `length` characters, ending with an ellipsis when it was cut.
+ * Runs of whitespace and newlines become single spaces first. Characters are counted as the
+ * reader sees them, so an emoji counts as one and is never split.
+ * @param text - The text to shorten. `null` and `undefined` count as empty.
+ * @param length - The maximum length of the result, including the ellipsis.
+ * @param options - The ellipsis, and whether to cut between words.
+ * @returns The text, shortened when it is longer than `length`.
+ * @example
+ * truncate("The quick brown fox jumps", 15) // "The quick…"
+ * truncate("The quick brown fox jumps", 15, { wordBoundary: false }) // "The quick brow…"
  */
-export function convertNewlines(string: string, replacement = " "): string {
-  return string.replace(/\n+/g, replacement)
-}
+export function truncate(
+  text: string | null | undefined,
+  length: number,
+  { ellipsis = "…", wordBoundary = true }: TruncateOptions = {},
+): string {
+  const plain = (text ?? "").replace(/\s+/g, " ").trim()
+  const characters = toGraphemes(plain)
 
-/**
- * Gets a plain-text excerpt from a string, stripping HTML and newlines.
- * @param content - The string to get an excerpt from.
- * @param length - The maximum length of the excerpt, before "..." is added. Defaults to 250.
- * @returns The excerpt, ending in "..." when the text was cut, or null for empty content.
- */
-export function getExcerpt(content: string | undefined | null, length = 250): string | null {
-  if (!content) return null
+  if (characters.length <= length) return plain
 
-  const plainText = convertNewlines(stripHtml(content))
-  const text = plainText.slice(0, length).trim()
+  const marker = toGraphemes(ellipsis)
+  if (length <= marker.length) return marker.slice(0, Math.max(length, 0)).join("")
 
-  return text.length < plainText.length ? `${text}...` : text
+  const room = length - marker.length
+  let cut = characters.slice(0, room).join("")
+
+  // Back up to the last space, unless the cut already falls between two words
+  if (wordBoundary && characters[room] !== " ") {
+    const lastSpace = cut.lastIndexOf(" ")
+    if (lastSpace > 0) cut = cut.slice(0, lastSpace)
+  }
+
+  return `${cut.replace(/[\s,;:]+$/, "")}${ellipsis}`
 }
 
 /**
