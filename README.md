@@ -43,7 +43,7 @@ Each module is also available on its own path, such as `@dirstack/utils/array` o
 | `objects` | `pick`, `omit`, `isEmptyObject`, `isKeyInObject` |
 | `parsers` | `serialize` |
 | `random` | `getRandomString`, `getRandomDigits`, `getRandomNumber`, `getRandomElement` |
-| `string` | `ucFirst`, `lcFirst`, `getExcerpt`, `slugify`, `getInitials`, `joinAsSentence` |
+| `string` | `ucFirst`, `lcFirst`, `truncate`, `slugify`, `getInitials`, `joinAsSentence` |
 | `time` | `formatDate`, `formatTime`, `formatDateTime`, `formatDateRange`, `getReadTime`, `dayKey`, `shiftDayKey`, `dayIn`, `fromUnix`, `toUnix`, `SECOND_MS`, `MINUTE_MS`, `HOUR_MS`, `DAY_MS`, `MINUTE_SECONDS`, `HOUR_SECONDS`, `DAY_SECONDS` |
 | `ui` | `getBalancedColumns`, `isLightColor`, `getCurrentPage`, `getPagination`, `getPageLink` |
 | types | `WithOptional`, `WithRequired` |
@@ -135,6 +135,17 @@ No project used these, so v3 drops them. Each has a short native or library repl
 | `getShortcutLabel` | A `<Kbd>` component that knows the platform's modifier key |
 | `DeepIdx`, `DeepIndex`, `ValidatePath` | `Path` and `PathValue` from `react-hook-form`, or `Get` and `Paths` from `type-fest` |
 | `NestedPartial`, `NestedRequired` | `PartialDeep` and `RequiredDeep` from `type-fest` |
+
+### `getExcerpt` is now `truncate`
+
+Every caller passed plain text, so `truncate` drops the HTML stripping (which also deleted any text after a `<`). It cuts between words, never splits an emoji, and keeps the result within `length` including the `…`.
+
+```ts
+// Before                              // After
+getExcerpt(description, 125)           truncate(description, 125)
+```
+
+Three details changed: the ellipsis is `…` instead of `...`, it counts toward `length`, and empty input returns `""` instead of `null`. `stripHtml` and `convertNewlines` are removed too.
 
 ### `getPageParams` is now `getPagination`
 

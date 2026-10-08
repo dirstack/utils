@@ -1,14 +1,5 @@
 import { describe, expect, it, test } from "vitest"
-import {
-  convertNewlines,
-  getExcerpt,
-  getInitials,
-  joinAsSentence,
-  lcFirst,
-  slugify,
-  stripHtml,
-  ucFirst,
-} from "./string"
+import { getInitials, joinAsSentence, lcFirst, slugify, truncate, ucFirst } from "./string"
 
 describe("ucFirst", () => {
   test("should uppercase the first character of a string", () => {
@@ -64,29 +55,69 @@ describe("lcFirst", () => {
   })
 })
 
-describe("stripHtml", () => {
-  it("strips html tags from a string", () => {
-    expect(stripHtml("<p>Hello, <strong>world!</strong></p>")).toEqual("Hello, world!")
-    expect(stripHtml("<div><h1>Header</h1><p>Paragraph</p></div>")).toEqual("HeaderParagraph")
-    expect(stripHtml("")).toEqual("")
+describe("truncate", () => {
+  it("returns text that fits unchanged", () => {
+    expect(truncate("The quick brown fox", 20)).toBe("The quick brown fox")
+    expect(truncate("The quick brown fox", 19)).toBe("The quick brown fox")
   })
-})
 
-describe("convertNewlines", () => {
-  it("converts newlines to specified element", () => {
-    expect(convertNewlines("Hello\nworld\n")).toEqual("Hello world ")
-    expect(convertNewlines("Hello\nworld\n", "<br>")).toEqual("Hello<br>world<br>")
-    expect(convertNewlines("")).toEqual("")
+  it("cuts after the last whole word and adds an ellipsis", () => {
+    expect(truncate("The quick brown fox jumps", 15)).toBe("The quick…")
   })
-})
 
-describe("getExcerpt", () => {
-  it("gets an excerpt from a string", () => {
-    expect(getExcerpt("<p>Hello, <strong>world!</strong></p>", 10)).toEqual("Hello, wor...")
-    expect(getExcerpt("Lorem ipsum dolor sit amet, consectetur adipiscing elit.", 20)).toEqual(
-      "Lorem ipsum dolor si...",
+  it("keeps a word that ends exactly at the cut", () => {
+    expect(truncate("The quick brown fox", 10)).toBe("The quick…")
+  })
+
+  it("cuts mid-word when wordBoundary is false", () => {
+    expect(truncate("The quick brown fox jumps", 15, { wordBoundary: false })).toBe(
+      "The quick brow…",
     )
-    expect(getExcerpt("", 10)).toEqual(null)
+  })
+
+  it("cuts a single word that is longer than the limit", () => {
+    expect(truncate("Supercalifragilistic", 10)).toBe("Supercali…")
+  })
+
+  it("never returns more characters than the length", () => {
+    const text = "Open source alternatives to popular software, curated by the community."
+    for (let length = 0; length <= text.length; length++) {
+      expect([...new Intl.Segmenter().segment(truncate(text, length))].length).toBeLessThanOrEqual(
+        length,
+      )
+    }
+  })
+
+  it("does not split emoji", () => {
+    expect(truncate("😀😀😀😀", 3)).toBe("😀😀…")
+    expect(truncate("👨‍👩‍👧 family photo", 2)).toBe("👨‍👩‍👧…")
+  })
+
+  it("collapses whitespace and newlines", () => {
+    expect(truncate("Hello\n\n  world\t!", 20)).toBe("Hello world !")
+  })
+
+  it("drops punctuation left before the ellipsis", () => {
+    expect(truncate("Hello, world and more", 8)).toBe("Hello…")
+  })
+
+  it("keeps a less-than sign and the text after it", () => {
+    expect(truncate("5 < 6 and 7 > 3", 20)).toBe("5 < 6 and 7 > 3")
+  })
+
+  it("uses a custom ellipsis within the length", () => {
+    expect(truncate("The quick brown fox", 12, { ellipsis: "..." })).toBe("The quick...")
+  })
+
+  it("returns an empty string for empty input", () => {
+    expect(truncate("", 10)).toBe("")
+    expect(truncate(null, 10)).toBe("")
+    expect(truncate(undefined, 10)).toBe("")
+  })
+
+  it("shortens the ellipsis itself when the length leaves no room for text", () => {
+    expect(truncate("The quick brown fox", 0)).toBe("")
+    expect(truncate("The quick brown fox", 2, { ellipsis: "..." })).toBe("..")
   })
 })
 
