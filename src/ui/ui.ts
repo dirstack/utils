@@ -13,7 +13,6 @@
  * @returns The column count that best balances the rows.
  */
 export function getBalancedColumns(count: number, min: number, max: number): number {
-  // At least one column, and a range that is never empty
   const lowest = Math.max(Math.floor(min), 1)
   const highest = Math.max(Math.floor(max), lowest)
   let best = lowest
@@ -37,10 +36,10 @@ export function getBalancedColumns(count: number, min: number, max: number): num
 export function isLightColor(color: string): boolean {
   const digits = color.trim().replace(/^#/, "")
 
-  // Short codes repeat each digit: "#fa0" is "#ffaa00"
+  // Short codes repeat each digit: "#fa0" is "#ffaa00".
   const hex =
     digits.length === 3 || digits.length === 4
-      ? [...digits.slice(0, 3)].map(digit => digit + digit).join("")
+      ? [...digits.slice(0, 3)].map(digit => `${digit}${digit}`).join("")
       : digits.slice(0, 6)
 
   if (!/^[0-9a-f]{6}$/i.test(hex)) return false

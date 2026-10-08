@@ -118,7 +118,7 @@ describe("isKeyInObject", () => {
     const key: string = "name"
 
     if (isKeyInObject(key, input)) {
-      // TypeScript should know that input[key] is valid here
+      // TypeScript should know that input[key] is valid here.
       expect(input[key]).toBe("John")
     } else {
       throw new Error("This should not happen")
@@ -196,7 +196,7 @@ describe("pick", () => {
     const result = pick(input, ["a", "b", "c"])
 
     // While object property order isn't guaranteed in all cases,
-    // modern JS engines preserve insertion order for string keys
+    // modern JS engines preserve insertion order for string keys.
     expect(Object.keys(result)).toEqual(["a", "b", "c"])
     expect(result).toEqual({ a: 1, b: 2, c: 3 })
   })

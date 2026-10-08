@@ -4,6 +4,9 @@
 
 import { HTTP_PROTOCOL, isLocalhostUrl, normalizeUrl, trimSlashes } from "../internal/url.js"
 
+/** An http(s) protocol in any letter case, or the "//" of a protocol-relative URL. */
+const ABSOLUTE_URL = /^(https?:)?\/\//i
+
 /**
  * Checks if a URL is a valid http(s) URL using the URL constructor.
  * @param url - The URL to validate.
@@ -41,7 +44,7 @@ export function addProtocol(url?: string, secure?: boolean): string {
  * @returns The URL without protocol.
  */
 export function removeProtocol(url?: string): string {
-  return url?.replace(/^(https?:)?\/\//i, "") ?? ""
+  return url?.replace(ABSOLUTE_URL, "") ?? ""
 }
 
 /**
@@ -65,7 +68,7 @@ export function getDomain(url: string): string {
  */
 export function isExternalUrl(url?: string): boolean {
   if (!url) return false
-  return /^(https?:)?\/\//i.test(url)
+  return ABSOLUTE_URL.test(url)
 }
 
 /**

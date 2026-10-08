@@ -105,7 +105,7 @@ describe("trimSlashes", () => {
 })
 
 describe("slash trimming on long runs of slashes", () => {
-  // A regex such as /\/+$/ takes seconds on this input; the loops take well under a millisecond
+  // A regex such as /\/+$/ takes seconds on this input; the loops take well under a millisecond.
   const slashes = `a${"/".repeat(100_000)}x`
 
   it("normalizes in linear time", () => {

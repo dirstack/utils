@@ -1,5 +1,5 @@
 /**
- * Internal helpers shared by the formatting modules. Not exported from the package root.
+ * Caching helpers for the `Intl` formatters used across modules. Not exported from the package root.
  */
 
 /**
@@ -20,7 +20,7 @@ export function createBoundedCache<Value>(
 
     const value = create()
 
-    // Maps keep insertion order, so the first key is the oldest entry
+    // Maps keep insertion order, so the first key is the oldest entry.
     if (cache.size >= limit) {
       cache.delete(cache.keys().next().value!)
     }

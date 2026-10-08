@@ -30,7 +30,7 @@ function trackConcurrency<R>(work: (item: number) => R) {
  */
 function spyOnTimers() {
   const spy = vi.spyOn(globalThis, "setTimeout")
-  // Restoring the spy clears its calls, so keep a copy
+  // Restoring the spy clears its calls, so keep a copy.
   let calls: unknown[][] = []
 
   return {
@@ -129,7 +129,7 @@ describe("processBatch", () => {
     await processBatch([1, 2, 3, 4], createProcessor(5), { batchSize: 2, delay: 50 })
     timers.restore()
 
-    // One delay between the two batches
+    // One delay between the two batches.
     expect(timers.count(50)).toBe(1)
   })
 
@@ -247,7 +247,6 @@ describe("processBatchSettled", () => {
     })
     const results = outcomes(settled)
 
-    // Results should contain successful results and Error objects
     expect(results).toHaveLength(4)
     expect(results[0]).toBe(2) // Item 1 successful
     expect(results[1]).toBeInstanceOf(Error) // Item 2 failed
@@ -374,7 +373,6 @@ interface ApiRequest {
 
 describe("integration tests", () => {
   it("should handle complex real-world scenario", async () => {
-    // Simulate processing API requests with rate limiting
     const apiRequests = Array.from({ length: 20 }, (_, i) => ({
       id: i + 1,
       data: `request-${i + 1}`,
@@ -409,19 +407,16 @@ describe("integration tests", () => {
     const results = outcomes(settled)
     timers.restore()
 
-    // Verify results
     expect(results).toHaveLength(20)
     expect(requestCount).toBe(20)
     expect(errors).toHaveLength(3)
 
-    // Check successful results
     const successfulResults = results.filter(r => !(r instanceof Error))
     expect(successfulResults).toHaveLength(17)
 
-    // Check failed requests
     expect(errors.map(e => e.item.id)).toEqual([5, 12, 18])
 
-    // A rate-limiting delay between each of the 4 batches
+    // A rate-limiting delay between each of the 4 batches.
     expect(timers.count(20)).toBe(3)
   })
 })

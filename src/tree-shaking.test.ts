@@ -29,7 +29,7 @@ async function bundleExport(name: string) {
   const code = result.outputFiles[0]!.text
   const output = Object.values(result.metafile.outputs)[0]!
 
-  // The library modules that contributed code to the bundle
+  // The library modules that contributed code to the bundle.
   const modules = Object.entries(output.inputs)
     .filter(([path, { bytesInOutput }]) => bytesInOutput > 0 && path !== "<stdin>")
     .map(([path]) => relative(outDir, resolve(root, path)))

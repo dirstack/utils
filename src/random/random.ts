@@ -5,7 +5,7 @@
 const DIGITS = "0123456789"
 const LETTERS_AND_DIGITS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-// `crypto.getRandomValues` fills at most 65,536 bytes per call
+// `crypto.getRandomValues` fills at most 65,536 bytes per call.
 const MAX_RANDOM_BYTES = 65_536
 
 /**
@@ -22,7 +22,7 @@ function getRandomCharacters(alphabet: string, length: number) {
   let result = ""
 
   while (result.length < target) {
-    // A few percent of bytes are rejected, so ask for some spare ones
+    // A few percent of bytes are rejected, so ask for some spare ones.
     const size = Math.min(MAX_RANDOM_BYTES, Math.ceil((target - result.length) * 1.1) + 8)
 
     for (const byte of crypto.getRandomValues(new Uint8Array(size))) {

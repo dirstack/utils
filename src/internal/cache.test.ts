@@ -20,7 +20,7 @@ describe("createBoundedCache", () => {
     getOrCreate("c", () => create("c"))
     expect(create).toHaveBeenCalledTimes(3)
 
-    // "b" is still cached, "a" was evicted
+    // "b" is still cached, "a" was evicted.
     getOrCreate("b", () => create("b"))
     expect(create).toHaveBeenCalledTimes(3)
     getOrCreate("a", () => create("a"))

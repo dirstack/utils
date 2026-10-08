@@ -68,7 +68,7 @@ describe("formatCurrency", () => {
   })
 
   it("strips trailing zero fractions across currency decimal counts", () => {
-    // 2-decimal: strip whole, keep partial
+    // 2-decimal: strip whole, keep partial.
     expect(formatCurrency(1000)).toBe("$1,000")
     expect(formatCurrency(1000.5)).toBe("$1,000.50")
     // JPY has no decimals, so there is no fraction to strip.
@@ -80,7 +80,7 @@ describe("formatCurrency", () => {
 
   it("forwards currency-specific Intl options", () => {
     expect(formatCurrency(1000, { currencyDisplay: "code" })).toBe(`USD${NBSP}1,000`)
-    // callers can opt out of the trailing-zero stripping
+    // Callers can opt out of the trailing-zero stripping.
     expect(formatCurrency(1000, { trailingZeroDisplay: "auto" })).toBe("$1,000.00")
   })
 
