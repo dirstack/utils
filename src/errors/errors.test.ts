@@ -52,4 +52,16 @@ describe("toError", () => {
     expect(result).toBeInstanceOf(Error)
     expect(result.message).toBe("test error")
   })
+
+  it("keeps the original value as the cause", () => {
+    const thrown = { code: "E_QUOTA", message: "Quota exceeded" }
+    const result = toError(thrown)
+
+    expect(result.message).toBe("Quota exceeded")
+    expect(result.cause).toBe(thrown)
+  })
+
+  it("describes an object without a message", () => {
+    expect(toError({ code: 500 }).message).toBe('{"code":500}')
+  })
 })
