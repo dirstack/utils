@@ -1,5 +1,6 @@
 {
   "name": "@dirstack/utils",
+  "version": "0.0.0-development",
   "description": "A lightweight set of utilities",
   "keywords": [
     "helpers",
@@ -15,13 +16,15 @@
     "email": "piotr@kulpinski.pl",
     "url": "https://kulpinski.pl"
   },
-  "repository": "git+https://github.com/dirstack/utils.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dirstack/utils.git"
+  },
   "files": [
     "dist"
   ],
   "type": "module",
   "sideEffects": false,
-  "module": "./dist/index.js",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -41,7 +44,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "oxlint --fix .",
     "format": "oxfmt --write .",
-    "prepare": "lefthook install"
+    "prepare": "lefthook install || true"
   },
   "dependencies": {
     "@sindresorhus/slugify": "^2.2.1"
