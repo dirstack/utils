@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { clamp, parseNumericValue, preciseRound } from "./numbers"
+import { clamp, preciseRound } from "./numbers"
 
 describe("clamp", () => {
   it("returns the same value if no range is specified", () => {
@@ -24,16 +24,6 @@ describe("clamp", () => {
 
   it("returns the maximum value if the value is equal to the maximum", () => {
     expect(clamp(10, 5, 10)).toBe(10)
-  })
-})
-
-describe("parseNumericValue", () => {
-  it("parses a string into a number", () => {
-    expect(parseNumericValue("5")).toBe(5)
-  })
-
-  it("returns the original string if it cannot be parsed", () => {
-    expect(parseNumericValue("not a number")).toBeUndefined()
   })
 })
 

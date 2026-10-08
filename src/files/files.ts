@@ -2,7 +2,7 @@
  * Utility functions for working with files and MIME types.
  */
 
-import { formatToDecimals } from "../format/format.js"
+import { formatToDecimals } from "../internal/decimals.js"
 
 /**
  * Formats a number of bytes to a human-readable string.
@@ -21,17 +21,6 @@ export function formatBytes(bytes: number, precision = 0): string {
   const size = formatToDecimals(bytes / base ** exponent, precision)
 
   return `${size} ${units[exponent]}`
-}
-
-/**
- * Formats a MIME type string to a more readable format.
- * @param mimeType - The MIME type string to format.
- * @returns The formatted MIME type string.
- */
-export function formatMimeType(mimeType: string): string | undefined {
-  const [, subtype] = mimeType.split("/")
-
-  return subtype === "*" ? undefined : subtype?.toUpperCase()
 }
 
 /**

@@ -36,16 +36,6 @@ function getRandomCharacters(alphabet: string, length: number) {
 }
 
 /**
- * Returns a random hexadecimal color code.
- * @returns A string representing a random hexadecimal color code.
- */
-export function getRandomColor(): string {
-  return Math.floor(Math.random() * 0xffffff)
-    .toString(16)
-    .padStart(6, "0")
-}
-
-/**
  * Returns a random string of letters and digits.
  * Uses `crypto.getRandomValues` with rejection sampling, so every character is equally
  * likely and the output is suitable for tokens.
@@ -84,17 +74,4 @@ export function getRandomDigits(length: number): string {
  */
 export function getRandomElement<T>(array: readonly T[]): T | undefined {
   return array[Math.floor(Math.random() * array.length)]
-}
-
-/**
- * Returns a random property value from an object, or `undefined` if the object
- * has no own enumerable properties.
- * @param source - The object to get a random property value from.
- * @returns A random property value, or `undefined` if the object is empty.
- */
-export function getRandomProperty<T>(source: Record<string, T>): T | undefined {
-  const keys = Object.keys(source)
-  const randomKey = keys[Math.floor(Math.random() * keys.length)]
-
-  return randomKey === undefined ? undefined : source[randomKey]
 }

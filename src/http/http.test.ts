@@ -1,19 +1,14 @@
-import { afterEach, describe, expect, it, vi } from "vitest"
+import { describe, expect, it } from "vitest"
 import {
   addProtocol,
-  checkUrlAvailability,
-  getBaseUrl,
   getDomain,
-  getQueryParams,
   isExternalUrl,
   isHostname,
-  isLocalhostUrl,
   isValidImageSrc,
   isValidUrl,
   isWithinDomain,
   joinUrlPaths,
   normalizeHostname,
-  normalizeUrl,
   removeProtocol,
   removeQueryParams,
   setQueryParams,
@@ -95,64 +90,6 @@ describe("removeProtocol", () => {
   })
 })
 
-describe("normalizeUrl", () => {
-  it("removes trailing slashes", () => {
-    expect(normalizeUrl("https://example.com/")).toBe("https://example.com")
-    expect(normalizeUrl("https://example.com/path/")).toBe("https://example.com/path")
-  })
-
-  it("preserves root slash", () => {
-    expect(normalizeUrl("/")).toBe("/")
-  })
-
-  it("trims whitespace", () => {
-    expect(normalizeUrl("  https://example.com  ")).toBe("https://example.com")
-  })
-
-  it("handles URLs without trailing slash", () => {
-    expect(normalizeUrl("https://example.com/path")).toBe("https://example.com/path")
-  })
-
-  it("handles empty input", () => {
-    expect(normalizeUrl()).toBe("")
-    expect(normalizeUrl("")).toBe("")
-  })
-
-  it("removes trailing slash from URL", () => {
-    const url = "https://example.com/"
-    const expected = "https://example.com"
-    expect(normalizeUrl(url)).toBe(expected)
-  })
-
-  it("removes trailing slash from URL with path", () => {
-    const url = "https://example.com/path/"
-    const expected = "https://example.com/path"
-    expect(normalizeUrl(url)).toBe(expected)
-  })
-
-  it("does not remove slash from root URL", () => {
-    const url = "/"
-    const expected = "/"
-    expect(normalizeUrl(url)).toBe(expected)
-  })
-
-  it("returns URL unchanged when no trailing slash", () => {
-    const url = "https://example.com/path"
-    const expected = "https://example.com/path"
-    expect(normalizeUrl(url)).toBe(expected)
-  })
-
-  it("returns empty string for undefined input", () => {
-    expect(normalizeUrl()).toBe("")
-  })
-
-  it("handles URLs with query parameters and trailing slash", () => {
-    const url = "https://example.com/path/?param=value"
-    const expected = "https://example.com/path?param=value"
-    expect(normalizeUrl(url)).toBe(expected)
-  })
-})
-
 describe("removeQueryParams", () => {
   it("removes single query parameter", () => {
     expect(removeQueryParams("https://example.com?param=value")).toBe("https://example.com")
@@ -180,21 +117,6 @@ describe("removeQueryParams", () => {
 
   it("handles empty input", () => {
     expect(removeQueryParams()).toBe("")
-  })
-})
-
-describe("getBaseUrl", () => {
-  it("returns protocol and host", () => {
-    expect(getBaseUrl("https://example.com/path/to/resource")).toBe("https://example.com")
-    expect(getBaseUrl("http://localhost:3000/dashboard")).toBe("http://localhost:3000")
-  })
-
-  it("handles URLs with query and hash", () => {
-    expect(getBaseUrl("https://example.com/path?query=value#hash")).toBe("https://example.com")
-  })
-
-  it("returns original for invalid URLs", () => {
-    expect(getBaseUrl("not-a-url")).toBe("not-a-url")
   })
 })
 
@@ -228,31 +150,6 @@ describe("isExternalUrl", () => {
   })
 })
 
-describe("isLocalhostUrl", () => {
-  it("parses a URL without a protocol only once", () => {
-    const spy = vi.spyOn(globalThis, "URL")
-
-    expect(isLocalhostUrl("localhost:3000")).toBe(true)
-    expect(addProtocol("example.com")).toBe("https://example.com")
-    expect(spy).toHaveBeenCalledTimes(2)
-
-    spy.mockRestore()
-  })
-
-  it("identifies localhost URLs", () => {
-    expect(isLocalhostUrl("http://localhost:3000")).toBe(true)
-    expect(isLocalhostUrl("https://localhost")).toBe(true)
-    expect(isLocalhostUrl("http://127.0.0.1:8080")).toBe(true)
-    expect(isLocalhostUrl("localhost:3000")).toBe(true)
-  })
-
-  it("identifies non-localhost URLs", () => {
-    expect(isLocalhostUrl("https://example.com")).toBe(false)
-    expect(isLocalhostUrl("")).toBe(false)
-    expect(isLocalhostUrl()).toBe(false)
-  })
-})
-
 describe("joinUrlPaths", () => {
   it("joins paths correctly", () => {
     expect(joinUrlPaths("https://example.com", "api", "users")).toBe(
@@ -273,21 +170,6 @@ describe("joinUrlPaths", () => {
 
   it("handles empty base", () => {
     expect(joinUrlPaths("")).toBe("")
-  })
-})
-
-describe("getQueryParams", () => {
-  it("extracts query parameters", () => {
-    const params = getQueryParams("https://example.com?name=john&age=30")
-    expect(params).toEqual({ name: "john", age: "30" })
-  })
-
-  it("handles URLs without parameters", () => {
-    expect(getQueryParams("https://example.com")).toEqual({})
-  })
-
-  it("handles invalid URLs", () => {
-    expect(getQueryParams("not-a-url")).toEqual({})
   })
 })
 
@@ -315,177 +197,6 @@ describe("setQueryParams", () => {
 
   it("handles invalid URLs", () => {
     expect(setQueryParams("not-a-url", { param: "value" })).toBe("not-a-url")
-  })
-})
-
-describe("checkUrlAvailability", () => {
-  const originalFetch = globalThis.fetch
-
-  afterEach(() => {
-    globalThis.fetch = originalFetch
-  })
-
-  it("returns false for empty URL", async () => {
-    expect(await checkUrlAvailability("")).toBe(false)
-  })
-
-  it("returns true when HEAD request succeeds with status < 400", async () => {
-    globalThis.fetch = vi.fn(() =>
-      Promise.resolve(new Response(null, { status: 200 })),
-    ) as unknown as typeof fetch
-
-    const result = await checkUrlAvailability("https://example.com")
-    expect(result).toBe(true)
-  })
-
-  it("returns true for redirect statuses (3xx)", async () => {
-    globalThis.fetch = vi.fn(() =>
-      Promise.resolve(new Response(null, { status: 301 })),
-    ) as unknown as typeof fetch
-
-    const result = await checkUrlAvailability("https://example.com")
-    expect(result).toBe(true)
-  })
-
-  it("returns false for client error statuses (4xx)", async () => {
-    globalThis.fetch = vi.fn(() =>
-      Promise.resolve(new Response(null, { status: 404 })),
-    ) as unknown as typeof fetch
-
-    const result = await checkUrlAvailability("https://example.com")
-    expect(result).toBe(false)
-  })
-
-  it("returns false for server error statuses (5xx)", async () => {
-    globalThis.fetch = vi.fn(() =>
-      Promise.resolve(new Response(null, { status: 500 })),
-    ) as unknown as typeof fetch
-
-    const result = await checkUrlAvailability("https://example.com")
-    expect(result).toBe(false)
-  })
-
-  it("falls back to GET when HEAD throws error", async () => {
-    let callCount = 0
-    globalThis.fetch = vi.fn((_url: string, options?: RequestInit) => {
-      callCount++
-      if (options?.method === "HEAD") {
-        return Promise.reject(new Error("HEAD not supported"))
-      }
-      return Promise.resolve(new Response(null, { status: 200 }))
-    }) as unknown as typeof fetch
-
-    const result = await checkUrlAvailability("https://example.com")
-    expect(result).toBe(true)
-    expect(callCount).toBe(2)
-  })
-
-  it("falls back to GET when HEAD returns error status", async () => {
-    let callCount = 0
-    globalThis.fetch = vi.fn((_url: string, options?: RequestInit) => {
-      callCount++
-      if (options?.method === "HEAD") {
-        return Promise.resolve(new Response(null, { status: 404 }))
-      }
-      return Promise.resolve(new Response(null, { status: 200 }))
-    }) as unknown as typeof fetch
-
-    const result = await checkUrlAvailability("https://example.com")
-    expect(result).toBe(true)
-    expect(callCount).toBe(2)
-  })
-
-  it("returns false when both HEAD and GET fail", async () => {
-    globalThis.fetch = vi.fn(() =>
-      Promise.reject(new Error("Network error")),
-    ) as unknown as typeof fetch
-
-    const result = await checkUrlAvailability("https://example.com")
-    expect(result).toBe(false)
-  })
-
-  it("returns false when HEAD returns error and GET also returns error status", async () => {
-    globalThis.fetch = vi.fn((_url: string, options?: RequestInit) => {
-      if (options?.method === "HEAD") {
-        return Promise.resolve(new Response(null, { status: 404 }))
-      }
-      return Promise.resolve(new Response(null, { status: 500 }))
-    }) as unknown as typeof fetch
-
-    const result = await checkUrlAvailability("https://example.com")
-    expect(result).toBe(false)
-  })
-
-  it("uses custom timeout option", async () => {
-    let receivedSignal: AbortSignal | null | undefined
-    globalThis.fetch = vi.fn((_url: string, options?: RequestInit) => {
-      receivedSignal = options?.signal
-      return Promise.resolve(new Response(null, { status: 200 }))
-    }) as unknown as typeof fetch
-
-    await checkUrlAvailability("https://example.com", { timeout: 10000 })
-    expect(receivedSignal).toBeDefined()
-  })
-
-  it("uses custom userAgent option", async () => {
-    let receivedHeaders: HeadersInit | undefined
-    globalThis.fetch = vi.fn((_url: string, options?: RequestInit) => {
-      receivedHeaders = options?.headers
-      return Promise.resolve(new Response(null, { status: 200 }))
-    }) as unknown as typeof fetch
-
-    await checkUrlAvailability("https://example.com", { userAgent: "CustomBot/1.0" })
-    expect(receivedHeaders).toEqual({ "User-Agent": "CustomBot/1.0" })
-  })
-
-  it("uses default userAgent when not specified", async () => {
-    let receivedHeaders: HeadersInit | undefined
-    globalThis.fetch = vi.fn((_url: string, options?: RequestInit) => {
-      receivedHeaders = options?.headers
-      return Promise.resolve(new Response(null, { status: 200 }))
-    }) as unknown as typeof fetch
-
-    await checkUrlAvailability("https://example.com")
-    expect(receivedHeaders).toEqual({ "User-Agent": "Mozilla/5.0 (compatible; URLChecker/1.0)" })
-  })
-
-  it("normalizes URL before checking", async () => {
-    let receivedUrl: string | undefined
-    globalThis.fetch = vi.fn((url: string) => {
-      receivedUrl = url
-      return Promise.resolve(new Response(null, { status: 200 }))
-    }) as unknown as typeof fetch
-
-    await checkUrlAvailability("https://example.com/path/")
-    expect(receivedUrl).toBe("https://example.com/path")
-  })
-
-  it("uses custom successStatusBelow to accept only 2xx responses", async () => {
-    globalThis.fetch = vi.fn(() =>
-      Promise.resolve(new Response(null, { status: 301 })),
-    ) as unknown as typeof fetch
-
-    const defaultResult = await checkUrlAvailability("https://example.com")
-    expect(defaultResult).toBe(true)
-
-    const strictResult = await checkUrlAvailability("https://example.com", {
-      successStatusBelow: 300,
-    })
-    expect(strictResult).toBe(false)
-  })
-
-  it("uses custom successStatusBelow to accept 4xx responses", async () => {
-    globalThis.fetch = vi.fn(() =>
-      Promise.resolve(new Response(null, { status: 404 })),
-    ) as unknown as typeof fetch
-
-    const defaultResult = await checkUrlAvailability("https://example.com")
-    expect(defaultResult).toBe(false)
-
-    const lenientResult = await checkUrlAvailability("https://example.com", {
-      successStatusBelow: 500,
-    })
-    expect(lenientResult).toBe(true)
   })
 })
 

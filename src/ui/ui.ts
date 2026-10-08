@@ -26,15 +26,6 @@ export function getBalancedColumns(count: number, min: number, max: number): num
 }
 
 /**
- * Returns a display label for a keyboard shortcut, such as "⌘K".
- * @param shortcut - The shortcut key, and whether it needs the meta key.
- * @returns The label for the shortcut.
- */
-export function getShortcutLabel({ key, metaKey }: { key: string; metaKey?: boolean }) {
-  return `${metaKey ? "⌘" : ""}${key.toUpperCase()}`
-}
-
-/**
  * Checks if a hexadecimal color is light.
  * Only supports 6-digit hex colors (RGB). Longer strings are cut to 6 digits.
  * @param color - The hexadecimal color code to check (e.g. "#FF0000").

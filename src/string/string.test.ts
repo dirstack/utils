@@ -3,7 +3,6 @@ import {
   convertNewlines,
   getExcerpt,
   getInitials,
-  isCuid,
   joinAsSentence,
   lcFirst,
   slugify,
@@ -106,15 +105,6 @@ describe("slugify", () => {
     expect(slugify("Hello#World")).toEqual("hellosharpworld")
     expect(slugify("Hello+World", true)).toEqual("helloplus-world")
     expect(slugify("Hello#World", true)).toEqual("hellosharp-world")
-  })
-})
-
-describe("isCuid", () => {
-  it("checks if a given string is a valid cuid", () => {
-    expect(isCuid("clixluz61002mk9stbofhbkv6")).toEqual(true)
-    expect(isCuid("abcdefghijklmnopqrstuwxyz")).toEqual(false)
-    expect(isCuid("abcdefghijklmnopqrstuwxy")).toEqual(false)
-    expect(isCuid("")).toEqual(false)
   })
 })
 

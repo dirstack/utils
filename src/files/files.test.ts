@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { formatBytes, formatMimeType, isMimeTypeMatch } from "./files"
+import { formatBytes, isMimeTypeMatch } from "./files"
 
 describe("formatBytes", () => {
   it("formats bytes correctly", () => {
@@ -17,14 +17,6 @@ describe("formatBytes", () => {
     expect(formatBytes(1200000, 2)).toEqual("1.14 MB")
     expect(formatBytes(1200000000, 3)).toEqual("1.118 GB")
     expect(formatBytes(1200000000000, 4)).toEqual("1.0914 TB")
-  })
-})
-
-describe("formatMimeType", () => {
-  it("formats a MIME type string", () => {
-    expect(formatMimeType("image/png")).toBe("PNG")
-    expect(formatMimeType("application/json")).toBe("JSON")
-    expect(formatMimeType("text/*")).toBeUndefined()
   })
 })
 

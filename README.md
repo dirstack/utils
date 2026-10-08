@@ -34,22 +34,21 @@ Each module is also available on its own path, such as `@dirstack/utils/array` o
 | --- | --- |
 | `array` | `uniq`, `uniqBy`, `chunk`, `groupBy`, `keyBy`, `countBy`, `compact`, `sortBy`, `sum`, `sumBy`, `range` |
 | `batch` | `processBatch`, `processBatchWithErrorHandling` (ordered, concurrency-limited, with `onProgress`) |
-| `dom` | `getElementPosition`, `setInputValue` |
-| `errors` | `isErrorWithMessage`, `toErrorWithMessage`, `getErrorMessage`, `toError` |
-| `events` | `subscribe`, `unsubscribe`, `publish`, `publishEscape` |
-| `files` | `formatBytes`, `formatMimeType`, `isMimeTypeMatch`, `toBase64` |
-| `format` | `formatNumber`, `formatCurrency`, `formatIntervalAmount`, `formatToDecimals`, `currencyExponent`, `minorUnits` |
-| `helpers` | `sleep`, `isTruthy`, `tryCatch`, `debounce`, `throttle`, `retry`, `withTimeout` |
-| `http` | `isValidUrl`, `normalizeUrl`, `getDomain`, `joinUrlPaths`, query-param helpers, `checkUrlAvailability`, `isHostname`, `normalizeHostname`, `stripWildcard`, `isWithinDomain` |
-| `numbers` | `clamp`, `parseNumericValue`, `preciseRound` |
-| `objects` | `pick`, `omit`, `isEmptyObject`, `sortObject`, `nullsToUndefined` |
-| `parsers` | `maybeParseJson`, `maybeStringifyJson`, `serialize`, `deserialize` |
-| `random` | `getRandomColor`, `getRandomString`, `getRandomNumber`, `getRandomElement` |
-| `string` | `ucFirst`, `lcFirst`, `stripHtml`, `getExcerpt`, `slugify`, `getInitials`, `joinAsSentence` |
-| `time` | `formatDate`, `formatTime`, `formatDateTime`, `formatDateOrTime`, `formatDateRange`, `getReadTime`, `dayKey`, `shiftDayKey`, `dayIn`, `fromUnix`, `toUnix`, `SECOND_MS`, `MINUTE_MS`, `HOUR_MS`, `DAY_MS`, `MINUTE_SECONDS`, `HOUR_SECONDS`, `DAY_SECONDS` |
-| `ui` | `getBalancedColumns`, `getShortcutLabel`, `isLightColor`, `getCurrentPage`, `getPagination`, `getPageLink` |
+| `errors` | `getErrorMessage`, `toError` |
+| `files` | `formatBytes`, `isMimeTypeMatch`, `toBase64` |
+| `format` | `formatNumber`, `formatCurrency`, `formatIntervalAmount`, `currencyExponent`, `minorUnits` |
+| `helpers` | `sleep`, `isTruthy`, `tryCatch`, `retry`, `withTimeout` |
+| `http` | `isValidUrl`, `addProtocol`, `removeProtocol`, `getDomain`, `isExternalUrl`, `joinUrlPaths`, `setQueryParams`, `removeQueryParams`, `isValidImageSrc`, `isHostname`, `normalizeHostname`, `stripWildcard`, `isWithinDomain` |
+| `numbers` | `clamp`, `preciseRound` |
+| `objects` | `pick`, `omit`, `isEmptyObject`, `isKeyInObject` |
+| `parsers` | `serialize` |
+| `random` | `getRandomString`, `getRandomDigits`, `getRandomNumber`, `getRandomElement` |
+| `string` | `ucFirst`, `lcFirst`, `getExcerpt`, `slugify`, `getInitials`, `joinAsSentence` |
+| `time` | `formatDate`, `formatTime`, `formatDateTime`, `formatDateRange`, `getReadTime`, `dayKey`, `shiftDayKey`, `dayIn`, `fromUnix`, `toUnix`, `SECOND_MS`, `MINUTE_MS`, `HOUR_MS`, `DAY_MS`, `MINUTE_SECONDS`, `HOUR_SECONDS`, `DAY_SECONDS` |
+| `ui` | `getBalancedColumns`, `isLightColor`, `getCurrentPage`, `getPagination`, `getPageLink` |
+| types | `WithOptional`, `WithRequired` |
 
-> Some utilities (`dom`, `events`, `toBase64`, `setInputValue`) rely on browser APIs and are only usable in the browser.
+> `toBase64` relies on the browser's `FileReader` and only works in the browser.
 
 ### Dates and time zones
 
@@ -87,7 +86,6 @@ import { slugify } from "@dirstack/utils"
 splitArrayIntoChunks(items, 10)              chunk(items, 10)
 keepNumberInRange(value, 0, 100)             clamp(value, 0, 100)
 pickFromObject(user, ["id", "name"])         pick(user, ["id", "name"])
-type City = DeepIdx<User, "address.city">    type City = DeepIndex<User, "address.city">
 ```
 
 ### Date formatters take an options object only
@@ -97,7 +95,6 @@ type City = DeepIdx<User, "address.city">    type City = DeepIndex<User, "addres
 formatDate(date, "long", "en-GB")                           formatDate(date, { dateStyle: "long", locale: "en-GB" })
 formatTime(date, "short", "pl")                             formatTime(date, { timeStyle: "short", locale: "pl" })
 formatDateTime(date, "long", "short", "de")                 formatDateTime(date, { dateStyle: "long", timeStyle: "short", locale: "de" })
-formatDateOrTime(date, "date", "long", undefined, "en-GB")  formatDateOrTime(date, "date", { dateStyle: "long", locale: "en-GB" })
 formatDateRange(start, end, "short", "es")                  formatDateRange(start, end, { dateStyle: "short", locale: "es" })
 ```
 
@@ -107,6 +104,37 @@ formatDateRange(start, end, "short", "es")                  formatDateRange(star
 // Before                                  // After
 sortBy(posts, post => post.date, "desc")   sortBy(posts, post => post.date, { order: "desc" })
 ```
+
+### Removed helpers
+
+No project used these, so v3 drops them. Each has a short native or library replacement.
+
+| Removed | Use instead |
+| --- | --- |
+| `getElementPosition` | `element.getBoundingClientRect()` or `element.scrollIntoView()` |
+| `setInputValue` | Copy the five lines into the project that needs them |
+| `subscribe`, `unsubscribe`, `publish` | `document.addEventListener`, `removeEventListener`, `dispatchEvent(new CustomEvent(name, { detail }))` |
+| `publishEscape` | `document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }))` |
+| `isErrorWithMessage`, `toErrorWithMessage`, `ErrorWithMessage` | `getErrorMessage(error)` or `toError(error)` |
+| `formatMimeType` | `mimeType.split("/")[1]?.toUpperCase()` |
+| `formatToDecimals` | `formatNumber(value, { maximumFractionDigits: 2, useGrouping: false })` |
+| `debounce`, `throttle` | `useDebouncedCallback` and `useThrottledCallback` from `@mantine/hooks` |
+| `getBaseUrl` | `new URL(url).origin` |
+| `getQueryParams` | `Object.fromEntries(new URL(url).searchParams)` |
+| `checkUrlAvailability` | `fetch(url, { method: "HEAD", signal: AbortSignal.timeout(5000) })` |
+| `normalizeUrl`, `isLocalhostUrl` | Still used inside the package, no longer exported |
+| `parseNumericValue` | `Number.parseFloat(value)` with a `Number.isNaN` check, or `z.coerce.number()` |
+| `sortObject` | `Object.fromEntries(Object.entries(source).sort(([a], [b]) => a.localeCompare(b)))` |
+| `sortObjectKeys` | A comparator in the project that needs it |
+| `nullsToUndefined`, `ReplaceNullWithUndefined` | Map the fields that need it |
+| `maybeParseJson`, `maybeStringifyJson`, `deserialize` | `JSON.parse` and `JSON.stringify` |
+| `getRandomColor` | `Math.floor(Math.random() * 0x1000000).toString(16).padStart(6, "0")` |
+| `getRandomProperty` | `getRandomElement(Object.values(source))` |
+| `isCuid` | `isCuid` from `@paralleldrive/cuid2` |
+| `formatDateOrTime` | `formatDate`, `formatTime` or `formatDateTime` |
+| `getShortcutLabel` | A `<Kbd>` component that knows the platform's modifier key |
+| `DeepIdx`, `DeepIndex`, `ValidatePath` | `Path` and `PathValue` from `react-hook-form`, or `Get` and `Paths` from `type-fest` |
+| `NestedPartial`, `NestedRequired` | `PartialDeep` and `RequiredDeep` from `type-fest` |
 
 ### `getPageParams` is now `getPagination`
 

@@ -1,12 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
-import {
-  getRandomColor,
-  getRandomDigits,
-  getRandomElement,
-  getRandomNumber,
-  getRandomProperty,
-  getRandomString,
-} from "./random"
+import { getRandomDigits, getRandomElement, getRandomNumber, getRandomString } from "./random"
 
 afterEach(() => {
   vi.restoreAllMocks()
@@ -22,24 +15,6 @@ function mockRandomBytes(bytes: number[]) {
     return array
   })
 }
-
-describe("getRandomColor", () => {
-  it("returns a string", () => {
-    const result = getRandomColor()
-    expect(typeof result).toBe("string")
-  })
-
-  it("returns a string with length 6", () => {
-    const result = getRandomColor()
-    expect(result.length).toBe(6)
-  })
-
-  it("returns a different string each time it is called", () => {
-    const result1 = getRandomColor()
-    const result2 = getRandomColor()
-    expect(result1).not.toBe(result2)
-  })
-})
 
 describe("getRandomString", () => {
   it("returns a string", () => {
@@ -138,14 +113,6 @@ describe("getRandomElement", () => {
   it("returns a value from the array", () => {
     const array = [1, 2, 3]
     const result = getRandomElement(array)
-    expect(result).toBeOneOf([1, 2, 3])
-  })
-})
-
-describe("getRandomProperty", () => {
-  it("returns a value from the object", () => {
-    const input = { a: 1, b: 2, c: 3 }
-    const result = getRandomProperty(input)
     expect(result).toBeOneOf([1, 2, 3])
   })
 })
