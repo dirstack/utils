@@ -75,7 +75,7 @@ export function currencyExponent(currency: string): number {
       currency,
     }).resolvedOptions()
 
-    // ISO 4217 itself falls back to 2 for a currency without an explicit exponent
+    // ISO 4217 itself falls back to 2 for a currency without an explicit exponent.
     return maximumFractionDigits ?? 2
   })
 }

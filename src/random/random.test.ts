@@ -52,7 +52,7 @@ describe("getRandomString", () => {
   })
 
   it("discards bytes that would bias the result", () => {
-    // 62 characters: bytes 248 and above are discarded, the rest map to `byte % 62`
+    // 62 characters: bytes 248 and above are discarded, the rest map to `byte % 62`.
     mockRandomBytes([255, 248, 0, 61, 62, 237])
     expect(getRandomString(4)).toBe("a9aZ")
   })
@@ -70,7 +70,7 @@ describe("getRandomNumber", () => {
 
 describe("getRandomDigits", () => {
   it("discards bytes that would bias the result", () => {
-    // 10 digits: bytes 250 and above are discarded, the rest map to `byte % 10`
+    // 10 digits: bytes 250 and above are discarded, the rest map to `byte % 10`.
     mockRandomBytes([250, 255, 9, 19, 249])
     expect(getRandomDigits(3)).toBe("999")
   })

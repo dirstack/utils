@@ -35,10 +35,10 @@ export function clamp(value: number, min?: number, max?: number): number {
 export function preciseRound(value: number, decimals = 2): number {
   const factor = 10 ** decimals
 
-  // Round the magnitude, then restore the sign, so halves round away from zero in both directions
+  // Round the magnitude, then restore the sign, so halves round away from zero in both directions.
   const rounded =
     (Math.sign(value) * Math.round((Math.abs(value) + Number.EPSILON) * factor)) / factor
 
-  // Avoid returning -0 for small negative values
+  // Avoid returning -0 for small negative values.
   return rounded === 0 ? 0 : rounded
 }

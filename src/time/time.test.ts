@@ -19,10 +19,10 @@ import {
   toUnix,
 } from "./time"
 
-// Local time without a zone, so calls below without a `timeZone` give the same output in every TZ
+// Local time without a zone, so calls below without a `timeZone` give the same output in every TZ.
 const timestamp = "2022-01-01 00:00:00.000"
 
-// Near midnight UTC: the date differs between UTC and zones far from it
+// Near midnight UTC: the date differs between UTC and zones far from it.
 const lateUtc = "2026-10-05T23:30:00Z"
 const earlyUtc = "2026-10-05T00:30:00Z"
 

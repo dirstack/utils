@@ -72,7 +72,7 @@ export function uniq<T>(items: readonly T[]): T[] {
 export function chunk<T>(items: readonly T[], size: number): T[][] {
   const chunkSize = Math.floor(size)
 
-  if (!(chunkSize >= 1)) {
+  if (Number.isNaN(chunkSize) || chunkSize < 1) {
     throw new RangeError(`chunk size must be at least 1, received ${size}`)
   }
 
@@ -232,7 +232,7 @@ export function sortBy<T>(
       : { key: sortKey.key, direction: (sortKey.order ?? order) === "asc" ? 1 : -1 },
   )
 
-  // Compute every key once per item, not once per comparison
+  // Compute every key once per item, not once per comparison.
   const entries = items.map(item => ({ item, values: sortKeys.map(({ key }) => key(item)) }))
 
   entries.sort((a, b) => {

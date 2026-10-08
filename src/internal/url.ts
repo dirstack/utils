@@ -59,9 +59,7 @@ export function isLocalhostUrl(url?: string): boolean {
   if (!url) return false
 
   try {
-    const absolute = HTTP_PROTOCOL.test(url)
-      ? url
-      : `http:${url.startsWith("//") ? "" : "//"}${url}`
+    const absolute = HTTP_PROTOCOL.test(url) ? url : `http://${url.replace(/^\/\//, "")}`
     const { hostname } = new URL(absolute)
 
     return (

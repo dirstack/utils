@@ -19,7 +19,7 @@ describe("getBalancedColumns", () => {
   })
 
   it("otherwise minimizes empty slots in the last row", () => {
-    // 11 in 6 cols leaves 1 empty slot, in 5 cols it leaves 4
+    // 11 in 6 cols leaves 1 empty slot, in 5 cols it leaves 4.
     expect(getBalancedColumns(11, 5, 6)).toBe(6)
     expect(getBalancedColumns(16, 6, 7)).toBe(6)
   })
@@ -35,7 +35,6 @@ describe("getBalancedColumns", () => {
 })
 
 describe("isLightColor", () => {
-  // Basic cases
   it("should identify white as light", () => {
     expect(isLightColor("#FFFFFF")).toBe(true)
   })
@@ -44,7 +43,6 @@ describe("isLightColor", () => {
     expect(isLightColor("#000000")).toBe(false)
   })
 
-  // Edge cases
   it("should handle 3 and 4-digit hex codes", () => {
     expect(isLightColor("#fff")).toBe(true)
     expect(isLightColor("#000")).toBe(false)
@@ -74,20 +72,17 @@ describe("isLightColor", () => {
     expect(isLightColor("#fFfFfF")).toBe(true)
   })
 
-  // Trimming cases
   it("should trim longer hex strings", () => {
     expect(isLightColor("#FFFFFF00")).toBe(true) // Should trim off the alpha
     expect(isLightColor("#000000FF")).toBe(false) // Should trim off the alpha
     expect(isLightColor("#FF0000AABBCC")).toBe(false) // Should only use first 6 chars
   })
 
-  // Borderline cases
   it("should handle colors near the brightness threshold", () => {
     expect(isLightColor("#BBBBBB")).toBe(true) // Just above threshold
     expect(isLightColor("#999999")).toBe(false) // Just below threshold
   })
 
-  // Complex colors
   it("should correctly evaluate complex colors", () => {
     expect(isLightColor("#FF0000")).toBe(false) // Pure red (dark)
     expect(isLightColor("#00FF00")).toBe(false) // Pure green (dark)

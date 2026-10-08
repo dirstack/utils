@@ -36,7 +36,7 @@ export interface TruncateOptions {
   wordBoundary?: boolean
 }
 
-// Created on first use, so importing the module has no side effects
+// Created on first use, so importing the module has no side effects.
 let segmenter: Intl.Segmenter | undefined
 
 /**
@@ -75,7 +75,7 @@ export function truncate(
   const room = length - marker.length
   let cut = characters.slice(0, room).join("")
 
-  // Back up to the last space, unless the cut already falls between two words
+  // Back up to the last space, unless the cut already falls between two words.
   if (wordBoundary && characters[room] !== " ") {
     const lastSpace = cut.lastIndexOf(" ")
     if (lastSpace > 0) cut = cut.slice(0, lastSpace)
@@ -180,7 +180,7 @@ export function joinAsSentence(
   const shown = Math.max(0, limit)
   const hidden = items.length - shown
 
-  // "1 more" is never shorter than the item it hides, so only collapse two or more items
+  // "1 more" is never shorter than the item it hides, so only collapse two or more items.
   if (hidden < 2) return formatter.format(items)
 
   return formatter.format([...items.slice(0, shown), formatRest(hidden)])

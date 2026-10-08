@@ -118,9 +118,7 @@ export function formatDateRange(
  * @returns The estimated read time in minutes.
  */
 export function getReadTime(content: string | null, wpm = 265): number {
-  if (!content) {
-    return 0
-  }
+  if (!content) return 0
 
   const words = content.split(/\s+/).filter(Boolean).length
   return Math.ceil(words / wpm)

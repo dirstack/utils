@@ -21,7 +21,7 @@ export function formatBytes(bytes: number, precision = 0): string {
   let exponent = Math.min(Math.floor(Math.log(Math.abs(bytes)) / Math.log(base)), largest)
   let size = formatToDecimals(bytes / base ** exponent, precision)
 
-  // Rounding can reach the next unit: 1023.9 KB at precision 0 would read "1024 KB", not "1 MB"
+  // Rounding can reach the next unit: 1023.9 KB at precision 0 would read "1024 KB", not "1 MB".
   if (Math.abs(Number(size)) >= base && exponent < largest) {
     exponent++
     size = formatToDecimals(bytes / base ** exponent, precision)
@@ -65,6 +65,8 @@ export function isMimeTypeMatch(mimeType: string, patterns: readonly string[]): 
   })
 }
 
+const CHUNK_BYTES = 0x8000
+
 /**
  * Reads a file or blob as a Base64 string, without a "data:" prefix.
  * Works in browsers, Node.js and Bun.
@@ -77,9 +79,9 @@ export async function toBase64(file: Blob): Promise<string> {
   const bytes = new Uint8Array(await file.arrayBuffer())
   let binary = ""
 
-  // Build the binary string in chunks, because spreading a large array overflows the call stack
-  for (let index = 0; index < bytes.length; index += 0x8000) {
-    binary += String.fromCharCode(...bytes.subarray(index, index + 0x8000))
+  // Build the binary string in chunks, because spreading a large array overflows the call stack.
+  for (let index = 0; index < bytes.length; index += CHUNK_BYTES) {
+    binary += String.fromCharCode(...bytes.subarray(index, index + CHUNK_BYTES))
   }
 
   return btoa(binary)

@@ -16,7 +16,7 @@ const getCachedFormatter = /* @__PURE__ */ createBoundedCache<Intl.NumberFormat>
  * @returns The formatted number as a string.
  */
 export function formatToDecimals(number: number, precision = 0): string {
-  // `Intl.NumberFormat` renders Infinity as "∞", so non-finite values keep their plain form
+  // `Intl.NumberFormat` renders Infinity as "∞", so non-finite values keep their plain form.
   if (!Number.isFinite(number)) return String(number)
 
   const digits = Math.max(0, precision)

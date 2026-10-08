@@ -73,7 +73,7 @@ describe("retry", () => {
       ),
     ).rejects.toThrow("fail 3")
 
-    // 1 initial attempt + 2 retries
+    // 1 initial attempt + 2 retries.
     expect(attempts).toBe(3)
   })
 
@@ -90,7 +90,7 @@ describe("retry", () => {
       ),
     ).rejects.toThrow("404")
 
-    // The 503 was retried, the 404 was not
+    // The 503 was retried, the 404 was not.
     expect(attempts).toBe(2)
   })
 
