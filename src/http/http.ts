@@ -2,7 +2,7 @@
  * Utility functions for URL manipulation and validation.
  */
 
-import { isLocalhostUrl, normalizeUrl, trimSlashes } from "../internal/url.js"
+import { HTTP_PROTOCOL, isLocalhostUrl, normalizeUrl, trimSlashes } from "../internal/url.js"
 
 /**
  * Checks if a URL is a valid http(s) URL using the URL constructor.
@@ -21,27 +21,27 @@ export function isValidUrl(url?: string): boolean {
 }
 
 /**
- * Adds a protocol to a URL string that has none.
+ * Adds a protocol to a URL string that has none, including a protocol-relative "//host" URL.
  * @param url - The URL string without protocol.
  * @param secure - Whether to use https. Defaults to true, or false for localhost URLs.
  * @returns The URL with a protocol.
  */
 export function addProtocol(url?: string, secure?: boolean): string {
   if (!url) return ""
-  if (isExternalUrl(url)) return url
+  if (HTTP_PROTOCOL.test(url)) return url
 
   const protocol = (secure ?? !isLocalhostUrl(url)) ? "https" : "http"
 
-  return `${protocol}://${url}`
+  return url.startsWith("//") ? `${protocol}:${url}` : `${protocol}://${url}`
 }
 
 /**
- * Removes the http(s) protocol from a URL string.
+ * Removes the http(s) protocol, in any letter case, or the "//" of a protocol-relative URL.
  * @param url - The URL string with protocol.
  * @returns The URL without protocol.
  */
 export function removeProtocol(url?: string): string {
-  return url?.replace(/^https?:\/\//, "") ?? ""
+  return url?.replace(/^(https?:)?\/\//i, "") ?? ""
 }
 
 /**
@@ -57,13 +57,14 @@ export function getDomain(url: string): string {
 }
 
 /**
- * Checks if a URL is external, meaning it starts with an http(s) protocol.
+ * Checks if a URL is external, meaning it starts with an http(s) protocol (in any letter case)
+ * or is protocol-relative ("//host/path").
  * @param url - The URL to check.
  * @returns True if the URL is external.
  */
 export function isExternalUrl(url?: string): boolean {
   if (!url) return false
-  return /^https?:\/\//.test(url)
+  return /^(https?:)?\/\//i.test(url)
 }
 
 /**
@@ -104,8 +105,12 @@ export function setQueryParams(
       parsedUrl.searchParams.set(key, String(value))
     }
 
-    // Drop the slash before the query, so "example.com/?page=2" becomes "example.com?page=2".
-    return parsedUrl.toString().replace(/\/\?/, "?")
+    // Drop the root slash before the query, so "example.com/?page=2" becomes "example.com?page=2".
+    // A slash at the end of a longer path is part of the path and stays.
+    const result = parsedUrl.toString()
+    return parsedUrl.pathname === "/"
+      ? result.replace(`${parsedUrl.origin}/?`, `${parsedUrl.origin}?`)
+      : result
   } catch {
     return url
   }

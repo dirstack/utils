@@ -63,6 +63,12 @@ describe("addProtocol", () => {
   it("doesn't modify URLs that already have protocol", () => {
     expect(addProtocol("https://example.com")).toBe("https://example.com")
     expect(addProtocol("http://example.com")).toBe("http://example.com")
+    expect(addProtocol("HTTPS://example.com")).toBe("HTTPS://example.com")
+  })
+
+  it("completes a protocol-relative URL", () => {
+    expect(addProtocol("//cdn.example.com/app.js")).toBe("https://cdn.example.com/app.js")
+    expect(addProtocol("//localhost:3000/app.js")).toBe("http://localhost:3000/app.js")
   })
 
   it("handles empty input", () => {
@@ -74,6 +80,14 @@ describe("addProtocol", () => {
 describe("removeProtocol", () => {
   it("removes https protocol", () => {
     expect(removeProtocol("https://example.com")).toBe("example.com")
+  })
+
+  it("removes the protocol in any letter case", () => {
+    expect(removeProtocol("HTTPS://example.com")).toBe("example.com")
+  })
+
+  it("removes the slashes of a protocol-relative URL", () => {
+    expect(removeProtocol("//cdn.example.com/app.js")).toBe("cdn.example.com/app.js")
   })
 
   it("removes http protocol", () => {
@@ -140,6 +154,8 @@ describe("isExternalUrl", () => {
   it("identifies external URLs", () => {
     expect(isExternalUrl("https://example.com")).toBe(true)
     expect(isExternalUrl("http://example.com")).toBe(true)
+    expect(isExternalUrl("HTTPS://example.com")).toBe(true)
+    expect(isExternalUrl("//cdn.example.com/app.js")).toBe(true)
   })
 
   it("identifies non-external URLs", () => {
@@ -181,6 +197,16 @@ describe("joinUrlPaths", () => {
 })
 
 describe("setQueryParams", () => {
+  it("keeps the slash at the end of a path", () => {
+    expect(setQueryParams("https://example.com/docs/?page=1", { page: 2 })).toBe(
+      "https://example.com/docs/?page=2",
+    )
+  })
+
+  it("drops the slash before the query on the root path", () => {
+    expect(setQueryParams("https://example.com/", { page: 2 })).toBe("https://example.com?page=2")
+  })
+
   it("adds query parameters", () => {
     const result = setQueryParams("https://example.com", {
       name: "john",

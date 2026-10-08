@@ -2,6 +2,9 @@
  * URL helpers shared by the http module. Not exported from the package root.
  */
 
+/** An http or https protocol at the start of a URL, in any letter case. */
+export const HTTP_PROTOCOL: RegExp = /^https?:\/\//i
+
 /**
  * Removes every trailing slash, keeping a lone root slash.
  * A loop rather than `/\/+$/`, which backtracks in quadratic time on long runs of slashes.
@@ -56,8 +59,17 @@ export function isLocalhostUrl(url?: string): boolean {
   if (!url) return false
 
   try {
-    const { hostname } = new URL(/^https?:\/\//.test(url) ? url : `http://${url}`)
-    return hostname === "localhost" || hostname === "127.0.0.1" || hostname.endsWith(".localhost")
+    const absolute = HTTP_PROTOCOL.test(url)
+      ? url
+      : `http:${url.startsWith("//") ? "" : "//"}${url}`
+    const { hostname } = new URL(absolute)
+
+    return (
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname === "[::1]" ||
+      hostname.endsWith(".localhost")
+    )
   } catch {
     return url.includes("localhost") || url.includes("127.0.0.1")
   }
