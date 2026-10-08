@@ -1,5 +1,39 @@
-import { beforeEach, describe, expect, it } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 import { processBatch, processBatchWithErrorHandling } from "./batch"
+
+/**
+ * Wraps `work` in an async processor that records how many calls run at the same time.
+ */
+function trackConcurrency<R>(work: (item: number) => R) {
+  const state = { active: 0, max: 0 }
+
+  async function processor(item: number) {
+    state.active++
+    state.max = Math.max(state.max, state.active)
+    await new Promise(resolve => setTimeout(resolve, 5))
+    state.active--
+    return work(item)
+  }
+
+  return { processor, state }
+}
+
+/**
+ * Spies on `setTimeout` and counts the timers requested with exactly `ms` milliseconds.
+ */
+function spyOnTimers() {
+  const spy = vi.spyOn(globalThis, "setTimeout")
+  // Restoring the spy clears its calls, so keep a copy
+  let calls: unknown[][] = []
+
+  return {
+    count: (ms: number) => calls.filter(call => call[1] === ms).length,
+    restore: () => {
+      calls = [...spy.mock.calls]
+      spy.mockRestore()
+    },
+  }
+}
 
 describe("processBatch", () => {
   let processedItems: number[] = []
@@ -21,10 +55,6 @@ describe("processBatch", () => {
       processedItems.push(item)
       return item * 2
     }
-  }
-
-  function createSlowProcessor(delay = 50) {
-    return createProcessor(delay, true)
   }
 
   it("should process an empty array and return empty results", async () => {
@@ -69,89 +99,46 @@ describe("processBatch", () => {
   })
 
   it("should process with controlled concurrency", async () => {
-    const items = [1, 2, 3, 4, 5, 6]
-    const processor = createSlowProcessor(30)
-
-    const startTime = Date.now()
-    const results = await processBatch(items, processor, {
+    const { processor, state } = trackConcurrency(item => item * 2)
+    const results = await processBatch([1, 2, 3, 4, 5, 6], processor, {
       batchSize: 6,
       concurrency: 2,
     })
-    const endTime = Date.now()
 
     expect(results).toEqual([2, 4, 6, 8, 10, 12])
-
-    // With concurrency of 2, 6 items should take roughly 3 * 30ms = 90ms
-    // (3 sequential pairs of concurrent operations)
-    const duration = endTime - startTime
-    expect(duration).toBeGreaterThan(80) // Allow some tolerance
-    expect(duration).toBeLessThan(150)
+    expect(state.max).toBe(2)
   })
 
   it("should process all items concurrently when concurrency >= items length", async () => {
-    const items = [1, 2, 3, 4]
-    const processor = createSlowProcessor(50)
-
-    const startTime = Date.now()
-    const results = await processBatch(items, processor, {
-      batchSize: 4,
-      concurrency: 5,
-    })
-    const endTime = Date.now()
+    const { processor, state } = trackConcurrency(item => item * 2)
+    const results = await processBatch([1, 2, 3, 4], processor, { batchSize: 4, concurrency: 5 })
 
     expect(results).toEqual([2, 4, 6, 8])
-
-    // All items should process concurrently, so should take ~50ms total
-    const duration = endTime - startTime
-    expect(duration).toBeGreaterThan(40)
-    expect(duration).toBeLessThan(80)
+    expect(state.max).toBe(4)
   })
 
   it("should add delays between batches", async () => {
-    const items = [1, 2, 3, 4]
-    const processor = createProcessor(5)
+    const timers = spyOnTimers()
+    await processBatch([1, 2, 3, 4], createProcessor(5), { batchSize: 2, delay: 50 })
+    timers.restore()
 
-    const startTime = Date.now()
-    await processBatch(items, processor, {
-      batchSize: 2,
-      delay: 50,
-    })
-    const endTime = Date.now()
-
-    // Should have one delay of 50ms between the two batches
-    const duration = endTime - startTime
-    expect(duration).toBeGreaterThan(40) // Allow for timing variations
-    expect(duration).toBeLessThan(200) // More generous for different system loads
+    // One delay between the two batches
+    expect(timers.count(50)).toBe(1)
   })
 
   it("should not add delay after the last batch", async () => {
-    const items = [1, 2]
-    const processor = createProcessor(5)
+    const timers = spyOnTimers()
+    await processBatch([1, 2], createProcessor(5), { batchSize: 2, delay: 100 })
+    timers.restore()
 
-    const startTime = Date.now()
-    await processBatch(items, processor, {
-      batchSize: 2,
-      delay: 100,
-    })
-    const endTime = Date.now()
-
-    // Should not have any delays since there's only one batch
-    const duration = endTime - startTime
-    expect(duration).toBeLessThan(50)
+    expect(timers.count(100)).toBe(0)
   })
 
   it("should use default concurrency equal to batch size", async () => {
-    const items = [1, 2, 3, 4]
-    const processor = createSlowProcessor(30)
+    const { processor, state } = trackConcurrency(item => item)
+    await processBatch([1, 2, 3, 4, 5, 6], processor, { batchSize: 4 })
 
-    const startTime = Date.now()
-    await processBatch(items, processor, { batchSize: 4 })
-    const endTime = Date.now()
-
-    // All items in batch should process concurrently
-    const duration = endTime - startTime
-    expect(duration).toBeGreaterThan(25)
-    expect(duration).toBeLessThan(60)
+    expect(state.max).toBe(4)
   })
 
   it("should handle large batch sizes", async () => {
@@ -311,29 +298,21 @@ describe("processBatchWithErrorHandling", () => {
   })
 
   it("should respect concurrency and timing options", async () => {
-    const items = [1, 2, 3, 4, 5, 6]
-    async function processor(item: number) {
-      await new Promise(resolve => setTimeout(resolve, 20))
+    const { processor, state } = trackConcurrency(item => {
       if (item === 3) throw new Error("Test error")
       return item * 2
-    }
+    })
 
-    const startTime = Date.now()
-    const results = await processBatchWithErrorHandling(items, processor, {
+    const results = await processBatchWithErrorHandling([1, 2, 3, 4, 5, 6], processor, {
       batchSize: 6,
       concurrency: 2,
       onError: errorHandler,
     })
-    const endTime = Date.now()
 
     expect(results).toHaveLength(6)
     expect(errors).toHaveLength(1)
     expect(errors[0]?.item).toBe(3)
-
-    // Should take roughly 3 * 20ms for 3 sequential pairs
-    const duration = endTime - startTime
-    expect(duration).toBeGreaterThan(50)
-    expect(duration).toBeLessThan(100)
+    expect(state.max).toBe(2)
   })
 
   it("should handle empty array", async () => {
@@ -380,14 +359,14 @@ describe("integration tests", () => {
       errors.push({ error, item })
     }
 
-    const startTime = Date.now()
+    const timers = spyOnTimers()
     const results = await processBatchWithErrorHandling(apiRequests, mockApiCall, {
       batchSize: 5,
       concurrency: 2,
       delay: 20, // Rate limiting delay
       onError: errorHandler,
     })
-    const endTime = Date.now()
+    timers.restore()
 
     // Verify results
     expect(results).toHaveLength(20)
@@ -401,9 +380,7 @@ describe("integration tests", () => {
     // Check failed requests
     expect(errors.map(e => e.item.id)).toEqual([5, 12, 18])
 
-    // Verify timing (4 batches * 20ms delay between + processing time)
-    const duration = endTime - startTime
-    expect(duration).toBeGreaterThan(60) // 3 delays + processing time
-    expect(duration).toBeLessThan(400) // Very generous for CI and different system loads
+    // A rate-limiting delay between each of the 4 batches
+    expect(timers.count(20)).toBe(3)
   })
 })
