@@ -18,9 +18,49 @@ describe("formatBytes", () => {
     expect(formatBytes(1200000000, 3)).toEqual("1.118 GB")
     expect(formatBytes(1200000000000, 4)).toEqual("1.0914 TB")
   })
+
+  it("moves to the next unit when rounding reaches 1024", () => {
+    expect(formatBytes(1024 * 1023.9)).toEqual("1 MB")
+    expect(formatBytes(1024 * 1023.9, 1)).toEqual("1023.9 KB")
+  })
+
+  it("stops at the largest unit", () => {
+    expect(formatBytes(1024 ** 8)).toEqual("1 YB")
+    expect(formatBytes(1024 ** 9)).toEqual("1024 YB")
+  })
+
+  it("scales negative values like positive ones", () => {
+    expect(formatBytes(-2048)).toEqual("-2 KB")
+    expect(formatBytes(-512)).toEqual("-512 B")
+  })
+
+  it("returns non-finite values as bytes", () => {
+    expect(formatBytes(Number.NaN)).toEqual("NaN B")
+    expect(formatBytes(Number.POSITIVE_INFINITY)).toEqual("Infinity B")
+  })
 })
 
 describe("isMimeTypeMatch", () => {
+  it("should ignore letter case", () => {
+    expect(isMimeTypeMatch("Image/PNG", ["image/*"])).toBe(true)
+    expect(isMimeTypeMatch("image/png", ["IMAGE/PNG"])).toBe(true)
+  })
+
+  it("should ignore parameters", () => {
+    expect(isMimeTypeMatch("text/plain; charset=utf-8", ["text/plain"])).toBe(true)
+    expect(isMimeTypeMatch("text/plain", ["text/plain;charset=utf-8"])).toBe(true)
+  })
+
+  it("should support the match-all pattern", () => {
+    expect(isMimeTypeMatch("image/png", ["*/*"])).toBe(true)
+    expect(isMimeTypeMatch("application/pdf", ["*"])).toBe(true)
+  })
+
+  it("should reject a value that is not a MIME type", () => {
+    expect(isMimeTypeMatch("", ["*/*"])).toBe(false)
+    expect(isMimeTypeMatch("image", ["image/*"])).toBe(false)
+  })
+
   it("should match exact MIME types", () => {
     expect(isMimeTypeMatch("image/jpeg", ["image/jpeg"])).toBe(true)
     expect(isMimeTypeMatch("text/plain", ["text/plain"])).toBe(true)
@@ -71,12 +111,6 @@ describe("isMimeTypeMatch", () => {
     expect(isMimeTypeMatch("image/jpeg", ["image/jpeg"])).toBe(true)
     expect(isMimeTypeMatch("application/vnd.api+json", ["application/*"])).toBe(true)
     expect(isMimeTypeMatch("application/vnd.api+json", ["application/vnd.api+json"])).toBe(true)
-  })
-
-  it("should be case sensitive", () => {
-    expect(isMimeTypeMatch("Image/JPEG", ["image/jpeg"])).toBe(false)
-    expect(isMimeTypeMatch("image/jpeg", ["Image/JPEG"])).toBe(false)
-    expect(isMimeTypeMatch("IMAGE/JPEG", ["image/*"])).toBe(false)
   })
 
   it("should handle complex MIME types", () => {

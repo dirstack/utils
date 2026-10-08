@@ -5,7 +5,7 @@
 import { formatToDecimals } from "../internal/decimals.js"
 
 /**
- * Formats a number of bytes to a human-readable string.
+ * Formats a number of bytes to a human-readable string, in binary units (1 KB = 1024 B).
  * @param bytes - The number of bytes to format.
  * @param precision - The number of decimal places to format the size to.
  * @returns The formatted size as a string.
@@ -13,40 +13,55 @@ import { formatToDecimals } from "../internal/decimals.js"
 export function formatBytes(bytes: number, precision = 0): string {
   const base = 1024
   const units = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
+  const largest = units.length - 1
 
   // Values below 1 KB are reported in bytes, which are always whole numbers.
-  if (bytes < base) return `${bytes} B`
+  if (!Number.isFinite(bytes) || Math.abs(bytes) < base) return `${bytes} B`
 
-  const exponent = Math.floor(Math.log(bytes) / Math.log(base))
-  const size = formatToDecimals(bytes / base ** exponent, precision)
+  let exponent = Math.min(Math.floor(Math.log(Math.abs(bytes)) / Math.log(base)), largest)
+  let size = formatToDecimals(bytes / base ** exponent, precision)
+
+  // Rounding can reach the next unit: 1023.9 KB at precision 0 would read "1024 KB", not "1 MB"
+  if (Math.abs(Number(size)) >= base && exponent < largest) {
+    exponent++
+    size = formatToDecimals(bytes / base ** exponent, precision)
+  }
 
   return `${size} ${units[exponent]}`
 }
 
 /**
+ * Splits a MIME type into its lowercased type and subtype, dropping parameters such as
+ * "; charset=utf-8". A lone "*" counts as "*\/*".
+ */
+function parseMimeType(value: string) {
+  const [type = "", subtype = ""] = (value.split(";")[0] ?? "").trim().toLowerCase().split("/")
+  return type === "*" && !subtype ? { type, subtype: "*" } : { type, subtype }
+}
+
+/**
  * Checks if a MIME type matches any of the provided patterns.
- * Supports wildcard matching for subtypes (e.g., "image/*").
- *
+ * Matching ignores letter case and parameters such as "; charset=utf-8", and supports
+ * wildcard subtypes ("image/*") and the match-all pattern ("*\/*" or "*").
  * @param mimeType - The MIME type to check (e.g., "image/jpeg", "text/plain")
  * @param patterns - Array of MIME type patterns to match against (e.g., ["image/*", "text/plain"])
  * @returns True if the MIME type matches any of the patterns, false otherwise
- *
  * @example
- * ```typescript
- * isMimeTypeMatch("image/jpeg", ["image/*"]) // returns true
- * isMimeTypeMatch("text/plain", ["image/*", "text/plain"]) // returns true
- * isMimeTypeMatch("application/json", ["image/*"]) // returns false
- * ```
+ * isMimeTypeMatch("image/jpeg", ["image/*"]) // true
+ * isMimeTypeMatch("Text/Plain; charset=utf-8", ["text/plain"]) // true
+ * isMimeTypeMatch("application/json", ["image/*"]) // false
  */
 export function isMimeTypeMatch(mimeType: string, patterns: readonly string[]): boolean {
-  const [type, subtype] = mimeType.split("/")
+  const { type, subtype } = parseMimeType(mimeType)
+  if (!type || !subtype) return false
 
   return patterns.some(pattern => {
-    const [patternType, patternSubtype] = pattern.split("/")
+    const expected = parseMimeType(pattern)
 
-    if (type !== patternType) return false
-
-    return patternSubtype === "*" || subtype === patternSubtype
+    return (
+      (expected.type === "*" || expected.type === type) &&
+      (expected.subtype === "*" || expected.subtype === subtype)
+    )
   })
 }
 
