@@ -3,7 +3,7 @@
  */
 
 import slugifyString from "@sindresorhus/slugify"
-import { isTruthy } from "../helpers/helpers"
+import { isTruthy } from "../helpers/helpers.js"
 
 /**
  * Uppercases the first character in the `string`.

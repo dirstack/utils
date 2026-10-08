@@ -2,8 +2,8 @@
  * Utility functions for processing items in batches.
  */
 
-import { chunk } from "../array/array"
-import { sleep } from "../helpers/helpers"
+import { chunk } from "../array/array.js"
+import { sleep } from "../helpers/helpers.js"
 
 /**
  * Progress reported after each batch finishes processing.

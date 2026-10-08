@@ -2,7 +2,7 @@
  * Utility functions for working with files and MIME types.
  */
 
-import { formatToDecimals } from "../format/format"
+import { formatToDecimals } from "../format/format.js"
 
 /**
  * Formats a number of bytes to a human-readable string.

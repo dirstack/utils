@@ -1,12 +1,12 @@
 /**
  * Utility functions for formatting data.
  */
-import { createBoundedCache, serializeOptions } from "../internal/cache"
+import { createBoundedCache, serializeOptions } from "../internal/cache.js"
 
 /** Any `Intl.NumberFormat` option, plus a `locale` shortcut. */
 export type FormatNumberOptions = Intl.NumberFormatOptions & { locale?: string }
 
-const getCachedFormatter = createBoundedCache<Intl.NumberFormat>()
+const getCachedFormatter = /* @__PURE__ */ createBoundedCache<Intl.NumberFormat>()
 
 /**
  * Formats a number using `Intl.NumberFormat`.
@@ -82,7 +82,7 @@ export function formatToDecimals(number: number, precision = 0): string {
   })
 }
 
-const getCachedExponent = createBoundedCache<number>()
+const getCachedExponent = /* @__PURE__ */ createBoundedCache<number>()
 
 /**
  * Gets a currency's minor-unit exponent (USD 2, JPY 0, KWD 3) from the runtime's ISO 4217 data.

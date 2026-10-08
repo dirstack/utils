@@ -1,6 +1,6 @@
 # @dirstack/utils
 
-A lightweight, dependency-light set of TypeScript utilities shared across projects. Tree-shakeable, ESM-first (with a CommonJS build), and fully typed.
+A lightweight, dependency-light set of TypeScript utilities shared across projects. Tree-shakeable, ESM-only, and fully typed.
 
 ## Install
 
@@ -8,6 +8,8 @@ A lightweight, dependency-light set of TypeScript utilities shared across projec
 bun add @dirstack/utils
 # or: npm install @dirstack/utils
 ```
+
+Requires Node.js 22.12 or later. The package ships ES modules only, and CommonJS code can `require()` it on these versions.
 
 ## Usage
 
@@ -23,6 +25,8 @@ slugify("Hello World") // "hello-world"
 
 const { data, error } = await tryCatch(fetch("/api"))
 ```
+
+Each module is also available on its own path, such as `@dirstack/utils/array` or `@dirstack/utils/time`. Bundlers remove unused code from the root import either way, because the build keeps one file per module.
 
 ## What's inside
 

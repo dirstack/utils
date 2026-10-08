@@ -1,7 +1,7 @@
 /**
  * Utility functions related to time.
  */
-import { createBoundedCache, serializeOptions } from "../internal/cache"
+import { createBoundedCache, serializeOptions } from "../internal/cache.js"
 
 type DateStyle = Intl.DateTimeFormatOptions["dateStyle"]
 type TimeStyle = Intl.DateTimeFormatOptions["timeStyle"]
@@ -32,7 +32,7 @@ const FIELD_OPTIONS = [
   "timeZoneName",
 ] as const
 
-const getCachedFormatter = createBoundedCache<Intl.DateTimeFormat>()
+const getCachedFormatter = /* @__PURE__ */ createBoundedCache<Intl.DateTimeFormat>()
 
 function getFormatter(
   { locale = DEFAULT_LOCALE, ...options }: FormatDateOptions,
@@ -293,7 +293,7 @@ export function shiftDayKey(day: string, days: number): string {
   return dayKey(Date.parse(`${day}T00:00:00Z`) + days * DAY_MS)
 }
 
-const getCachedDayFormatter = createBoundedCache<Intl.DateTimeFormat>()
+const getCachedDayFormatter = /* @__PURE__ */ createBoundedCache<Intl.DateTimeFormat>()
 
 /**
  * Gets the calendar day a timestamp falls on in a time zone, as "YYYY-MM-DD".
