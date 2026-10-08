@@ -3,7 +3,8 @@
  */
 import { createBoundedCache, serializeOptions } from "../internal/cache.js"
 
-type Timestamp = string | number | Date
+/** A date, a date string, or milliseconds since the Unix epoch. Anything `new Date()` accepts. */
+export type Timestamp = string | number | Date
 
 /**
  * Any `Intl.DateTimeFormat` option, plus a `locale` shortcut (defaults to 'en-US').

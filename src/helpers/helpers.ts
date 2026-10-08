@@ -20,25 +20,25 @@ export function isTruthy<T>(value?: T | undefined | null | false): value is T {
 }
 
 /**
- * A type representing a successful result with data and no error.
+ * The successful result of {@link tryCatch}: data and no error.
  */
-interface Success<T> {
+export interface Success<T> {
   data: T
   error: null
 }
 
 /**
- * A type representing a failed result with no data and an error.
+ * The failed result of {@link tryCatch}: an error and no data.
  */
-interface Failure<E> {
+export interface Failure<E> {
   data: null
   error: E
 }
 
 /**
- * A type representing a result with either data or an error.
+ * The result of {@link tryCatch}: either data or an error. Check `error` to narrow it.
  */
-type Result<T, E = Error> = Success<T> | Failure<E>
+export type Result<T, E = Error> = Success<T> | Failure<E>
 
 /**
  * Wraps a promise and returns a result object with the data or error.
