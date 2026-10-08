@@ -296,3 +296,24 @@ describe("range", () => {
     expect(range(-3, 3)).toEqual([-3, -2, -1, 0, 1, 2, 3])
   })
 })
+
+describe("readonly arrays", () => {
+  it("accepts a frozen as const list without a spread", () => {
+    const sizes = Object.freeze(["small", "large", "medium", "large"] as const)
+    const prices = [3, 1, 2] as const
+
+    expect(uniq(sizes)).toEqual(["small", "large", "medium"])
+    expect(uniqBy(sizes, size => size.length)).toEqual(["small", "medium"])
+    expect(chunk(sizes, 3)).toEqual([["small", "large", "medium"], ["large"]])
+    expect(groupBy(sizes, size => size.length)).toEqual({
+      5: ["small", "large", "large"],
+      6: ["medium"],
+    })
+    expect(keyBy(sizes, size => size)).toEqual({ small: "small", large: "large", medium: "medium" })
+    expect(countBy(sizes, size => size)).toEqual({ small: 1, large: 2, medium: 1 })
+    expect(compact([0, 1, null] as const)).toEqual([1])
+    expect(sortBy(prices, price => price)).toEqual([1, 2, 3])
+    expect(sum(prices)).toBe(6)
+    expect(sumBy(prices, price => price * 2)).toBe(12)
+  })
+})

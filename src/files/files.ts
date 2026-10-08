@@ -49,7 +49,7 @@ export function formatMimeType(mimeType: string): string | undefined {
  * isMimeTypeMatch("application/json", ["image/*"]) // returns false
  * ```
  */
-export function isMimeTypeMatch(mimeType: string, patterns: string[]) {
+export function isMimeTypeMatch(mimeType: string, patterns: readonly string[]) {
   const [type, subtype] = mimeType.split("/")
 
   return patterns.some(pattern => {

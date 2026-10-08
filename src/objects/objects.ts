@@ -30,7 +30,7 @@ export function isKeyInObject<T extends object>(key: PropertyKey, target: T): ke
  * @param keys - The keys in their desired order.
  * @returns A comparator for `Array.prototype.sort`.
  */
-export function sortObjectKeys(keys: string[]) {
+export function sortObjectKeys(keys: readonly string[]) {
   return (a: Record<string, unknown>, b: Record<string, unknown>) => {
     const aIndex = keys.indexOf(Object.keys(a)[0] ?? "")
     const bIndex = keys.indexOf(Object.keys(b)[0] ?? "")

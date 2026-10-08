@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test"
+import { afterEach, describe, expect, it, mock, spyOn } from "bun:test"
 import {
   getRandomColor,
   getRandomDigits,
@@ -7,6 +7,21 @@ import {
   getRandomProperty,
   getRandomString,
 } from "./random"
+
+afterEach(() => {
+  mock.restore()
+})
+
+/**
+ * Makes `crypto.getRandomValues` return `bytes`, then zeros.
+ */
+function mockRandomBytes(bytes: number[]) {
+  spyOn(crypto, "getRandomValues").mockImplementation(<T extends ArrayBufferView>(array: T) => {
+    const target = array as unknown as Uint8Array
+    target.set(bytes.slice(0, target.length))
+    return array
+  })
+}
 
 describe("getRandomColor", () => {
   it("returns a string", () => {
@@ -52,6 +67,20 @@ describe("getRandomString", () => {
     const result = getRandomString()
     expect(result).toMatch(/^[a-zA-Z0-9]+$/)
   })
+
+  it("returns an empty string for a length of 0", () => {
+    expect(getRandomString(0)).toBe("")
+  })
+
+  it("fills lengths longer than one getRandomValues call", () => {
+    expect(getRandomString(100_000)).toMatch(/^[a-zA-Z0-9]{100000}$/)
+  })
+
+  it("discards bytes that would bias the result", () => {
+    // 62 characters: bytes 248 and above are discarded, the rest map to `byte % 62`
+    mockRandomBytes([255, 248, 0, 61, 62, 237])
+    expect(getRandomString(4)).toBe("a9aZ")
+  })
 })
 
 describe("getRandomNumber", () => {
@@ -65,6 +94,12 @@ describe("getRandomNumber", () => {
 })
 
 describe("getRandomDigits", () => {
+  it("discards bytes that would bias the result", () => {
+    // 10 digits: bytes 250 and above are discarded, the rest map to `byte % 10`
+    mockRandomBytes([250, 255, 9, 19, 249])
+    expect(getRandomDigits(3)).toBe("999")
+  })
+
   it("returns a string", () => {
     const result = getRandomDigits(5)
     expect(typeof result).toBe("string")
@@ -95,6 +130,11 @@ describe("getRandomDigits", () => {
 })
 
 describe("getRandomElement", () => {
+  it("accepts a readonly array", () => {
+    const sizes = ["small", "large"] as const
+    expect(sizes).toContain(getRandomElement(sizes)!)
+  })
+
   it("returns a value from the array", () => {
     const array = [1, 2, 3]
     const result = getRandomElement(array)
