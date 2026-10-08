@@ -5,6 +5,23 @@
 import { isTruthy } from "../helpers/helpers.js"
 
 /**
+ * Sets an own property. Plain assignment to `"__proto__"` replaces the object's prototype
+ * instead, so that key is defined explicitly.
+ */
+function setOwn<K extends PropertyKey, V>(target: Record<K, V>, key: K, value: V) {
+  if (key === "__proto__") {
+    Object.defineProperty(target, key, {
+      value,
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    })
+  } else {
+    target[key] = value
+  }
+}
+
+/**
  * A utility function that generates an array of numbers within a specified range.
  * @param start - The starting number of the range.
  * @param end - The ending number of the range.
@@ -82,8 +99,12 @@ export function groupBy<T, K extends PropertyKey>(
 
   for (const item of items) {
     const groupKey = key(item)
-    groups[groupKey] ??= []
-    groups[groupKey].push(item)
+
+    if (Object.hasOwn(groups, groupKey)) {
+      groups[groupKey].push(item)
+    } else {
+      setOwn(groups, groupKey, [item])
+    }
   }
 
   return groups
@@ -117,7 +138,7 @@ export function keyBy<T, K extends PropertyKey, V>(
   const indexed = {} as Record<K, T | V>
 
   for (const item of items) {
-    indexed[key(item)] = value ? value(item) : item
+    setOwn(indexed, key(item), value ? value(item) : item)
   }
 
   return indexed
@@ -137,7 +158,7 @@ export function countBy<T, K extends PropertyKey>(
 
   for (const item of items) {
     const itemKey = key(item)
-    counts[itemKey] = (counts[itemKey] ?? 0) + 1
+    setOwn(counts, itemKey, (Object.hasOwn(counts, itemKey) ? counts[itemKey] : 0) + 1)
   }
 
   return counts

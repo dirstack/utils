@@ -301,6 +301,29 @@ describe("range", () => {
   })
 })
 
+describe("keys that exist on Object.prototype", () => {
+  const words = ["__proto__", "constructor", "toString", "constructor"]
+
+  it("groups them as ordinary keys", () => {
+    const groups = groupBy(words, word => word)
+
+    expect(Object.keys(groups)).toEqual(["__proto__", "constructor", "toString"])
+    expect(groups.constructor).toEqual(["constructor", "constructor"])
+    expect(Object.getPrototypeOf(groups)).toBe(Object.prototype)
+  })
+
+  it("indexes them as ordinary keys", () => {
+    const indexed = keyBy([{ id: "__proto__", label: "Proto" }], item => item.id)
+
+    expect(Object.keys(indexed)).toEqual(["__proto__"])
+    expect(Object.getPrototypeOf(indexed)).toBe(Object.prototype)
+  })
+
+  it("counts them from zero", () => {
+    expect(countBy(words, word => word)).toEqual({ ["__proto__"]: 1, constructor: 2, toString: 1 })
+  })
+})
+
 describe("readonly arrays", () => {
   it("accepts a frozen as const list without a spread", () => {
     const sizes = Object.freeze(["small", "large", "medium", "large"] as const)
