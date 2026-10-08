@@ -41,7 +41,13 @@ describe("preciseRound", () => {
   })
 
   it("handles negative numbers", () => {
-    expect(preciseRound(-2.345)).toEqual(-2.34)
+    expect(preciseRound(-2.345)).toEqual(-2.35)
+    expect(preciseRound(-1.005)).toEqual(-1.01)
+  })
+
+  it("never returns negative zero", () => {
+    expect(Object.is(preciseRound(-0.004), 0)).toBe(true)
+    expect(Object.is(preciseRound(-0.4, 0), 0)).toBe(true)
   })
 
   it("rounds to 0 decimal places correctly", () => {
