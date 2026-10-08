@@ -14,6 +14,8 @@ import {
   HOUR_MS,
   HOUR_SECONDS,
   MINUTE_MS,
+  MINUTE_SECONDS,
+  SECOND_MS,
   shiftDayKey,
   toUnix,
 } from "./time"
@@ -320,7 +322,10 @@ describe("time constants", () => {
   it("agree with each other", () => {
     expect(DAY_MS).toBe(24 * HOUR_MS)
     expect(HOUR_MS).toBe(60 * MINUTE_MS)
+    expect(MINUTE_MS).toBe(60 * SECOND_MS)
     expect(DAY_SECONDS * 1000).toBe(DAY_MS)
     expect(HOUR_SECONDS * 1000).toBe(HOUR_MS)
+    expect(MINUTE_SECONDS * SECOND_MS).toBe(MINUTE_MS)
+    expect(HOUR_SECONDS).toBe(60 * MINUTE_SECONDS)
   })
 })

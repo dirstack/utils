@@ -1,5 +1,5 @@
-import { describe, expect, it } from "bun:test"
-import { debounce, isTruthy, retry, sleep, throttle, tryCatch } from "./helpers"
+import { describe, expect, it, spyOn } from "bun:test"
+import { debounce, isTruthy, retry, sleep, throttle, tryCatch, withTimeout } from "./helpers"
 
 describe("isTruthy", () => {
   it("checks if a value is truthy", () => {
@@ -118,5 +118,37 @@ describe("retry", () => {
 
     // 1 initial attempt + 2 retries
     expect(attempts).toBe(3)
+  })
+})
+
+describe("withTimeout", () => {
+  it("resolves with the value when the promise settles in time", async () => {
+    expect(await withTimeout(Promise.resolve("ok"), 50)).toBe("ok")
+  })
+
+  it("rejects with the promise's own error when it fails in time", async () => {
+    await expect(withTimeout(Promise.reject(new Error("boom")), 50)).rejects.toThrow("boom")
+  })
+
+  it("rejects with a default message after the timeout", async () => {
+    const promise = withTimeout(sleep(100), 10)
+
+    await expect(promise).rejects.toThrow("Timed out after 10ms")
+    await expect(promise).rejects.toBeInstanceOf(Error)
+  })
+
+  it("rejects with a custom message after the timeout", async () => {
+    await expect(withTimeout(sleep(100), 10, "Health check timed out")).rejects.toThrow(
+      "Health check timed out",
+    )
+  })
+
+  it("clears the timer when the promise settles first", async () => {
+    const clearTimeoutSpy = spyOn(globalThis, "clearTimeout")
+
+    await withTimeout(Promise.resolve("ok"), 10_000)
+
+    expect(clearTimeoutSpy).toHaveBeenCalledTimes(1)
+    clearTimeoutSpy.mockRestore()
   })
 })

@@ -234,6 +234,9 @@ export function getReadTime(content: string | null, wpm = 265): number {
   return Math.ceil(content.trim().split(/\s+/).length / wpm)
 }
 
+/** One second in milliseconds. */
+export const SECOND_MS = 1000
+
 /** One minute in milliseconds. */
 export const MINUTE_MS = 60_000
 
@@ -245,6 +248,9 @@ export const HOUR_MS = 3_600_000
  * longer or shorter, so calendar arithmetic in a time zone needs a date library.
  */
 export const DAY_MS = 86_400_000
+
+/** One minute in seconds, for Unix timestamps. */
+export const MINUTE_SECONDS = 60
 
 /** One hour in seconds, for Unix timestamps. */
 export const HOUR_SECONDS = 3600

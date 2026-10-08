@@ -89,13 +89,27 @@ export function groupBy<T, K extends PropertyKey>(items: T[], key: (item: T) => 
  * multiple items share a key, the last one wins.
  * @param items - The array to index.
  * @param key - Maps an item to its key.
- * @returns An object mapping each key to a single item.
+ * @param value - Maps an item to the value stored under its key. Stores the whole item by default.
+ * @returns An object mapping each key to a single item, or to the value returned from `value`.
+ * @example
+ * keyBy(users, user => user.id) // { u1: { id: "u1", name: "Ada" } }
+ * keyBy(users, user => user.id, user => user.name) // { u1: "Ada" }
  */
-export function keyBy<T, K extends PropertyKey>(items: T[], key: (item: T) => K): Record<K, T> {
-  const indexed = {} as Record<K, T>
+export function keyBy<T, K extends PropertyKey>(items: T[], key: (item: T) => K): Record<K, T>
+export function keyBy<T, K extends PropertyKey, V>(
+  items: T[],
+  key: (item: T) => K,
+  value: (item: T) => V,
+): Record<K, V>
+export function keyBy<T, K extends PropertyKey, V>(
+  items: T[],
+  key: (item: T) => K,
+  value?: (item: T) => V,
+): Record<K, T | V> {
+  const indexed = {} as Record<K, T | V>
 
   for (const item of items) {
-    indexed[key(item)] = item
+    indexed[key(item)] = value ? value(item) : item
   }
 
   return indexed
@@ -131,32 +145,77 @@ export function compact<T>(items: (T | null | undefined | false)[]): T[] {
   return items.filter(isTruthy)
 }
 
+/** A value {@link sortBy} can compare. */
+export type SortValue = number | string | Date
+
+/** A sort key with its own direction, for {@link sortBy}. */
+export interface SortKey<T> {
+  /** Maps an item to the value to sort by. */
+  key: (item: T) => SortValue
+  /** The direction for this key. Defaults to the `order` option. */
+  order?: "asc" | "desc"
+}
+
+/** Options for {@link sortBy}. */
+export interface SortByOptions {
+  /** The direction for keys without their own `order`. Defaults to "asc". */
+  order?: "asc" | "desc"
+  /**
+   * How strings are compared. "locale" (default) uses `localeCompare`, for text shown to people.
+   * "binary" compares UTF-16 code units like a bare `.sort()`, for tokens and stable cache keys.
+   */
+  compare?: "locale" | "binary"
+}
+
 /**
- * Returns a new array sorted by the value returned from `key`. Strings are
- * compared with `localeCompare`; numbers and dates compare naturally. Does not
- * mutate the input.
+ * Compares two sort values in ascending order, using `localeCompare` for strings in "locale" mode.
+ */
+function compareValues(a: SortValue, b: SortValue, compare: SortByOptions["compare"]) {
+  if (compare === "locale" && typeof a === "string" && typeof b === "string") {
+    return a.localeCompare(b)
+  }
+
+  return a < b ? -1 : a > b ? 1 : 0
+}
+
+/**
+ * Returns a new array sorted by one or more keys. Each key is a function or a
+ * `{ key, order }` object, and later keys break ties left by earlier ones.
+ * Numbers and dates compare naturally; strings follow the `compare` option.
+ * The sort is stable and does not mutate the input.
  * @param items - The array to sort.
- * @param key - Maps an item to the value to sort by.
- * @param order - Sort direction, ascending by default.
+ * @param keys - A key or an array of keys, applied in turn.
+ * @param options - The default direction and the string comparison.
  * @returns A new sorted array.
+ * @example
+ * sortBy(posts, post => post.publishedAt, { order: "desc" })
+ * sortBy(users, [{ key: user => user.score, order: "desc" }, user => user.name])
+ * sortBy(tokens, token => token, { compare: "binary" })
  */
 export function sortBy<T>(
   items: T[],
-  key: (item: T) => number | string | Date,
-  order: "asc" | "desc" = "asc",
+  keys: ((item: T) => SortValue) | SortKey<T> | readonly (((item: T) => SortValue) | SortKey<T>)[],
+  { order = "asc", compare = "locale" }: SortByOptions = {},
 ): T[] {
-  const direction = order === "asc" ? 1 : -1
+  const sortKeys = (Array.isArray(keys) ? keys : [keys]).map(sortKey =>
+    typeof sortKey === "function"
+      ? { key: sortKey, direction: order === "asc" ? 1 : -1 }
+      : { key: sortKey.key, direction: (sortKey.order ?? order) === "asc" ? 1 : -1 },
+  )
 
-  return [...items].sort((a, b) => {
-    const keyA = key(a)
-    const keyB = key(b)
+  // Compute every key once per item, not once per comparison
+  const entries = items.map(item => ({ item, values: sortKeys.map(({ key }) => key(item)) }))
 
-    if (typeof keyA === "string" && typeof keyB === "string") {
-      return keyA.localeCompare(keyB) * direction
+  entries.sort((a, b) => {
+    for (const [index, { direction }] of sortKeys.entries()) {
+      const result = compareValues(a.values[index]!, b.values[index]!, compare)
+      if (result !== 0) return result * direction
     }
 
-    return (keyA < keyB ? -1 : keyA > keyB ? 1 : 0) * direction
+    return 0
   })
+
+  return entries.map(({ item }) => item)
 }
 
 /**
