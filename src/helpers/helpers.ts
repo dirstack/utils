@@ -93,25 +93,31 @@ export interface RetryOptions {
   delay?: number
   /** Multiplier applied to the delay after each failed attempt (default: 2). */
   factor?: number
+  /**
+   * Decides whether an error is worth another attempt, such as a 5xx response but not a 4xx.
+   * Returning false rethrows the error at once. Retries every error by default.
+   */
+  shouldRetry?: (error: unknown, attempt: number) => boolean
   /** Called before each retry with the error and the upcoming attempt number. */
   onRetry?: (error: unknown, attempt: number) => void
 }
 
 /**
  * Runs an async function, retrying it on failure with exponential backoff.
- * Rethrows the last error once all retries are exhausted.
+ * Rethrows the last error once all retries are exhausted, or as soon as `shouldRetry` returns false.
  * @param callback - The async function to run.
  * @param options - Retry configuration.
  * @returns The resolved value of `callback`.
  */
 export async function retry<T>(callback: () => Promise<T>, options: RetryOptions = {}): Promise<T> {
-  const { retries = 3, delay = 0, factor = 2, onRetry } = options
+  const { retries = 3, delay = 0, factor = 2, shouldRetry, onRetry } = options
 
   for (let attempt = 0; ; attempt++) {
     try {
       return await callback()
     } catch (error) {
       if (attempt >= retries) throw error
+      if (shouldRetry && !shouldRetry(error, attempt + 1)) throw error
       onRetry?.(error, attempt + 1)
       if (delay > 0) await sleep(delay * factor ** attempt)
     }

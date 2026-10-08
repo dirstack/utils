@@ -76,6 +76,44 @@ describe("retry", () => {
     // 1 initial attempt + 2 retries
     expect(attempts).toBe(3)
   })
+
+  it("rethrows at once when shouldRetry returns false", async () => {
+    let attempts = 0
+
+    await expect(
+      retry(
+        async () => {
+          attempts++
+          throw new Error(attempts === 1 ? "503" : "404")
+        },
+        { retries: 5, shouldRetry: error => (error as Error).message.startsWith("5") },
+      ),
+    ).rejects.toThrow("404")
+
+    // The 503 was retried, the 404 was not
+    expect(attempts).toBe(2)
+  })
+
+  it("passes the upcoming attempt number to shouldRetry", async () => {
+    const seen: number[] = []
+
+    await expect(
+      retry(
+        async () => {
+          throw new Error("fail")
+        },
+        {
+          retries: 3,
+          shouldRetry: (_error, attempt) => {
+            seen.push(attempt)
+            return true
+          },
+        },
+      ),
+    ).rejects.toThrow("fail")
+
+    expect(seen).toEqual([1, 2, 3])
+  })
 })
 
 describe("withTimeout", () => {
