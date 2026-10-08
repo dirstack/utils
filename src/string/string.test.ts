@@ -101,6 +101,12 @@ describe("truncate", () => {
     expect(truncate("Hello, world and more", 8)).toBe("Hello…")
   })
 
+  it("runs in linear time on long runs of punctuation", () => {
+    const start = performance.now()
+    truncate(`${",".repeat(20_000)}yz`, 20_001, { wordBoundary: false })
+    expect(performance.now() - start).toBeLessThan(100)
+  })
+
   it("keeps a less-than sign and the text after it", () => {
     expect(truncate("5 < 6 and 7 > 3", 20)).toBe("5 < 6 and 7 > 3")
   })

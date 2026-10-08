@@ -4,9 +4,25 @@
 
 /**
  * Removes every trailing slash, keeping a lone root slash.
+ * A loop rather than `/\/+$/`, which backtracks in quadratic time on long runs of slashes.
  */
 function removeTrailingSlash(value: string) {
-  return value.replace(/(?<=.)\/+$/, "")
+  let end = value.length
+  while (end > 1 && value[end - 1] === "/") end--
+  return value.slice(0, end)
+}
+
+/**
+ * Removes every leading and trailing slash, in linear time.
+ * @param value - The path segment to trim.
+ * @returns The segment without slashes at either end.
+ */
+export function trimSlashes(value: string): string {
+  let start = 0
+  let end = value.length
+  while (start < end && value[start] === "/") start++
+  while (end > start && value[end - 1] === "/") end--
+  return value.slice(start, end)
 }
 
 /**

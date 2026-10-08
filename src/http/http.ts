@@ -2,7 +2,7 @@
  * Utility functions for URL manipulation and validation.
  */
 
-import { isLocalhostUrl, normalizeUrl } from "../internal/url.js"
+import { isLocalhostUrl, normalizeUrl, trimSlashes } from "../internal/url.js"
 
 /**
  * Checks if a URL is a valid http(s) URL using the URL constructor.
@@ -80,7 +80,7 @@ export function joinUrlPaths(base: string, ...paths: string[]): string {
   for (const path of paths) {
     if (!path) continue
 
-    const trimmedPath = path.replace(/^\/+|\/+$/g, "")
+    const trimmedPath = trimSlashes(path)
     if (trimmedPath) result += `/${trimmedPath}`
   }
 
