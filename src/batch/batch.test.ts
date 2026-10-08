@@ -35,6 +35,12 @@ describe("processBatch", () => {
     expect(results).toEqual([])
   })
 
+  it("should reject a batch size below 1 instead of hanging", async () => {
+    await expect(processBatch([1, 2], async item => item, { batchSize: 0 })).rejects.toThrow(
+      RangeError,
+    )
+  })
+
   it("should process a single item", async () => {
     const items = [1]
     const processor = createProcessor()
