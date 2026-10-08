@@ -2,8 +2,6 @@
  * Utility functions for user interface logic: layout, navigation and display.
  */
 
-import { getQueryParams } from "../http/http.js"
-
 /**
  * Picks the column count within [min, max] that leaves the last grid row as
  * full as possible. Exact division wins (12 items with 5–6 columns gives 6;
@@ -56,15 +54,6 @@ export function isLightColor(color: string): boolean {
 }
 
 /**
- * Represents the parameters for a paginated query.
- * @template T - The type of the query parameters.
- */
-export type GetPageParams<T> = T & {
-  take: number
-  skip: number
-}
-
-/**
  * Returns the current page number from a string.
  * @param page - The page number as a string.
  * @returns The current page number as a number.
@@ -77,19 +66,18 @@ export function getCurrentPage(page?: string | null): number {
 }
 
 /**
- * Returns an object containing the parameters for a paginated query.
- * @template T - The type of the query parameters.
- * @param url - The URL to get the page parameters from.
- * @param take - The number of items to take per page.
- * @returns An object containing the parameters for a paginated query.
+ * Gets the offset and limit of a 1-based page, in the shape Prisma's `findMany` takes.
+ * Pages below 1 count as page 1, and fractional pages are rounded down.
+ * @param pagination - The page number and the number of items per page.
+ * @returns The number of items to skip and to take.
+ * @example
+ * getPagination({ page: 3, perPage: 20 }) // { skip: 40, take: 20 }
  */
-export function getPageParams<T extends object>(url: string, take: number) {
-  const { page, ...params } = getQueryParams(url)
-
-  const currentPage = getCurrentPage(page)
-  const skip = (currentPage - 1) * take
-
-  return { take, skip, ...params } as GetPageParams<T>
+export function getPagination({ page, perPage }: { page: number; perPage: number }): {
+  skip: number
+  take: number
+} {
+  return { skip: (Math.max(Math.floor(page), 1) - 1) * perPage, take: perPage }
 }
 
 /**

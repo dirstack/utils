@@ -3,6 +3,7 @@ import {
   getBalancedColumns,
   getCurrentPage,
   getPageLink,
+  getPagination,
   getShortcutLabel,
   isLightColor,
 } from "./ui"
@@ -168,5 +169,24 @@ describe("getPageLink", () => {
     const pageLink = getPageLink(searchParams, "/search", 1)
 
     expect(pageLink).toBe("/search?q=hello")
+  })
+})
+
+describe("getPagination", () => {
+  it("skips the items of the previous pages", () => {
+    expect(getPagination({ page: 3, perPage: 20 })).toEqual({ skip: 40, take: 20 })
+  })
+
+  it("starts at the first item on page 1", () => {
+    expect(getPagination({ page: 1, perPage: 10 })).toEqual({ skip: 0, take: 10 })
+  })
+
+  it("treats pages below 1 as page 1", () => {
+    expect(getPagination({ page: 0, perPage: 10 })).toEqual({ skip: 0, take: 10 })
+    expect(getPagination({ page: -2, perPage: 10 })).toEqual({ skip: 0, take: 10 })
+  })
+
+  it("rounds a fractional page down", () => {
+    expect(getPagination({ page: 2.7, perPage: 10 })).toEqual({ skip: 10, take: 10 })
   })
 })

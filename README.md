@@ -47,7 +47,7 @@ Each module is also available on its own path, such as `@dirstack/utils/array` o
 | `random` | `getRandomColor`, `getRandomString`, `getRandomNumber`, `getRandomElement` |
 | `string` | `ucFirst`, `lcFirst`, `stripHtml`, `getExcerpt`, `slugify`, `getInitials`, `joinAsSentence` |
 | `time` | `formatDate`, `formatTime`, `formatDateTime`, `formatDateOrTime`, `formatDateRange`, `getReadTime`, `dayKey`, `shiftDayKey`, `dayIn`, `fromUnix`, `toUnix`, `SECOND_MS`, `MINUTE_MS`, `HOUR_MS`, `DAY_MS`, `MINUTE_SECONDS`, `HOUR_SECONDS`, `DAY_SECONDS` |
-| `ui` | `getBalancedColumns`, `getShortcutLabel`, `isLightColor`, `getCurrentPage`, `getPageParams`, `getPageLink` |
+| `ui` | `getBalancedColumns`, `getShortcutLabel`, `isLightColor`, `getCurrentPage`, `getPagination`, `getPageLink` |
 
 > Some utilities (`dom`, `events`, `toBase64`, `setInputValue`) rely on browser APIs and are only usable in the browser.
 
@@ -106,6 +106,15 @@ formatDateRange(start, end, "short", "es")                  formatDateRange(star
 ```ts
 // Before                                  // After
 sortBy(posts, post => post.date, "desc")   sortBy(posts, post => post.date, { order: "desc" })
+```
+
+### `getPageParams` is now `getPagination`
+
+`getPageParams` read the page from a URL and returned the other query parameters under an unchecked type. `getPagination` only does the math: parse the page with your router or nuqs first.
+
+```ts
+// Before                                    // After
+getPageParams<Filters>(url, 20)              getPagination({ page, perPage: 20 }) // { skip, take }
 ```
 
 ### `joinAsSentence` takes an options object
