@@ -63,7 +63,66 @@ formatDate("2026-10-05", { day: "2-digit", month: "short", year: "numeric", time
 formatDateRange("2026-10-05", "2026-10-09", { timeZone: "UTC" }) // "Oct 5 – 9, 2026"
 ```
 
-Date-only strings such as `"2026-10-05"` parse as UTC midnight, so format them with `timeZone: "UTC"` to keep the same calendar day everywhere. The positional form (`formatDate(date, "long", "en-GB")`) still works.
+Date-only strings such as `"2026-10-05"` parse as UTC midnight, so format them with `timeZone: "UTC"` to keep the same calendar day everywhere.
+
+## Migrating from v2
+
+v3 leaves one way to call each helper. Each removed alias or call form below has a direct replacement.
+
+### Package format
+
+The CommonJS/UMD build (`dist/index.umd.cjs`) is gone. The package is ESM-only and needs Node.js 22.12 or later.
+
+```ts
+// Before: CommonJS on any Node.js version
+const { slugify } = require("@dirstack/utils")
+// After: an import, or require() on Node.js 22.12+
+import { slugify } from "@dirstack/utils"
+```
+
+### Removed aliases
+
+```ts
+// Before                                    // After
+splitArrayIntoChunks(items, 10)              chunk(items, 10)
+keepNumberInRange(value, 0, 100)             clamp(value, 0, 100)
+pickFromObject(user, ["id", "name"])         pick(user, ["id", "name"])
+type City = DeepIdx<User, "address.city">    type City = DeepIndex<User, "address.city">
+```
+
+### Date formatters take an options object only
+
+```ts
+// Before                                                   // After
+formatDate(date, "long", "en-GB")                           formatDate(date, { dateStyle: "long", locale: "en-GB" })
+formatTime(date, "short", "pl")                             formatTime(date, { timeStyle: "short", locale: "pl" })
+formatDateTime(date, "long", "short", "de")                 formatDateTime(date, { dateStyle: "long", timeStyle: "short", locale: "de" })
+formatDateOrTime(date, "date", "long", undefined, "en-GB")  formatDateOrTime(date, "date", { dateStyle: "long", locale: "en-GB" })
+formatDateRange(start, end, "short", "es")                  formatDateRange(start, end, { dateStyle: "short", locale: "es" })
+```
+
+### `sortBy` takes an options object
+
+```ts
+// Before                                  // After
+sortBy(posts, post => post.date, "desc")   sortBy(posts, post => post.date, { order: "desc" })
+```
+
+### `joinAsSentence` takes an options object
+
+```ts
+// Before                                       // After
+joinAsSentence(names)                           joinAsSentence(names, { limit: 3, locale: "en-GB" })
+joinAsSentence(names, 5)                        joinAsSentence(names, { limit: 5, locale: "en-GB" })
+joinAsSentence(names, undefined, t("and"))      joinAsSentence(names, { locale })
+joinAsSentence(names, undefined, "or")          joinAsSentence(names, { type: "disjunction", locale: "en-GB" })
+```
+
+`joinAsSentence` now formats with `Intl.ListFormat`, which changes its output in three ways:
+
+- It has no default limit. A `limit` collapses the rest into one trailing item ("a, b, and 2 more") instead of dropping it, and never hides a single item.
+- The default `en-US` locale adds a serial comma: "a, b, and c". Pass `locale: "en-GB"` for "a, b and c", as in v2.
+- The locale sets the conjunction and punctuation. Pass the active locale instead of a translated "and".
 
 ## Development
 

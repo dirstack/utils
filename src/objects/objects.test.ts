@@ -5,7 +5,6 @@ import {
   nullsToUndefined,
   omit,
   pick,
-  pickFromObject,
   sortObject,
   sortObjectKeys,
 } from "./objects"
@@ -389,12 +388,6 @@ describe("nullsToUndefined", () => {
 
     expect(result).toEqual(date)
     expect(result).toBe(date)
-  })
-})
-
-describe("pickFromObject (deprecated alias)", () => {
-  it("is an alias", () => {
-    expect(pickFromObject).toBe(pick)
   })
 })
 
