@@ -32,7 +32,7 @@ interface ProcessBatchOptions {
  * returned array always matches the input order.
  */
 async function processWithConcurrency<T, R>(
-  items: T[],
+  items: readonly T[],
   processor: (item: T) => Promise<R>,
   concurrency: number,
 ): Promise<R[]> {
@@ -58,7 +58,7 @@ async function processWithConcurrency<T, R>(
  * same order as the input.
  */
 export async function processBatch<T, R>(
-  items: T[],
+  items: readonly T[],
   processor: (item: T) => Promise<R>,
   options: ProcessBatchOptions,
 ): Promise<R[]> {
@@ -93,7 +93,7 @@ export async function processBatch<T, R>(
  * A failed item's result is its `Error`, and `onError` is called with it.
  */
 export async function processBatchWithErrorHandling<T, R>(
-  items: T[],
+  items: readonly T[],
   processor: (item: T) => Promise<R>,
   options: ProcessBatchOptions & {
     onError?: (error: Error, item: T) => void

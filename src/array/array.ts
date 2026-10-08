@@ -24,7 +24,7 @@ export function range(start: number, end: number) {
  * @param key - Maps an item to the value identifying its uniqueness.
  * @returns A new array with duplicates removed.
  */
-export function uniqBy<T, K>(items: T[], key: (item: T) => K): T[] {
+export function uniqBy<T, K>(items: readonly T[], key: (item: T) => K): T[] {
   const seen = new Set<K>()
 
   return items.filter(item => {
@@ -40,7 +40,7 @@ export function uniqBy<T, K>(items: T[], key: (item: T) => K): T[] {
  * @param items - The array to deduplicate.
  * @returns A new array with duplicates removed.
  */
-export function uniq<T>(items: T[]): T[] {
+export function uniq<T>(items: readonly T[]): T[] {
   return [...new Set(items)]
 }
 
@@ -51,7 +51,7 @@ export function uniq<T>(items: T[]): T[] {
  * @param size - The maximum size of each chunk.
  * @returns An array of chunks.
  */
-export function chunk<T>(items: T[], size: number): T[][] {
+export function chunk<T>(items: readonly T[], size: number): T[][] {
   const chunks: T[][] = []
 
   for (let index = 0; index < items.length; index += size) {
@@ -72,7 +72,10 @@ export const splitArrayIntoChunks = chunk
  * @param key - Maps an item to its group key.
  * @returns An object mapping each key to the items that produced it.
  */
-export function groupBy<T, K extends PropertyKey>(items: T[], key: (item: T) => K): Record<K, T[]> {
+export function groupBy<T, K extends PropertyKey>(
+  items: readonly T[],
+  key: (item: T) => K,
+): Record<K, T[]> {
   const groups = {} as Record<K, T[]>
 
   for (const item of items) {
@@ -95,14 +98,17 @@ export function groupBy<T, K extends PropertyKey>(items: T[], key: (item: T) => 
  * keyBy(users, user => user.id) // { u1: { id: "u1", name: "Ada" } }
  * keyBy(users, user => user.id, user => user.name) // { u1: "Ada" }
  */
-export function keyBy<T, K extends PropertyKey>(items: T[], key: (item: T) => K): Record<K, T>
+export function keyBy<T, K extends PropertyKey>(
+  items: readonly T[],
+  key: (item: T) => K,
+): Record<K, T>
 export function keyBy<T, K extends PropertyKey, V>(
-  items: T[],
+  items: readonly T[],
   key: (item: T) => K,
   value: (item: T) => V,
 ): Record<K, V>
 export function keyBy<T, K extends PropertyKey, V>(
-  items: T[],
+  items: readonly T[],
   key: (item: T) => K,
   value?: (item: T) => V,
 ): Record<K, T | V> {
@@ -122,7 +128,7 @@ export function keyBy<T, K extends PropertyKey, V>(
  * @returns An object mapping each key to its occurrence count.
  */
 export function countBy<T, K extends PropertyKey>(
-  items: T[],
+  items: readonly T[],
   key: (item: T) => K,
 ): Record<K, number> {
   const counts = {} as Record<K, number>
@@ -141,7 +147,7 @@ export function countBy<T, K extends PropertyKey>(
  * @param items - The array to compact.
  * @returns A new array without falsy values.
  */
-export function compact<T>(items: (T | null | undefined | false)[]): T[] {
+export function compact<T>(items: readonly (T | null | undefined | false)[]): T[] {
   return items.filter(isTruthy)
 }
 
@@ -193,7 +199,7 @@ function compareValues(a: SortValue, b: SortValue, compare: SortByOptions["compa
  * sortBy(tokens, token => token, { compare: "binary" })
  */
 export function sortBy<T>(
-  items: T[],
+  items: readonly T[],
   keys: ((item: T) => SortValue) | SortKey<T> | readonly (((item: T) => SortValue) | SortKey<T>)[],
   { order = "asc", compare = "locale" }: SortByOptions = {},
 ): T[] {
@@ -223,7 +229,7 @@ export function sortBy<T>(
  * @param items - The numbers to sum.
  * @returns The total.
  */
-export function sum(items: number[]): number {
+export function sum(items: readonly number[]): number {
   return items.reduce((total, item) => total + item, 0)
 }
 
@@ -233,6 +239,6 @@ export function sum(items: number[]): number {
  * @param key - Maps an item to the number to add.
  * @returns The total.
  */
-export function sumBy<T>(items: T[], key: (item: T) => number): number {
+export function sumBy<T>(items: readonly T[], key: (item: T) => number): number {
   return items.reduce((total, item) => total + key(item), 0)
 }
