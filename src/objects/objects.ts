@@ -9,7 +9,7 @@ import type { ReplaceNullWithUndefined } from "../index.js"
  * @param value - The object to check.
  * @returns `true` if the object is a plain object with no properties, `false` otherwise.
  */
-export function isEmptyObject(value: Record<string, unknown> = {}) {
+export function isEmptyObject(value: Record<string, unknown> = {}): boolean {
   const prototype = Object.getPrototypeOf(value)
   return (prototype === Object.prototype || prototype === null) && !Object.keys(value).length
 }
@@ -30,7 +30,9 @@ export function isKeyInObject<T extends object>(key: PropertyKey, target: T): ke
  * @param keys - The keys in their desired order.
  * @returns A comparator for `Array.prototype.sort`.
  */
-export function sortObjectKeys(keys: readonly string[]) {
+export function sortObjectKeys(
+  keys: readonly string[],
+): (a: Record<string, unknown>, b: Record<string, unknown>) => number {
   return (a: Record<string, unknown>, b: Record<string, unknown>) => {
     const aIndex = keys.indexOf(Object.keys(a)[0] ?? "")
     const bIndex = keys.indexOf(Object.keys(b)[0] ?? "")

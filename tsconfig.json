@@ -6,6 +6,7 @@
     "declaration": true,
     "esModuleInterop": true,
     "incremental": false,
+    "isolatedDeclarations": true,
     "isolatedModules": true,
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "target": "ESNext",

@@ -6,8 +6,8 @@
  * Returns a promise that resolves after the specified delay.
  * @param delay - The delay in milliseconds.
  */
-export function sleep(delay: number) {
-  return new Promise(resolve => setTimeout(resolve, delay))
+export function sleep(delay: number): Promise<void> {
+  return new Promise<void>(resolve => setTimeout(resolve, delay))
 }
 
 /**
@@ -62,7 +62,10 @@ export async function tryCatch<T, E = Error>(promise: Promise<T>): Promise<Resul
  * @param delay - The delay in milliseconds.
  * @returns The debounced function with a `cancel` method.
  */
-export function debounce<Args extends unknown[]>(callback: (...args: Args) => void, delay: number) {
+export function debounce<Args extends unknown[]>(
+  callback: (...args: Args) => void,
+  delay: number,
+): ((...args: Args) => void) & { cancel: () => void } {
   let timer: ReturnType<typeof setTimeout> | undefined
 
   function debounced(...args: Args) {
@@ -89,7 +92,7 @@ export function debounce<Args extends unknown[]>(callback: (...args: Args) => vo
 export function throttle<Args extends unknown[]>(
   callback: (...args: Args) => void,
   interval: number,
-) {
+): (...args: Args) => void {
   let lastCallTime = 0
   let timer: ReturnType<typeof setTimeout> | undefined
   let lastArgs: Args | undefined

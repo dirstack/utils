@@ -10,7 +10,7 @@ import { isTruthy } from "../helpers/helpers.js"
  * @param end - The ending number of the range.
  * @returns An array of numbers within the specified range.
  */
-export function range(start: number, end: number) {
+export function range(start: number, end: number): number[] {
   const length = end - start + 1
 
   return Array.from({ length }, (_, index) => index + start)

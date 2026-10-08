@@ -18,7 +18,7 @@ const getCachedFormatter = /* @__PURE__ */ createBoundedCache<Intl.NumberFormat>
 export function formatNumber(
   number: number,
   { locale = "en-US", ...options }: FormatNumberOptions = {},
-) {
+): string {
   const formatter = getCachedFormatter(
     `${locale}:${serializeOptions(options)}`,
     () => new Intl.NumberFormat(locale, options),
@@ -38,7 +38,7 @@ export function formatNumber(
 export function formatCurrency(
   amount: number,
   { currency = "USD", ...options }: FormatNumberOptions = {},
-) {
+): string {
   return formatNumber(amount, {
     style: "currency",
     currency,
@@ -55,7 +55,7 @@ export function formatCurrency(
  * @param interval - The interval the amount covers, either 'month' or 'year'. Defaults to 'month'.
  * @returns The formatted monthly amount, for example "83.33" for 1000 per year.
  */
-export function formatIntervalAmount(amount: number, interval: "month" | "year" = "month") {
+export function formatIntervalAmount(amount: number, interval: "month" | "year" = "month"): string {
   return formatToDecimals(amount / (interval === "year" ? 12 : 1), 2)
 }
 

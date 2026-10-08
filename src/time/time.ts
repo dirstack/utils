@@ -60,7 +60,7 @@ function getFormatter(
  * // Server-rendered pages: pin the time zone so server and browser output match
  * formatDate("2026-10-05", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC", locale: "en-GB" }) // "05 Oct 2026"
  */
-export function formatDate(timestamp: Timestamp, options: FormatDateOptions = {}) {
+export function formatDate(timestamp: Timestamp, options: FormatDateOptions = {}): string {
   return getFormatter(options, { dateStyle: "medium" }).format(new Date(timestamp))
 }
 
@@ -74,7 +74,7 @@ export function formatDate(timestamp: Timestamp, options: FormatDateOptions = {}
  * formatTime("2026-10-05T23:30:00Z", { timeZone: "UTC" }) // "11:30 PM"
  * formatTime("2026-10-05T23:30:00Z", { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "UTC" }) // "23:30"
  */
-export function formatTime(timestamp: Timestamp, options: FormatDateOptions = {}) {
+export function formatTime(timestamp: Timestamp, options: FormatDateOptions = {}): string {
   return getFormatter(options, { timeStyle: "short" }).format(new Date(timestamp))
 }
 
@@ -87,7 +87,7 @@ export function formatTime(timestamp: Timestamp, options: FormatDateOptions = {}
  * @example
  * formatDateTime("2026-10-05T23:30:00Z", { timeZone: "UTC" }) // "Oct 5, 2026 at 11:30 PM"
  */
-export function formatDateTime(timestamp: Timestamp, options: FormatDateOptions = {}) {
+export function formatDateTime(timestamp: Timestamp, options: FormatDateOptions = {}): string {
   return getFormatter(options, { dateStyle: "medium", timeStyle: "short" }).format(
     new Date(timestamp),
   )
@@ -107,7 +107,7 @@ export function formatDateOrTime(
   timestamp: Timestamp,
   type: DateOrTimeType,
   options: FormatDateOptions = {},
-) {
+): string {
   switch (type) {
     case "date":
       return formatDate(timestamp, options)
@@ -128,7 +128,11 @@ export function formatDateOrTime(
  * @example
  * formatDateRange("2026-10-05", "2026-10-09", { timeZone: "UTC" }) // "Oct 5 – 9, 2026"
  */
-export function formatDateRange(start: Timestamp, end: Timestamp, options: FormatDateOptions = {}) {
+export function formatDateRange(
+  start: Timestamp,
+  end: Timestamp,
+  options: FormatDateOptions = {},
+): string {
   return getFormatter(options, { dateStyle: "medium" }).formatRange(new Date(start), new Date(end))
 }
 

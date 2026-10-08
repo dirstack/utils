@@ -48,7 +48,7 @@ export function toErrorWithMessage(maybeError: unknown): ErrorWithMessage {
  * @param error - The value to get the error message from.
  * @returns The error message as a string.
  */
-export function getErrorMessage(error: unknown) {
+export function getErrorMessage(error: unknown): string {
   return toErrorWithMessage(error).message
 }
 

@@ -14,7 +14,7 @@ import { getQueryParams } from "../http/http.js"
  * @param max - The maximum number of columns per row.
  * @returns The column count that best balances the rows.
  */
-export function getBalancedColumns(count: number, min: number, max: number) {
+export function getBalancedColumns(count: number, min: number, max: number): number {
   let best = min
 
   for (let columns = min; columns <= max; columns++) {
@@ -69,7 +69,7 @@ export type GetPageParams<T> = T & {
  * @param page - The page number as a string.
  * @returns The current page number as a number.
  */
-export function getCurrentPage(page?: string | null) {
+export function getCurrentPage(page?: string | null): number {
   if (!page || Number.isNaN(Number(page))) return 1
 
   // Strings such as "  " or ".5" pass the check above but parse to NaN.
@@ -99,7 +99,7 @@ export function getPageParams<T extends object>(url: string, take: number) {
  * @param page - The page number to link to. Page 1 links without a `page` parameter.
  * @returns A link to the specified page of the paginated query.
  */
-export function getPageLink(searchParams: URLSearchParams, pathname: string, page: number) {
+export function getPageLink(searchParams: URLSearchParams, pathname: string, page: number): string {
   const params = new URLSearchParams(searchParams)
 
   if (page > 1) {
