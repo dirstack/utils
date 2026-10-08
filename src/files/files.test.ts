@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { formatBytes, isMimeTypeMatch } from "./files"
+import { formatBytes, isMimeTypeMatch, toBase64, toDataUrl } from "./files"
 
 describe("formatBytes", () => {
   it("formats bytes correctly", () => {
@@ -121,5 +121,39 @@ describe("isMimeTypeMatch", () => {
     ).toBe(true)
     expect(isMimeTypeMatch("application/vnd.ms-excel", ["application/vnd.ms-excel"])).toBe(true)
     expect(isMimeTypeMatch("text/html; charset=utf-8", ["text/*"])).toBe(true)
+  })
+})
+
+describe("toBase64", () => {
+  it("encodes a blob without a data URL prefix", async () => {
+    expect(await toBase64(new Blob(["hi"]))).toBe("aGk=")
+  })
+
+  it("encodes binary data byte for byte", async () => {
+    const bytes = new Uint8Array([0, 255, 128, 10])
+    expect(await toBase64(new Blob([bytes]))).toBe("AP+ACg==")
+  })
+
+  it("encodes large files without overflowing the stack", async () => {
+    const bytes = new Uint8Array(1_000_000).fill(65)
+    const encoded = await toBase64(new Blob([bytes]))
+
+    expect(encoded).toHaveLength(1_333_336)
+    expect(atob(encoded.slice(0, 8))).toBe("AAAAAA")
+  })
+
+  it("returns an empty string for an empty blob", async () => {
+    expect(await toBase64(new Blob([]))).toBe("")
+  })
+})
+
+describe("toDataUrl", () => {
+  it("prefixes the media type of the file", async () => {
+    const file = new File(["hi"], "logo.png", { type: "image/png" })
+    expect(await toDataUrl(file)).toBe("data:image/png;base64,aGk=")
+  })
+
+  it("falls back to application/octet-stream without a type", async () => {
+    expect(await toDataUrl(new Blob(["hi"]))).toBe("data:application/octet-stream;base64,aGk=")
   })
 })

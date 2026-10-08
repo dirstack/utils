@@ -35,7 +35,7 @@ Each module is also available on its own path, such as `@dirstack/utils/array` o
 | `array` | `uniq`, `uniqBy`, `chunk`, `groupBy`, `keyBy`, `countBy`, `compact`, `sortBy`, `sum`, `sumBy`, `range` |
 | `batch` | `processBatch`, `processBatchWithErrorHandling` (ordered, concurrency-limited, with `onProgress`) |
 | `errors` | `getErrorMessage`, `toError` |
-| `files` | `formatBytes`, `isMimeTypeMatch`, `toBase64` |
+| `files` | `formatBytes`, `isMimeTypeMatch`, `toBase64`, `toDataUrl` |
 | `format` | `formatNumber`, `formatCurrency`, `formatIntervalAmount`, `currencyExponent`, `minorUnits` |
 | `helpers` | `sleep`, `isTruthy`, `tryCatch`, `retry`, `withTimeout` |
 | `http` | `isValidUrl`, `addProtocol`, `removeProtocol`, `getDomain`, `isExternalUrl`, `joinUrlPaths`, `setQueryParams`, `removeQueryParams`, `isValidImageSrc`, `isHostname`, `normalizeHostname`, `stripWildcard`, `isWithinDomain` |
@@ -48,7 +48,6 @@ Each module is also available on its own path, such as `@dirstack/utils/array` o
 | `ui` | `getBalancedColumns`, `isLightColor`, `getCurrentPage`, `getPagination`, `getPageLink` |
 | types | `WithOptional`, `WithRequired`, plus the types in helper signatures, such as `Result` (from `tryCatch`), `Timestamp` and `ProcessBatchOptions` |
 
-> `toBase64` relies on the browser's `FileReader` and only works in the browser.
 
 ### Dates and time zones
 
@@ -135,6 +134,16 @@ No project used these, so v3 drops them. Each has a short native or library repl
 | `getShortcutLabel` | A `<Kbd>` component that knows the platform's modifier key |
 | `DeepIdx`, `DeepIndex`, `ValidatePath` | `Path` and `PathValue` from `react-hook-form`, or `Get` and `Paths` from `type-fest` |
 | `NestedPartial`, `NestedRequired` | `PartialDeep` and `RequiredDeep` from `type-fest` |
+
+### `toBase64` returns plain Base64, and `toDataUrl` returns the data URL
+
+`toBase64` used to return a data URL (`data:image/png;base64,…`), so most callers stripped the prefix. It now returns the Base64 string alone, and `toDataUrl` returns the full data URL. Both accept any `Blob` and work in Node.js too.
+
+```ts
+// Before                                                          // After
+(await toBase64(file)).replace(/^data:[^;]+;base64,/, "")          await toBase64(file)
+await toBase64(file) // when the data URL was wanted                await toDataUrl(file)
+```
 
 ### `slugify` takes an options object
 

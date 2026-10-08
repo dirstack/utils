@@ -66,15 +66,31 @@ export function isMimeTypeMatch(mimeType: string, patterns: readonly string[]): 
 }
 
 /**
- * Converts a File object to a Base64 encoded string.
- * @param file - The File object to be converted.
- * @returns A promise that resolves with the Base64 encoded string.
+ * Reads a file or blob as a Base64 string, without a "data:" prefix.
+ * Works in browsers, Node.js and Bun.
+ * @param file - The file or blob to read.
+ * @returns A promise that resolves with the Base64 encoded contents.
+ * @example
+ * await toBase64(new Blob(["hi"])) // "aGk="
  */
-export function toBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.readAsDataURL(file)
-    reader.onload = () => resolve(reader.result as string)
-    reader.onerror = error => reject(error)
-  })
+export async function toBase64(file: Blob): Promise<string> {
+  const bytes = new Uint8Array(await file.arrayBuffer())
+  let binary = ""
+
+  // Build the binary string in chunks, because spreading a large array overflows the call stack
+  for (let index = 0; index < bytes.length; index += 0x8000) {
+    binary += String.fromCharCode(...bytes.subarray(index, index + 0x8000))
+  }
+
+  return btoa(binary)
+}
+
+/**
+ * Reads a file or blob as a data URL, such as "data:image/png;base64,iVBOR…".
+ * Works in browsers, Node.js and Bun.
+ * @param file - The file or blob to read. Its `type` becomes the data URL's media type.
+ * @returns A promise that resolves with the data URL.
+ */
+export async function toDataUrl(file: Blob): Promise<string> {
+  return `data:${file.type || "application/octet-stream"};base64,${await toBase64(file)}`
 }
