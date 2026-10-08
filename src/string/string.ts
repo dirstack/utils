@@ -89,13 +89,22 @@ export function truncate(
   return `${cut.slice(0, end)}${ellipsis}`
 }
 
+/** Options for {@link slugify}. */
+export interface SlugifyOptions {
+  /** Split camelCase words, so "HelloWorld" becomes "hello-world". Defaults to false. */
+  decamelize?: boolean
+}
+
 /**
  * Converts a string into a slug. "#" becomes "sharp" and "+" becomes "plus".
  * @param input - The string to slugify.
- * @param decamelize - Whether to decamelize the string. Defaults to false.
+ * @param options - Whether to split camelCase words.
  * @returns The slugified string.
+ * @example
+ * slugify("Hello World") // "hello-world"
+ * slugify("HelloWorld", { decamelize: true }) // "hello-world"
  */
-export function slugify(input: string, decamelize = false): string {
+export function slugify(input: string, { decamelize = false }: SlugifyOptions = {}): string {
   return slugifyString(input, {
     decamelize,
     customReplacements: [

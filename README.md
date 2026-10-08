@@ -136,6 +136,13 @@ No project used these, so v3 drops them. Each has a short native or library repl
 | `DeepIdx`, `DeepIndex`, `ValidatePath` | `Path` and `PathValue` from `react-hook-form`, or `Get` and `Paths` from `type-fest` |
 | `NestedPartial`, `NestedRequired` | `PartialDeep` and `RequiredDeep` from `type-fest` |
 
+### `slugify` takes an options object
+
+```ts
+// Before                         // After
+slugify(title, true)              slugify(title, { decamelize: true })
+```
+
 ### `getExcerpt` is now `truncate`
 
 Every caller passed plain text, so `truncate` drops the HTML stripping (which also deleted any text after a `<`). It cuts between words, never splits an emoji, and keeps the result within `length` including the `…`.
