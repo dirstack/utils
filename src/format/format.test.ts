@@ -1,4 +1,4 @@
-import { describe, expect, it, spyOn } from "bun:test"
+import { describe, expect, it, vi } from "vitest"
 import {
   currencyExponent,
   formatCurrency,
@@ -228,7 +228,7 @@ describe("formatToDecimals", () => {
 
 describe("formatter cache", () => {
   it("reuses a formatter for equal options in any key order", () => {
-    const spy = spyOn(Intl, "NumberFormat")
+    const spy = vi.spyOn(Intl, "NumberFormat")
 
     expect(formatNumber(1234.5, { locale: "de", maximumFractionDigits: 1 })).toBe("1.234,5")
     expect(formatNumber(1234.5, { maximumFractionDigits: 1, locale: "de" })).toBe("1.234,5")
@@ -239,7 +239,7 @@ describe("formatter cache", () => {
 
   it("reuses the formatter behind formatCurrency", () => {
     formatCurrency(10, { currency: "JPY" })
-    const spy = spyOn(Intl, "NumberFormat")
+    const spy = vi.spyOn(Intl, "NumberFormat")
 
     expect(formatCurrency(1000, { currency: "JPY" })).toBe("¥1,000")
     expect(spy).not.toHaveBeenCalled()

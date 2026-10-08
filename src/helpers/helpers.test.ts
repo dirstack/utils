@@ -1,4 +1,4 @@
-import { describe, expect, it, spyOn } from "bun:test"
+import { describe, expect, it, vi } from "vitest"
 import { debounce, isTruthy, retry, sleep, throttle, tryCatch, withTimeout } from "./helpers"
 
 describe("isTruthy", () => {
@@ -144,7 +144,7 @@ describe("withTimeout", () => {
   })
 
   it("clears the timer when the promise settles first", async () => {
-    const clearTimeoutSpy = spyOn(globalThis, "clearTimeout")
+    const clearTimeoutSpy = vi.spyOn(globalThis, "clearTimeout")
 
     await withTimeout(Promise.resolve("ok"), 10_000)
 

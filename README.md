@@ -128,7 +128,8 @@ joinAsSentence(names, undefined, "or")          joinAsSentence(names, { type: "d
 
 ```bash
 bun install      # install dependencies
-bun test         # run the test suite
+bun test         # run the test suite on Bun
+bun run test:node  # run the same suite on Node.js with Vitest
 bun run typecheck
 bun run build    # bundle + emit type declarations
 ```
