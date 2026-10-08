@@ -81,7 +81,12 @@ export function truncate(
     if (lastSpace > 0) cut = cut.slice(0, lastSpace)
   }
 
-  return `${cut.replace(/[\s,;:]+$/, "")}${ellipsis}`
+  // Drop spaces and punctuation left before the ellipsis. A loop rather than /[\s,;:]+$/, which
+  // backtracks in quadratic time on long runs of punctuation.
+  let end = cut.length
+  while (end > 0 && " ,;:".includes(cut[end - 1]!)) end--
+
+  return `${cut.slice(0, end)}${ellipsis}`
 }
 
 /**

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import { isLocalhostUrl, normalizeUrl } from "./url"
+import { isLocalhostUrl, normalizeUrl, trimSlashes } from "./url"
 
 describe("normalizeUrl", () => {
   it("removes trailing slashes", () => {
@@ -88,5 +88,25 @@ describe("isLocalhostUrl", () => {
     expect(isLocalhostUrl("https://example.com")).toBe(false)
     expect(isLocalhostUrl("")).toBe(false)
     expect(isLocalhostUrl()).toBe(false)
+  })
+})
+
+describe("trimSlashes", () => {
+  it("removes slashes from both ends", () => {
+    expect(trimSlashes("//api/users//")).toBe("api/users")
+    expect(trimSlashes("///")).toBe("")
+    expect(trimSlashes("users")).toBe("users")
+  })
+})
+
+describe("slash trimming on long runs of slashes", () => {
+  // A regex such as /\/+$/ takes seconds on this input; the loops take well under a millisecond
+  const slashes = `a${"/".repeat(100_000)}x`
+
+  it("normalizes in linear time", () => {
+    const start = performance.now()
+    normalizeUrl(slashes)
+    trimSlashes(slashes)
+    expect(performance.now() - start).toBeLessThan(100)
   })
 })
