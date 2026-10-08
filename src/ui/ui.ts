@@ -8,14 +8,17 @@
  * 10 items gives 5), otherwise the count with the fewest empty slots. Ties go
  * to more columns.
  * @param count - The number of items to lay out.
- * @param min - The minimum number of columns per row.
- * @param max - The maximum number of columns per row.
+ * @param min - The minimum number of columns per row. Values below 1 count as 1.
+ * @param max - The maximum number of columns per row. Values below `min` count as `min`.
  * @returns The column count that best balances the rows.
  */
 export function getBalancedColumns(count: number, min: number, max: number): number {
-  let best = min
+  // At least one column, and a range that is never empty
+  const lowest = Math.max(Math.floor(min), 1)
+  const highest = Math.max(Math.floor(max), lowest)
+  let best = lowest
 
-  for (let columns = min; columns <= max; columns++) {
+  for (let columns = lowest; columns <= highest; columns++) {
     const emptySlots = (columns - (count % columns)) % columns
     const bestEmptySlots = (best - (count % best)) % best
 
@@ -26,17 +29,25 @@ export function getBalancedColumns(count: number, min: number, max: number): num
 }
 
 /**
- * Checks if a hexadecimal color is light.
- * Only supports 6-digit hex colors (RGB). Longer strings are cut to 6 digits.
- * @param color - The hexadecimal color code to check (e.g. "#FF0000").
- * @returns A boolean indicating if the color is light.
+ * Checks if a hexadecimal color is light, for picking dark or light text on top of it.
+ * Accepts 3, 4, 6 and 8-digit hex codes, with or without "#". An alpha channel is ignored.
+ * @param color - The hexadecimal color code to check (e.g. "#FF0000" or "#fff").
+ * @returns A boolean indicating if the color is light. Invalid colors count as dark.
  */
 export function isLightColor(color: string): boolean {
-  const hex = color.replace("#", "").substring(0, 6)
+  const digits = color.trim().replace(/^#/, "")
 
-  const red = Number.parseInt(hex.substring(0, 2), 16)
-  const green = Number.parseInt(hex.substring(2, 4), 16)
-  const blue = Number.parseInt(hex.substring(4, 6), 16)
+  // Short codes repeat each digit: "#fa0" is "#ffaa00"
+  const hex =
+    digits.length === 3 || digits.length === 4
+      ? [...digits.slice(0, 3)].map(digit => digit + digit).join("")
+      : digits.slice(0, 6)
+
+  if (!/^[0-9a-f]{6}$/i.test(hex)) return false
+
+  const red = Number.parseInt(hex.slice(0, 2), 16)
+  const green = Number.parseInt(hex.slice(2, 4), 16)
+  const blue = Number.parseInt(hex.slice(4, 6), 16)
 
   // Perceived brightness, weighted by how sensitive the eye is to each channel (ITU-R BT.601).
   const brightness = red * 0.299 + green * 0.587 + blue * 0.114
