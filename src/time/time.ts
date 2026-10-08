@@ -4,7 +4,6 @@
 import { createBoundedCache, serializeOptions } from "../internal/cache.js"
 
 type Timestamp = string | number | Date
-type DateOrTimeType = "date" | "time" | "datetime"
 
 /**
  * Any `Intl.DateTimeFormat` option, plus a `locale` shortcut (defaults to 'en-US').
@@ -91,31 +90,6 @@ export function formatDateTime(timestamp: Timestamp, options: FormatDateOptions 
   return getFormatter(options, { dateStyle: "medium", timeStyle: "short" }).format(
     new Date(timestamp),
   )
-}
-
-/**
- * Formats a date, a time, or both, depending on `type`.
- * @param timestamp - The timestamp to format.
- * @param type - The type of formatting to use. Can be 'date', 'time', or 'datetime'.
- * @param options - Any `Intl.DateTimeFormat` option, plus a `locale` (defaults to 'en-US').
- * Missing presets default to `dateStyle` 'medium' and `timeStyle` 'short'.
- * @returns The formatted date or time string.
- * @example
- * formatDateOrTime("2026-10-05T23:30:00Z", "date", { timeZone: "UTC" }) // "Oct 5, 2026"
- */
-export function formatDateOrTime(
-  timestamp: Timestamp,
-  type: DateOrTimeType,
-  options: FormatDateOptions = {},
-): string {
-  switch (type) {
-    case "date":
-      return formatDate(timestamp, options)
-    case "time":
-      return formatTime(timestamp, options)
-    default:
-      return formatDateTime(timestamp, options)
-  }
 }
 
 /**

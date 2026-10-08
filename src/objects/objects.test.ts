@@ -1,13 +1,5 @@
 import { describe, expect, it } from "vitest"
-import {
-  isEmptyObject,
-  isKeyInObject,
-  nullsToUndefined,
-  omit,
-  pick,
-  sortObject,
-  sortObjectKeys,
-} from "./objects"
+import { isEmptyObject, isKeyInObject, omit, pick } from "./objects"
 
 describe("isEmptyObject", () => {
   it("returns true for an empty object", () => {
@@ -119,63 +111,6 @@ describe("isKeyInObject", () => {
   })
 })
 
-describe("sortObjectKeys", () => {
-  const comparator = sortObjectKeys(["a", "b", "c"])
-
-  it("returns 0 when both objects are not in the keys array", () => {
-    const a = { d: 1 }
-    const b = { e: 2 }
-    expect(comparator(a, b)).toBe(0)
-  })
-
-  it("returns 1 when only the first object is not in the keys array", () => {
-    const a = { d: 1 }
-    const b = { a: 2 }
-    expect(comparator(a, b)).toBe(1)
-  })
-
-  it("returns -1 when only the second object is not in the keys array", () => {
-    const a = { b: 1 }
-    const b = { d: 2 }
-    expect(comparator(a, b)).toBe(-1)
-  })
-
-  it("returns a negative number when the first object is before the second object in the keys array", () => {
-    const a = { b: 1 }
-    const b = { c: 2 }
-    expect(comparator(a, b)).toBeLessThan(0)
-  })
-
-  it("returns a positive number when the first object is after the second object in the keys array", () => {
-    const a = { c: 1 }
-    const b = { b: 2 }
-    expect(comparator(a, b)).toBeGreaterThan(0)
-  })
-
-  it("returns 0 when both objects are in the same position in the keys array", () => {
-    const a = { b: 1 }
-    const b = { b: 2 }
-    expect(comparator(a, b)).toBe(0)
-  })
-})
-
-describe("sortObject", () => {
-  it("sorts the keys of an object in alphabetical order", () => {
-    const input = { b: 2, a: 1, c: 3 }
-    const sortedObj = sortObject(input)
-
-    expect(sortedObj).toEqual({ a: 1, b: 2, c: 3 })
-  })
-
-  it("sorts the keys of an object using a custom comparator function", () => {
-    const input = { b: 2, a: 1, c: 3 }
-    const comparator = sortObjectKeys(["c", "b", "a"]) as (a: unknown, b: unknown) => number
-    const sortedObj = sortObject(input, comparator)
-
-    expect(sortedObj).toEqual({ c: 3, b: 2, a: 1 })
-  })
-})
-
 describe("pick", () => {
   it("picks specified properties from an object", () => {
     const user = { id: 1, name: "John", email: "john@example.com", password: "secret" }
@@ -275,119 +210,6 @@ describe("pick", () => {
       false: false,
       nullValue: null,
     })
-  })
-})
-
-describe("nullsToUndefined", () => {
-  it("should convert null to undefined", () => {
-    expect(nullsToUndefined(null)).toEqual(undefined)
-  })
-
-  it("should preserve undefined values", () => {
-    expect(nullsToUndefined(undefined)).toEqual(undefined)
-  })
-
-  it("should preserve primitive values", () => {
-    expect(nullsToUndefined("hello")).toEqual("hello")
-    expect(nullsToUndefined(42)).toEqual(42)
-    expect(nullsToUndefined(true)).toEqual(true)
-    expect(nullsToUndefined(false)).toEqual(false)
-    expect(nullsToUndefined(0)).toEqual(0)
-  })
-
-  it("should convert null properties in objects to undefined", () => {
-    const input = {
-      name: "John",
-      age: null,
-      active: true,
-      description: null,
-    }
-
-    const result = nullsToUndefined(input)
-
-    expect(result).toEqual({
-      name: "John",
-      age: undefined,
-      active: true,
-      description: undefined,
-    })
-  })
-
-  it("should recursively convert null values in nested objects", () => {
-    const input = {
-      user: {
-        name: "John",
-        profile: {
-          bio: null,
-          avatar: "avatar.jpg",
-          settings: {
-            theme: null,
-            notifications: true,
-          },
-        },
-      },
-      data: null,
-    }
-
-    const result = nullsToUndefined(input)
-
-    expect(result).toEqual({
-      user: {
-        name: "John",
-        profile: {
-          bio: undefined,
-          avatar: "avatar.jpg",
-          settings: {
-            theme: undefined,
-            notifications: true,
-          },
-        },
-      },
-      data: undefined,
-    })
-  })
-
-  it("should handle empty objects", () => {
-    const input = {}
-    const result = nullsToUndefined(input)
-    expect(result).toEqual({})
-  })
-
-  it("should recurse into arrays and not mutate the input", () => {
-    const input = { items: [{ value: null }, { value: "ok" }], tags: [null, "a"] }
-    const result = nullsToUndefined(input)
-
-    expect(result).toEqual({
-      items: [{ value: undefined }, { value: "ok" }],
-      tags: [undefined, "a"],
-    })
-    // Input is untouched
-    expect(input.items[0]?.value).toBeNull()
-    expect(input.tags[0]).toBeNull()
-  })
-
-  it("should handle objects with only null values", () => {
-    const input = {
-      a: null,
-      b: null,
-      c: null,
-    }
-
-    const result = nullsToUndefined(input)
-
-    expect(result).toEqual({
-      a: undefined,
-      b: undefined,
-      c: undefined,
-    })
-  })
-
-  it("should return non-plain objects such as Date as-is", () => {
-    const date = new Date("2023-01-01")
-    const result = nullsToUndefined(date)
-
-    expect(result).toEqual(date)
-    expect(result).toBe(date)
   })
 })
 

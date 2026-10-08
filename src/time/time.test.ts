@@ -5,7 +5,6 @@ import {
   dayIn,
   dayKey,
   formatDate,
-  formatDateOrTime,
   formatDateRange,
   formatDateTime,
   formatTime,
@@ -56,21 +55,6 @@ describe("formatDateTime", () => {
   it("formats date and time correctly", () => {
     expect(formatDateTime(timestamp)).toContain("Jan 1, 2022")
     expect(formatDateTime(timestamp)).toContain("2:00 AM")
-  })
-})
-
-describe("formatDateOrTime", () => {
-  it("formats date correctly", () => {
-    expect(formatDateOrTime(timestamp, "date")).toEqual("Jan 1, 2022")
-  })
-
-  it("formats time correctly", () => {
-    expect(formatDateOrTime(timestamp, "time")).toEqual("12:00 AM")
-  })
-
-  it("formats date and time correctly", () => {
-    expect(formatDateOrTime(timestamp, "datetime")).toContain("Jan 1, 2022")
-    expect(formatDateOrTime(timestamp, "datetime")).toContain("2:00 AM")
   })
 })
 
@@ -193,16 +177,6 @@ describe("options object", () => {
 
     it("formats with a non-default locale", () => {
       expect(formatDate(lateUtc, { timeZone: "UTC", locale: "pl" })).toBe("5 paź 2026")
-    })
-  })
-
-  describe("formatDateOrTime", () => {
-    it("passes options to the matching formatter", () => {
-      expect(formatDateOrTime(lateUtc, "date", { timeZone: "UTC" })).toBe("Oct 5, 2026")
-      expect(formatDateOrTime(lateUtc, "time", { timeZone: "UTC" })).toBe("11:30 PM")
-      expect(formatDateOrTime(lateUtc, "datetime", { timeZone: "UTC" })).toMatch(
-        new RegExp(`^Oct 5, 2026${dateTimeJoin} 11:30 PM$`),
-      )
     })
   })
 

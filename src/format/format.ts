@@ -2,6 +2,7 @@
  * Utility functions for formatting data.
  */
 import { createBoundedCache, serializeOptions } from "../internal/cache.js"
+import { formatToDecimals } from "../internal/decimals.js"
 
 /** Any `Intl.NumberFormat` option, plus a `locale` shortcut. */
 export type FormatNumberOptions = Intl.NumberFormatOptions & { locale?: string }
@@ -57,29 +58,6 @@ export function formatCurrency(
  */
 export function formatIntervalAmount(amount: number, interval: "month" | "year" = "month"): string {
   return formatToDecimals(amount / (interval === "year" ? 12 : 1), 2)
-}
-
-/**
- * Formats a number to a specified number of decimal places, without thousands separators.
- * Whole results drop their fraction (e.g. "1234" not "1234.00"), and values that round
- * to zero never get a minus sign.
- * @param number - The number to format.
- * @param precision - The number of decimal places to format to. Negative values count as 0.
- * @returns The formatted number as a string.
- */
-export function formatToDecimals(number: number, precision = 0): string {
-  // `Intl.NumberFormat` renders Infinity as "∞", so non-finite values keep their plain form
-  if (!Number.isFinite(number)) return String(number)
-
-  const digits = Math.max(0, precision)
-
-  return formatNumber(number, {
-    minimumFractionDigits: digits,
-    maximumFractionDigits: digits,
-    useGrouping: false,
-    trailingZeroDisplay: "stripIfInteger",
-    signDisplay: "negative",
-  })
 }
 
 const getCachedExponent = /* @__PURE__ */ createBoundedCache<number>()

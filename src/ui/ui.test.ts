@@ -1,12 +1,5 @@
 import { describe, expect, it } from "vitest"
-import {
-  getBalancedColumns,
-  getCurrentPage,
-  getPageLink,
-  getPagination,
-  getShortcutLabel,
-  isLightColor,
-} from "./ui"
+import { getBalancedColumns, getCurrentPage, getPageLink, getPagination, isLightColor } from "./ui"
 
 describe("getBalancedColumns", () => {
   it("prefers a column count that divides evenly", () => {
@@ -29,23 +22,6 @@ describe("getBalancedColumns", () => {
   it("handles fewer items than a full row", () => {
     expect(getBalancedColumns(4, 5, 6)).toBe(5)
     expect(getBalancedColumns(6, 5, 6)).toBe(6)
-  })
-})
-
-describe("getShortcutLabel", () => {
-  it("returns the uppercase key if metaKey is not provided", () => {
-    expect(getShortcutLabel({ key: "a" })).toEqual("A")
-    expect(getShortcutLabel({ key: "z" })).toEqual("Z")
-  })
-
-  it("returns the uppercase key with metaKey symbol if metaKey is true", () => {
-    expect(getShortcutLabel({ key: "a", metaKey: true })).toEqual("⌘A")
-    expect(getShortcutLabel({ key: "z", metaKey: true })).toEqual("⌘Z")
-  })
-
-  it("returns the uppercase key without metaKey symbol if metaKey is false", () => {
-    expect(getShortcutLabel({ key: "a", metaKey: false })).toEqual("A")
-    expect(getShortcutLabel({ key: "z", metaKey: false })).toEqual("Z")
   })
 })
 

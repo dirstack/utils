@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import { debounce, isTruthy, retry, sleep, throttle, tryCatch, withTimeout } from "./helpers"
+import { isTruthy, retry, sleep, tryCatch, withTimeout } from "./helpers"
 
 describe("isTruthy", () => {
   it("checks if a value is truthy", () => {
@@ -27,49 +27,6 @@ describe("tryCatch", () => {
 
     expect(result.data).toBeNull()
     expect(result.error).toEqual(error)
-  })
-})
-
-describe("debounce", () => {
-  it("invokes the function once after the delay with the latest args", async () => {
-    const calls: number[] = []
-    const fn = debounce((n: number) => calls.push(n), 30)
-
-    fn(1)
-    fn(2)
-    fn(3)
-    expect(calls).toEqual([])
-
-    await sleep(60)
-    expect(calls).toEqual([3])
-  })
-
-  it("cancel prevents a pending invocation", async () => {
-    let calls = 0
-    const fn = debounce(() => {
-      calls++
-    }, 30)
-
-    fn()
-    fn.cancel()
-
-    await sleep(60)
-    expect(calls).toBe(0)
-  })
-})
-
-describe("throttle", () => {
-  it("fires on the leading edge and trails with the latest args", async () => {
-    const calls: number[] = []
-    const fn = throttle((n: number) => calls.push(n), 40)
-
-    fn(1)
-    fn(2)
-    fn(3)
-    expect(calls).toEqual([1])
-
-    await sleep(70)
-    expect(calls).toEqual([1, 3])
   })
 })
 

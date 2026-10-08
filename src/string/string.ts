@@ -79,15 +79,6 @@ export function slugify(input: string, decamelize = false): string {
 }
 
 /**
- * Checks if a string looks like a cuid: 25 characters starting with "c".
- * @param id - The string to check.
- * @returns A boolean indicating if the string is a cuid.
- */
-export function isCuid(id: string): boolean {
-  return id.length === 25 && id[0] === "c"
-}
-
-/**
  * Gets the uppercase initials of each word in a string.
  * @param value - The string to get the initials from.
  * @param limit - The maximum number of initials to return. 0 means no limit.

@@ -25,19 +25,6 @@ export function clamp(value: number, min?: number, max?: number): number {
 }
 
 /**
- * Parses a string or number into a numeric value.
- * @param value - The value to parse into a numeric value.
- * @returns The parsed numeric value, or `undefined` if the value cannot be parsed.
- */
-export function parseNumericValue(value?: string | number | null): number | undefined {
-  if (value === undefined || value === null) return undefined
-
-  const parsed = Number.parseFloat(value.toString())
-
-  return Number.isNaN(parsed) ? undefined : parsed
-}
-
-/**
  * Rounds a number to a specified number of decimal places, with an adjustment for floating point precision.
  * @param value - The number to round.
  * @param decimals - The number of decimal places to round to. Defaults to 2.

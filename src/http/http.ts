@@ -2,6 +2,8 @@
  * Utility functions for URL manipulation and validation.
  */
 
+import { isLocalhostUrl, normalizeUrl } from "../internal/url.js"
+
 /**
  * Checks if a URL is a valid http(s) URL using the URL constructor.
  * @param url - The URL to validate.
@@ -43,49 +45,6 @@ export function removeProtocol(url?: string): string {
 }
 
 /**
- * Removes one trailing slash, keeping a lone root slash.
- */
-function removeTrailingSlash(value: string) {
-  return value.length > 1 && value.endsWith("/") ? value.slice(0, -1) : value
-}
-
-/**
- * Normalizes a URL by trimming it and removing the trailing slash from its path.
- * @param url - The URL to normalize.
- * @returns The normalized URL.
- */
-export function normalizeUrl(url?: string): string {
-  if (!url) return ""
-
-  const normalized = url.trim()
-
-  // With a query or hash, the trailing slash sits before it, so only the path is trimmed.
-  if (normalized.includes("?") || normalized.includes("#")) {
-    try {
-      const parsedUrl = new URL(normalized)
-      parsedUrl.pathname = removeTrailingSlash(parsedUrl.pathname)
-      return parsedUrl.toString()
-    } catch {}
-  }
-
-  return removeTrailingSlash(normalized)
-}
-
-/**
- * Gets the base URL: protocol, hostname and port.
- * @param url - The URL string.
- * @returns The base URL without path, search, or hash, or the input if it cannot be parsed.
- */
-export function getBaseUrl(url: string): string {
-  try {
-    const parsedUrl = new URL(url)
-    return `${parsedUrl.protocol}//${parsedUrl.host}`
-  } catch {
-    return url
-  }
-}
-
-/**
  * Extracts the domain name from a URL.
  * @param url - The URL string.
  * @returns The domain name without www prefix, or the input if it is not a valid URL.
@@ -108,23 +67,6 @@ export function isExternalUrl(url?: string): boolean {
 }
 
 /**
- * Checks if a URL is a localhost URL.
- * @param url - The URL to check.
- * @returns True if the URL points to localhost.
- */
-export function isLocalhostUrl(url?: string): boolean {
-  if (!url) return false
-
-  try {
-    // An explicit protocol keeps addProtocol from calling back into this function.
-    const { hostname } = new URL(addProtocol(url, false))
-    return hostname === "localhost" || hostname === "127.0.0.1" || hostname.endsWith(".localhost")
-  } catch {
-    return url.includes("localhost") || url.includes("127.0.0.1")
-  }
-}
-
-/**
  * Joins URL path segments with single slashes.
  * @param base - The base URL.
  * @param paths - The path segments to join. Leading and trailing slashes are removed.
@@ -143,19 +85,6 @@ export function joinUrlPaths(base: string, ...paths: string[]): string {
   }
 
   return result
-}
-
-/**
- * Extracts query parameters from a URL. When a key repeats, the last value wins.
- * @param url - The URL string.
- * @returns An object containing the query parameters.
- */
-export function getQueryParams(url: string): Record<string, string> {
-  try {
-    return Object.fromEntries(new URL(url).searchParams)
-  } catch {
-    return {}
-  }
 }
 
 /**
@@ -198,67 +127,6 @@ export function removeQueryParams(url?: string): string {
     const questionIndex = url.indexOf("?")
     return questionIndex !== -1 ? url.substring(0, questionIndex) : url
   }
-}
-
-/**
- * Options for {@link checkUrlAvailability}.
- */
-export interface CheckUrlAvailabilityOptions {
-  /** Request timeout in milliseconds (default: 5000). */
-  timeout?: number
-  /** HTTP status codes below this value are considered successful (default: 400). */
-  successStatusBelow?: number
-  /** User-Agent header to send with requests. */
-  userAgent?: string
-}
-
-/**
- * Checks if a URL is accessible by making an HTTP request.
- * First tries a HEAD request, then falls back to GET if HEAD fails.
- * @param url - The URL to check.
- * @param options - Configuration options for the request.
- * @returns True if the URL responds with a status below `successStatusBelow`, false otherwise.
- */
-export async function checkUrlAvailability(
-  url: string,
-  options: CheckUrlAvailabilityOptions = {},
-): Promise<boolean> {
-  if (!url) return false
-
-  const {
-    timeout = 5000,
-    successStatusBelow = 400,
-    userAgent = "Mozilla/5.0 (compatible; URLChecker/1.0)",
-  } = options
-
-  const normalizedUrl = normalizeUrl(url)
-
-  async function makeRequest(method: "HEAD" | "GET"): Promise<Response | null> {
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), timeout)
-
-    try {
-      return await fetch(normalizedUrl, {
-        method,
-        signal: controller.signal,
-        redirect: "follow",
-        headers: { "User-Agent": userAgent },
-      })
-    } catch {
-      return null
-    } finally {
-      clearTimeout(timeoutId)
-    }
-  }
-
-  const headResponse = await makeRequest("HEAD")
-
-  if (headResponse && headResponse.status < successStatusBelow) {
-    return true
-  }
-
-  const getResponse = await makeRequest("GET")
-  return getResponse !== null && getResponse.status < successStatusBelow
 }
 
 /**
