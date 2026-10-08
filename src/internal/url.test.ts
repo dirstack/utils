@@ -84,6 +84,11 @@ describe("isLocalhostUrl", () => {
     expect(isLocalhostUrl("localhost:3000")).toBe(true)
   })
 
+  it("identifies IPv6 loopback and protocol-relative URLs", () => {
+    expect(isLocalhostUrl("http://[::1]:3000")).toBe(true)
+    expect(isLocalhostUrl("//localhost:3000/app.js")).toBe(true)
+  })
+
   it("identifies non-localhost URLs", () => {
     expect(isLocalhostUrl("https://example.com")).toBe(false)
     expect(isLocalhostUrl("")).toBe(false)
