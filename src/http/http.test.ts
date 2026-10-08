@@ -160,6 +160,13 @@ describe("joinUrlPaths", () => {
     )
   })
 
+  it("removes every trailing slash from the base", () => {
+    expect(joinUrlPaths("https://example.com//", "sitemap.xml")).toBe(
+      "https://example.com/sitemap.xml",
+    )
+    expect(joinUrlPaths("https://example.com/v1///", "/users")).toBe("https://example.com/v1/users")
+  })
+
   it("handles empty paths", () => {
     expect(joinUrlPaths("https://example.com", "", "users")).toBe("https://example.com/users")
   })
