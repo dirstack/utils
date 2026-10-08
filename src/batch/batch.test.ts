@@ -1,5 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { processBatch, processBatchWithErrorHandling } from "./batch"
+import { type BatchResult, processBatch, processBatchSettled } from "./batch"
+
+/**
+ * Reduces settled results to their values, with each failure as its error, for compact assertions.
+ */
+function outcomes<R>(results: BatchResult<unknown, R>[]) {
+  return results.map(result => (result.status === "fulfilled" ? result.value : result.error))
+}
 
 /**
  * Wraps `work` in an async processor that records how many calls run at the same time.
@@ -194,7 +201,7 @@ describe("processBatch", () => {
   })
 })
 
-describe("processBatchWithErrorHandling", () => {
+describe("processBatchSettled", () => {
   let processedItems: number[] = []
   let errors: { error: Error; item: number }[] = []
 
@@ -220,10 +227,11 @@ describe("processBatchWithErrorHandling", () => {
   it("should process items without errors normally", async () => {
     const items = [1, 2, 3, 4]
     const processor = createProcessorWithErrors([])
-    const results = await processBatchWithErrorHandling(items, processor, {
+    const settled = await processBatchSettled(items, processor, {
       batchSize: 2,
       onError: errorHandler,
     })
+    const results = outcomes(settled)
 
     expect(results).toEqual([2, 4, 6, 8])
     expect(errors).toHaveLength(0)
@@ -233,10 +241,11 @@ describe("processBatchWithErrorHandling", () => {
   it("should handle errors and continue processing other items", async () => {
     const items = [1, 2, 3, 4]
     const processor = createProcessorWithErrors([2, 4])
-    const results = await processBatchWithErrorHandling(items, processor, {
+    const settled = await processBatchSettled(items, processor, {
       batchSize: 2,
       onError: errorHandler,
     })
+    const results = outcomes(settled)
 
     // Results should contain successful results and Error objects
     expect(results).toHaveLength(4)
@@ -254,10 +263,11 @@ describe("processBatchWithErrorHandling", () => {
   it("should handle all items failing", async () => {
     const items = [1, 2, 3]
     const processor = createProcessorWithErrors([1, 2, 3])
-    const results = await processBatchWithErrorHandling(items, processor, {
+    const settled = await processBatchSettled(items, processor, {
       batchSize: 2,
       onError: errorHandler,
     })
+    const results = outcomes(settled)
 
     expect(results).toHaveLength(3)
     results.forEach(result => {
@@ -271,7 +281,8 @@ describe("processBatchWithErrorHandling", () => {
   it("should work without error handler", async () => {
     const items = [1, 2, 3]
     const processor = createProcessorWithErrors([2])
-    const results = await processBatchWithErrorHandling(items, processor, { batchSize: 2 })
+    const settled = await processBatchSettled(items, processor, { batchSize: 2 })
+    const results = outcomes(settled)
 
     expect(results).toHaveLength(3)
     expect(results[0]).toBe(2)
@@ -287,10 +298,11 @@ describe("processBatchWithErrorHandling", () => {
       return item * 2
     }
 
-    const results = await processBatchWithErrorHandling([1, 2, 3], processor, {
+    const settled = await processBatchSettled([1, 2, 3], processor, {
       batchSize: 3,
       onError: errorHandler,
     })
+    const results = outcomes(settled)
 
     expect(results).toHaveLength(3)
     expect(results[1]).toBeInstanceOf(Error)
@@ -303,11 +315,12 @@ describe("processBatchWithErrorHandling", () => {
       return item * 2
     })
 
-    const results = await processBatchWithErrorHandling([1, 2, 3, 4, 5, 6], processor, {
+    const settled = await processBatchSettled([1, 2, 3, 4, 5, 6], processor, {
       batchSize: 6,
       concurrency: 2,
       onError: errorHandler,
     })
+    const results = outcomes(settled)
 
     expect(results).toHaveLength(6)
     expect(errors).toHaveLength(1)
@@ -317,13 +330,40 @@ describe("processBatchWithErrorHandling", () => {
 
   it("should handle empty array", async () => {
     const processor = createProcessorWithErrors([])
-    const results = await processBatchWithErrorHandling([], processor, {
+    const settled = await processBatchSettled([], processor, {
       batchSize: 2,
       onError: errorHandler,
     })
+    const results = outcomes(settled)
 
     expect(results).toEqual([])
     expect(errors).toHaveLength(0)
+  })
+
+  it("reports each item with its status", async () => {
+    const settled = await processBatchSettled([1, 2], createProcessorWithErrors([2]), {
+      batchSize: 2,
+    })
+
+    expect(settled[0]).toEqual({ status: "fulfilled", item: 1, value: 2 })
+    expect(settled[1]).toMatchObject({ status: "rejected", item: 2 })
+    expect(settled[1]?.status === "rejected" && settled[1].error.message).toBe(
+      "Error processing item 2",
+    )
+  })
+
+  it("keeps a thrown non-Error value as the error's cause", async () => {
+    const settled = await processBatchSettled(
+      [1],
+      async () => {
+        throw { code: "E_RATE_LIMIT" }
+      },
+      { batchSize: 1 },
+    )
+
+    expect(settled[0]?.status === "rejected" && settled[0].error.cause).toEqual({
+      code: "E_RATE_LIMIT",
+    })
   })
 })
 
@@ -360,12 +400,13 @@ describe("integration tests", () => {
     }
 
     const timers = spyOnTimers()
-    const results = await processBatchWithErrorHandling(apiRequests, mockApiCall, {
+    const settled = await processBatchSettled(apiRequests, mockApiCall, {
       batchSize: 5,
       concurrency: 2,
       delay: 20, // Rate limiting delay
       onError: errorHandler,
     })
+    const results = outcomes(settled)
     timers.restore()
 
     // Verify results

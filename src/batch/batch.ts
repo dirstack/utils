@@ -3,6 +3,7 @@
  */
 
 import { chunk } from "../array/array.js"
+import { toError } from "../errors/errors.js"
 import { sleep } from "../helpers/helpers.js"
 
 /**
@@ -19,7 +20,7 @@ export interface ProcessBatchProgress {
   total: number
 }
 
-/** Options for {@link processBatch} and {@link processBatchWithErrorHandling}. */
+/** Options for {@link processBatch} and {@link processBatchSettled}. */
 export interface ProcessBatchOptions {
   /** The number of items in each batch. Must be at least 1. */
   batchSize: number
@@ -94,28 +95,45 @@ export async function processBatch<T, R>(
   return results
 }
 
+/** The outcome for one item of {@link processBatchSettled}. */
+export type BatchResult<T, R> =
+  | { status: "fulfilled"; item: T; value: R }
+  | { status: "rejected"; item: T; error: Error }
+
+/** Options for {@link processBatchSettled}. */
+export interface ProcessBatchSettledOptions<T> extends ProcessBatchOptions {
+  /** Called with each failure as it happens. */
+  onError?: (error: Error, item: T) => void
+}
+
 /**
- * Processes items like {@link processBatch}, but keeps going when an item fails.
- * A failed item's result is its `Error`, and `onError` is called with it.
+ * Processes items like {@link processBatch}, but keeps going when an item fails, the way
+ * `Promise.allSettled` does. Each result says whether its item succeeded and carries the item,
+ * so failures can be reported or retried.
+ * @param items - The items to process.
+ * @param processor - The async function that processes one item.
+ * @param options - Batch size, concurrency, delay, progress and error callbacks.
+ * @returns One result per item, in input order.
+ * @example
+ * const results = await processBatchSettled(tools, refreshTool, { batchSize: 10 })
+ * const failed = results.filter(result => result.status === "rejected")
  */
-export async function processBatchWithErrorHandling<T, R>(
+export async function processBatchSettled<T, R>(
   items: readonly T[],
   processor: (item: T) => Promise<R>,
-  options: ProcessBatchOptions & {
-    onError?: (error: Error, item: T) => void
-  },
-): Promise<(R | Error)[]> {
+  options: ProcessBatchSettledOptions<T>,
+): Promise<BatchResult<T, R>[]> {
   const { onError } = options
 
-  async function wrappedProcessor(item: T): Promise<R | Error> {
+  async function settle(item: T): Promise<BatchResult<T, R>> {
     try {
-      return await processor(item)
-    } catch (error) {
-      const normalizedError = error instanceof Error ? error : new Error(String(error))
-      onError?.(normalizedError, item)
-      return normalizedError
+      return { status: "fulfilled", item, value: await processor(item) }
+    } catch (thrown) {
+      const error = toError(thrown)
+      onError?.(error, item)
+      return { status: "rejected", item, error }
     }
   }
 
-  return processBatch(items, wrappedProcessor, options)
+  return processBatch(items, settle, options)
 }
