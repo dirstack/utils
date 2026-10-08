@@ -1,10 +1,10 @@
-import { beforeAll, describe, expect, it } from "bun:test"
 import { rm } from "node:fs/promises"
 import { relative, resolve } from "node:path"
 import { build as bundle } from "esbuild"
 import { build } from "tsdown"
+import { beforeAll, describe, expect, it } from "vitest"
 
-const root = resolve(import.meta.dir, "..")
+const root = resolve(import.meta.dirname, "..")
 
 // A fresh library build, so the test always checks the current source. It sits inside the
 // package, so bare imports resolve and the package's `sideEffects` field applies, as in `dist`.

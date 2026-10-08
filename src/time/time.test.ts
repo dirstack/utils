@@ -1,4 +1,4 @@
-import { describe, expect, it, spyOn } from "bun:test"
+import { describe, expect, it, vi } from "vitest"
 import {
   DAY_MS,
   DAY_SECONDS,
@@ -28,9 +28,17 @@ const lateUtc = "2026-10-05T23:30:00Z"
 const earlyUtc = "2026-10-05T00:30:00Z"
 
 // ICU versions differ on some separators: macOS joins medium date and time with " at " and
-// spaces range dashes, while the ICU bundled with Linux Bun uses ", " and an unspaced dash
+// spaces range dashes, the ICU bundled with Linux Bun uses ", " and an unspaced dash, and
+// Node.js puts thin spaces (U+2009) around the dash. `\s` matches all of these spaces.
 const dateTimeJoin = "(,| at)"
 const rangeDash = "\\s?–\\s?"
+
+/**
+ * Matches a formatted range of `start` and `end` with any of the dash spacings above.
+ */
+function range(start: string, end: string) {
+  return new RegExp(`^${start}${rangeDash}${end}$`)
+}
 
 describe("formatDate", () => {
   it("formats date correctly", () => {
@@ -46,8 +54,8 @@ describe("formatTime", () => {
 
 describe("formatDateTime", () => {
   it("formats date and time correctly", () => {
-    expect(formatDateTime(timestamp)).toInclude("Jan 1, 2022")
-    expect(formatDateTime(timestamp)).toInclude("2:00 AM")
+    expect(formatDateTime(timestamp)).toContain("Jan 1, 2022")
+    expect(formatDateTime(timestamp)).toContain("2:00 AM")
   })
 })
 
@@ -61,8 +69,8 @@ describe("formatDateOrTime", () => {
   })
 
   it("formats date and time correctly", () => {
-    expect(formatDateOrTime(timestamp, "datetime")).toInclude("Jan 1, 2022")
-    expect(formatDateOrTime(timestamp, "datetime")).toInclude("2:00 AM")
+    expect(formatDateOrTime(timestamp, "datetime")).toContain("Jan 1, 2022")
+    expect(formatDateOrTime(timestamp, "datetime")).toContain("2:00 AM")
   })
 })
 
@@ -81,25 +89,27 @@ describe("formatDateRange", () => {
   it("formats date range correctly in English", () => {
     const start = "2022-01-01T00:00:00"
     const end = "2022-12-31T00:00:00"
-    expect(formatDateRange(start, end)).toBe("Jan 1 – Dec 31, 2022")
+    expect(formatDateRange(start, end)).toMatch(range("Jan 1", "Dec 31, 2022"))
   })
 
   it("formats date range correctly with different locale", () => {
     const start = "2022-01-01T00:00:00"
     const end = "2022-12-31T00:00:00"
-    expect(formatDateRange(start, end, { locale: "es" })).toBe("1 ene – 31 dic 2022")
+    expect(formatDateRange(start, end, { locale: "es" })).toMatch(range("1 ene", "31 dic 2022"))
   })
 
   it("formats date range with short date style", () => {
     const start = "2022-01-01T00:00:00"
     const end = "2022-12-31T00:00:00"
-    expect(formatDateRange(start, end, { dateStyle: "short" })).toBe("1/1/22 – 12/31/22")
+    expect(formatDateRange(start, end, { dateStyle: "short" })).toMatch(range("1/1/22", "12/31/22"))
   })
 
   it("formats date range with long date style", () => {
     const start = "2022-01-01T00:00:00"
     const end = "2022-12-31T00:00:00"
-    expect(formatDateRange(start, end, { dateStyle: "long" })).toBe("January 1 – December 31, 2022")
+    expect(formatDateRange(start, end, { dateStyle: "long" })).toMatch(
+      range("January 1", "December 31, 2022"),
+    )
   })
 
   it("handles same day range", () => {
@@ -198,20 +208,18 @@ describe("options object", () => {
 
   describe("formatDateRange", () => {
     it("formats a range in a fixed time zone", () => {
-      expect(formatDateRange("2026-10-05", "2026-10-09", { timeZone: "UTC" })).toBe(
-        "Oct 5 – 9, 2026",
+      expect(formatDateRange("2026-10-05", "2026-10-09", { timeZone: "UTC" })).toMatch(
+        range("Oct 5", "9, 2026"),
       )
       expect(formatDateRange(earlyUtc, lateUtc, { timeZone: "UTC" })).toBe("Oct 5, 2026")
     })
 
     it("formats a range with locale and individual fields", () => {
       const options = { timeZone: "UTC", locale: "es" }
-      expect(formatDateRange("2026-10-05", "2026-10-09", options)).toMatch(
-        new RegExp(`^5${rangeDash}9 oct 2026$`),
-      )
+      expect(formatDateRange("2026-10-05", "2026-10-09", options)).toMatch(range("5", "9 oct 2026"))
 
       const fields = { day: "numeric", month: "short", timeZone: "UTC" } as const
-      expect(formatDateRange("2026-10-05", "2026-11-09", fields)).toBe("Oct 5 – Nov 9")
+      expect(formatDateRange("2026-10-05", "2026-11-09", fields)).toMatch(range("Oct 5", "Nov 9"))
     })
   })
 
@@ -225,7 +233,7 @@ describe("options object", () => {
     })
 
     it("reuses a formatter for equal options in any key order", () => {
-      const spy = spyOn(Intl, "DateTimeFormat")
+      const spy = vi.spyOn(Intl, "DateTimeFormat")
 
       expect(formatDate(lateUtc, { timeZone: "Europe/Warsaw", locale: "de" })).toBe("06.10.2026")
       expect(formatDate(lateUtc, { locale: "de", timeZone: "Europe/Warsaw" })).toBe("06.10.2026")
@@ -238,7 +246,7 @@ describe("options object", () => {
       const options = { timeZone: "UTC", locale: "en-x-evict0" }
       formatDate(lateUtc, options)
 
-      const spy = spyOn(Intl, "DateTimeFormat")
+      const spy = vi.spyOn(Intl, "DateTimeFormat")
 
       for (let index = 1; index <= 100; index++) {
         expect(formatDate(lateUtc, { ...options, locale: `en-x-evict${index}` })).toBe(

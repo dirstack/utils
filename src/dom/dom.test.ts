@@ -1,10 +1,10 @@
-import { beforeEach, describe, expect, it, jest } from "bun:test"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 import { getElementPosition, setInputValue } from "./dom"
 
 // Mock DOM methods
-const mockGetElementById = jest.fn()
-const mockGetComputedStyle = jest.fn()
-const mockGetBoundingClientRect = jest.fn()
+const mockGetElementById = vi.fn()
+const mockGetComputedStyle = vi.fn()
+const mockGetBoundingClientRect = vi.fn()
 
 // Setup global mocks
 Object.defineProperty(global, "document", {
@@ -24,7 +24,7 @@ Object.defineProperty(global, "window", {
 
 describe("getElementPosition", () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     // Reset window.scrollY
     Object.defineProperty(window, "scrollY", {
       value: 0,

@@ -41,6 +41,7 @@
   "scripts": {
     "build": "tsdown",
     "test": "bun test",
+    "test:node": "vitest run",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint --fix .",
     "format": "oxfmt --write .",
@@ -63,7 +64,8 @@
     "publint": "^0.3.25",
     "semantic-release": "^25.0.3",
     "tsdown": "^0.23.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.3"
   },
   "engines": {
     "node": ">=22.12"

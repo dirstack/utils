@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, mock, spyOn } from "bun:test"
+import { afterEach, describe, expect, it, vi } from "vitest"
 import {
   getRandomColor,
   getRandomDigits,
@@ -9,15 +9,15 @@ import {
 } from "./random"
 
 afterEach(() => {
-  mock.restore()
+  vi.restoreAllMocks()
 })
 
 /**
  * Makes `crypto.getRandomValues` return `bytes`, then zeros.
  */
 function mockRandomBytes(bytes: number[]) {
-  spyOn(crypto, "getRandomValues").mockImplementation(<T extends ArrayBufferView>(array: T) => {
-    const target = array as unknown as Uint8Array
+  vi.spyOn(crypto, "getRandomValues").mockImplementation(array => {
+    const target = array as Uint8Array
     target.set(bytes.slice(0, target.length))
     return array
   })

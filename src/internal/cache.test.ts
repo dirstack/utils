@@ -1,10 +1,10 @@
-import { describe, expect, it, mock } from "bun:test"
+import { describe, expect, it, vi } from "vitest"
 import { createBoundedCache, serializeOptions } from "./cache"
 
 describe("createBoundedCache", () => {
   it("creates a value once per key", () => {
     const getOrCreate = createBoundedCache<number>()
-    const create = mock(() => 1)
+    const create = vi.fn(() => 1)
 
     expect(getOrCreate("a", create)).toBe(1)
     expect(getOrCreate("a", create)).toBe(1)
@@ -13,7 +13,7 @@ describe("createBoundedCache", () => {
 
   it("evicts the oldest entry once the limit is reached", () => {
     const getOrCreate = createBoundedCache<string>(2)
-    const create = mock((value: string) => value)
+    const create = vi.fn((value: string) => value)
 
     getOrCreate("a", () => create("a"))
     getOrCreate("b", () => create("b"))

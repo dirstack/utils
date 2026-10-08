@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, mock, spyOn } from "bun:test"
+import { afterEach, describe, expect, it, vi } from "vitest"
 import {
   addProtocol,
   checkUrlAvailability,
@@ -230,7 +230,7 @@ describe("isExternalUrl", () => {
 
 describe("isLocalhostUrl", () => {
   it("parses a URL without a protocol only once", () => {
-    const spy = spyOn(globalThis, "URL")
+    const spy = vi.spyOn(globalThis, "URL")
 
     expect(isLocalhostUrl("localhost:3000")).toBe(true)
     expect(addProtocol("example.com")).toBe("https://example.com")
@@ -330,7 +330,7 @@ describe("checkUrlAvailability", () => {
   })
 
   it("returns true when HEAD request succeeds with status < 400", async () => {
-    globalThis.fetch = mock(() =>
+    globalThis.fetch = vi.fn(() =>
       Promise.resolve(new Response(null, { status: 200 })),
     ) as unknown as typeof fetch
 
@@ -339,7 +339,7 @@ describe("checkUrlAvailability", () => {
   })
 
   it("returns true for redirect statuses (3xx)", async () => {
-    globalThis.fetch = mock(() =>
+    globalThis.fetch = vi.fn(() =>
       Promise.resolve(new Response(null, { status: 301 })),
     ) as unknown as typeof fetch
 
@@ -348,7 +348,7 @@ describe("checkUrlAvailability", () => {
   })
 
   it("returns false for client error statuses (4xx)", async () => {
-    globalThis.fetch = mock(() =>
+    globalThis.fetch = vi.fn(() =>
       Promise.resolve(new Response(null, { status: 404 })),
     ) as unknown as typeof fetch
 
@@ -357,7 +357,7 @@ describe("checkUrlAvailability", () => {
   })
 
   it("returns false for server error statuses (5xx)", async () => {
-    globalThis.fetch = mock(() =>
+    globalThis.fetch = vi.fn(() =>
       Promise.resolve(new Response(null, { status: 500 })),
     ) as unknown as typeof fetch
 
@@ -367,7 +367,7 @@ describe("checkUrlAvailability", () => {
 
   it("falls back to GET when HEAD throws error", async () => {
     let callCount = 0
-    globalThis.fetch = mock((_url: string, options?: RequestInit) => {
+    globalThis.fetch = vi.fn((_url: string, options?: RequestInit) => {
       callCount++
       if (options?.method === "HEAD") {
         return Promise.reject(new Error("HEAD not supported"))
@@ -382,7 +382,7 @@ describe("checkUrlAvailability", () => {
 
   it("falls back to GET when HEAD returns error status", async () => {
     let callCount = 0
-    globalThis.fetch = mock((_url: string, options?: RequestInit) => {
+    globalThis.fetch = vi.fn((_url: string, options?: RequestInit) => {
       callCount++
       if (options?.method === "HEAD") {
         return Promise.resolve(new Response(null, { status: 404 }))
@@ -396,7 +396,7 @@ describe("checkUrlAvailability", () => {
   })
 
   it("returns false when both HEAD and GET fail", async () => {
-    globalThis.fetch = mock(() =>
+    globalThis.fetch = vi.fn(() =>
       Promise.reject(new Error("Network error")),
     ) as unknown as typeof fetch
 
@@ -405,7 +405,7 @@ describe("checkUrlAvailability", () => {
   })
 
   it("returns false when HEAD returns error and GET also returns error status", async () => {
-    globalThis.fetch = mock((_url: string, options?: RequestInit) => {
+    globalThis.fetch = vi.fn((_url: string, options?: RequestInit) => {
       if (options?.method === "HEAD") {
         return Promise.resolve(new Response(null, { status: 404 }))
       }
@@ -418,7 +418,7 @@ describe("checkUrlAvailability", () => {
 
   it("uses custom timeout option", async () => {
     let receivedSignal: AbortSignal | null | undefined
-    globalThis.fetch = mock((_url: string, options?: RequestInit) => {
+    globalThis.fetch = vi.fn((_url: string, options?: RequestInit) => {
       receivedSignal = options?.signal
       return Promise.resolve(new Response(null, { status: 200 }))
     }) as unknown as typeof fetch
@@ -429,7 +429,7 @@ describe("checkUrlAvailability", () => {
 
   it("uses custom userAgent option", async () => {
     let receivedHeaders: HeadersInit | undefined
-    globalThis.fetch = mock((_url: string, options?: RequestInit) => {
+    globalThis.fetch = vi.fn((_url: string, options?: RequestInit) => {
       receivedHeaders = options?.headers
       return Promise.resolve(new Response(null, { status: 200 }))
     }) as unknown as typeof fetch
@@ -440,7 +440,7 @@ describe("checkUrlAvailability", () => {
 
   it("uses default userAgent when not specified", async () => {
     let receivedHeaders: HeadersInit | undefined
-    globalThis.fetch = mock((_url: string, options?: RequestInit) => {
+    globalThis.fetch = vi.fn((_url: string, options?: RequestInit) => {
       receivedHeaders = options?.headers
       return Promise.resolve(new Response(null, { status: 200 }))
     }) as unknown as typeof fetch
@@ -451,7 +451,7 @@ describe("checkUrlAvailability", () => {
 
   it("normalizes URL before checking", async () => {
     let receivedUrl: string | undefined
-    globalThis.fetch = mock((url: string) => {
+    globalThis.fetch = vi.fn((url: string) => {
       receivedUrl = url
       return Promise.resolve(new Response(null, { status: 200 }))
     }) as unknown as typeof fetch
@@ -461,7 +461,7 @@ describe("checkUrlAvailability", () => {
   })
 
   it("uses custom successStatusBelow to accept only 2xx responses", async () => {
-    globalThis.fetch = mock(() =>
+    globalThis.fetch = vi.fn(() =>
       Promise.resolve(new Response(null, { status: 301 })),
     ) as unknown as typeof fetch
 
@@ -475,7 +475,7 @@ describe("checkUrlAvailability", () => {
   })
 
   it("uses custom successStatusBelow to accept 4xx responses", async () => {
-    globalThis.fetch = mock(() =>
+    globalThis.fetch = vi.fn(() =>
       Promise.resolve(new Response(null, { status: 404 })),
     ) as unknown as typeof fetch
 
