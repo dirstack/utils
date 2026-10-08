@@ -108,6 +108,41 @@ describe("keyBy", () => {
     ]
     expect(keyBy(items, item => item.id)).toEqual({ x: { id: "x", n: 2 } })
   })
+
+  it("stores the value returned from value", () => {
+    const items = [
+      { id: "x", label: "Ten" },
+      { id: "y", label: "Twenty" },
+    ]
+    const labels: Record<string, string> = keyBy(
+      items,
+      item => item.id,
+      item => item.label,
+    )
+    expect(labels).toEqual({ x: "Ten", y: "Twenty" })
+  })
+
+  it("keeps the last value when keys collide", () => {
+    const items = [
+      { id: "x", n: 1 },
+      { id: "x", n: 2 },
+    ]
+    expect(
+      keyBy(
+        items,
+        item => item.id,
+        item => item.n,
+      ),
+    ).toEqual({ x: 2 })
+  })
+
+  it("types the result by the stored value", () => {
+    const items = [{ id: "x", n: 1 }]
+
+    // @ts-expect-error Without `value`, the whole item is stored, not a number.
+    const wrong: Record<string, number> = keyBy(items, item => item.id)
+    expect(Object.keys(wrong)).toEqual(["x"])
+  })
 })
 
 describe("countBy", () => {
@@ -136,7 +171,7 @@ describe("sortBy", () => {
   })
 
   it("sorts descending when requested", () => {
-    expect(sortBy([{ n: 1 }, { n: 3 }, { n: 2 }], item => item.n, "desc")).toEqual([
+    expect(sortBy([{ n: 1 }, { n: 3 }, { n: 2 }], item => item.n, { order: "desc" })).toEqual([
       { n: 3 },
       { n: 2 },
       { n: 1 },
@@ -157,6 +192,86 @@ describe("sortBy", () => {
     const input = [3, 1, 2]
     sortBy(input, n => n)
     expect(input).toEqual([3, 1, 2])
+  })
+
+  it("breaks ties with later keys", () => {
+    const users = [
+      { name: "Cleo", score: 2 },
+      { name: "Ada", score: 1 },
+      { name: "Bea", score: 2 },
+    ]
+    expect(sortBy(users, [user => user.score, user => user.name])).toEqual([
+      { name: "Ada", score: 1 },
+      { name: "Bea", score: 2 },
+      { name: "Cleo", score: 2 },
+    ])
+  })
+
+  it("applies the order of each key object", () => {
+    const users = [
+      { name: "Ada", score: 1 },
+      { name: "Cleo", score: 2 },
+      { name: "Bea", score: 2 },
+    ]
+    expect(sortBy(users, [{ key: user => user.score, order: "desc" }, user => user.name])).toEqual([
+      { name: "Bea", score: 2 },
+      { name: "Cleo", score: 2 },
+      { name: "Ada", score: 1 },
+    ])
+  })
+
+  it("uses the order option for keys without their own order", () => {
+    const users = [
+      { name: "Ada", score: 1 },
+      { name: "Bea", score: 2 },
+      { name: "Cleo", score: 2 },
+    ]
+    expect(
+      sortBy(users, [user => user.score, { key: user => user.name, order: "asc" }], {
+        order: "desc",
+      }),
+    ).toEqual([
+      { name: "Bea", score: 2 },
+      { name: "Cleo", score: 2 },
+      { name: "Ada", score: 1 },
+    ])
+  })
+
+  it("accepts a single key object", () => {
+    expect(sortBy([1, 3, 2], { key: n => n, order: "desc" })).toEqual([3, 2, 1])
+  })
+
+  it("keeps the input order for items with equal keys", () => {
+    const items = [
+      { id: 1, group: "b" },
+      { id: 2, group: "a" },
+      { id: 3, group: "b" },
+      { id: 4, group: "a" },
+    ]
+    expect(sortBy(items, item => item.group).map(item => item.id)).toEqual([2, 4, 1, 3])
+  })
+
+  it("compares strings by locale by default", () => {
+    expect(sortBy(["b", "B", "a", "A"], s => s)).toEqual(["a", "A", "b", "B"])
+  })
+
+  it("compares strings by code unit with compare: binary", () => {
+    expect(sortBy(["b", "B", "a", "A"], s => s, { compare: "binary" })).toEqual([
+      "A",
+      "B",
+      "a",
+      "b",
+    ])
+    expect(sortBy(["é", "z", "e"], s => s, { compare: "binary" })).toEqual(["e", "z", "é"])
+  })
+
+  it("calls each key once per item", () => {
+    let calls = 0
+    sortBy([5, 3, 4, 1, 2], n => {
+      calls++
+      return n
+    })
+    expect(calls).toBe(5)
   })
 })
 
