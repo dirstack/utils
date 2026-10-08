@@ -3,11 +3,14 @@
  */
 
 /**
- * Checks if a plain object is empty (has no own enumerable properties).
- * @param value - The object to check.
- * @returns `true` if the object is a plain object with no properties, `false` otherwise.
+ * Checks if a value is a plain object with no own enumerable properties.
+ * `null`, `undefined`, arrays, class instances and other non-plain values return false.
+ * @param value - The value to check.
+ * @returns `true` if the value is a plain object with no properties, `false` otherwise.
  */
-export function isEmptyObject(value: Record<string, unknown> = {}): boolean {
+export function isEmptyObject(value: unknown): boolean {
+  if (typeof value !== "object" || value === null) return false
+
   const prototype = Object.getPrototypeOf(value)
   return (prototype === Object.prototype || prototype === null) && !Object.keys(value).length
 }

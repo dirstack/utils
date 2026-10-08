@@ -6,8 +6,17 @@ describe("isEmptyObject", () => {
     expect(isEmptyObject({})).toBe(true)
   })
 
-  it("returns true for an object with no properties", () => {
-    expect(isEmptyObject()).toBe(true)
+  it("returns false for null, undefined and other non-objects", () => {
+    expect(isEmptyObject(undefined)).toBe(false)
+    expect(isEmptyObject(null)).toBe(false)
+    expect(isEmptyObject("")).toBe(false)
+    expect(isEmptyObject(0)).toBe(false)
+  })
+
+  it("returns false for arrays and class instances", () => {
+    expect(isEmptyObject([])).toBe(false)
+    expect(isEmptyObject(new Date())).toBe(false)
+    expect(isEmptyObject(new Map())).toBe(false)
   })
 
   it("returns false for an object with properties", () => {
