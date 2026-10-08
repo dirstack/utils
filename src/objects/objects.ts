@@ -2,7 +2,7 @@
  * Utility functions for working with objects.
  */
 
-import type { ReplaceNullWithUndefined } from ".."
+import type { ReplaceNullWithUndefined } from "../index.js"
 
 /**
  * Checks if a plain object is empty (has no own enumerable properties).

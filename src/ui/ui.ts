@@ -2,7 +2,7 @@
  * Utility functions for user interface logic: layout, navigation and display.
  */
 
-import { getQueryParams } from "../http/http"
+import { getQueryParams } from "../http/http.js"
 
 /**
  * Picks the column count within [min, max] that leaves the last grid row as

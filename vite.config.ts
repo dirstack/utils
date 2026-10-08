@@ -6,13 +6,17 @@ export default defineConfig({
   build: {
     lib: {
       entry: resolve(__dirname, "./src/index.ts"),
-      name: "@dirstack/utils",
-      fileName: "index",
+      formats: ["es"],
     },
+    // Keep readable names in stack traces and source maps; the consumer's bundler minifies
+    minify: false,
     rollupOptions: {
       external: ["@sindresorhus/slugify"],
       output: {
-        globals: { "@sindresorhus/slugify": "slugify" },
+        // One output file per source module, so `dist/array/array.js` sits beside `array.d.ts`
+        preserveModules: true,
+        preserveModulesRoot: "src",
+        entryFileNames: "[name].js",
       },
     },
     sourcemap: true,

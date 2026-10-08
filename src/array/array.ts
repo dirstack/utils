@@ -2,7 +2,7 @@
  * A collection of array utilities.
  */
 
-import { isTruthy } from "../helpers/helpers"
+import { isTruthy } from "../helpers/helpers.js"
 
 /**
  * A utility function that generates an array of numbers within a specified range.
