@@ -21,7 +21,9 @@
     "url": "git+https://github.com/dirstack/utils.git"
   },
   "files": [
-    "dist"
+    "dist",
+    "src",
+    "!src/**/*.test.ts"
   ],
   "type": "module",
   "sideEffects": false,
@@ -37,9 +39,7 @@
     "access": "public"
   },
   "scripts": {
-    "clean": "rimraf ./dist",
-    "build": "vite build && tsc -p tsconfig.build.json --emitDeclarationOnly",
-    "prebuild": "bun run clean",
+    "build": "tsdown",
     "test": "bun test",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint --fix .",
@@ -50,6 +50,7 @@
     "@sindresorhus/slugify": "^2.2.1"
   },
   "devDependencies": {
+    "@arethetypeswrong/core": "^0.18.5",
     "@commitlint/cli": "^21.2.3",
     "@commitlint/config-conventional": "^21.2.3",
     "@dirstack/kodeks": "1.8.3",
@@ -59,10 +60,10 @@
     "lefthook": "^2.1.17",
     "oxfmt": "^0.72.0",
     "oxlint": "^1.87.0",
-    "rimraf": "^6.0.1",
+    "publint": "^0.3.25",
     "semantic-release": "^25.0.3",
-    "typescript": "^5.9.3",
-    "vite": "^7.1.4"
+    "tsdown": "^0.23.0",
+    "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">=22.12"
