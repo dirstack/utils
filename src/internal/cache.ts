@@ -9,7 +9,9 @@
  * @param limit - The maximum number of cached entries. Defaults to 100.
  * @returns A function that returns the cached value for a key, creating it on a miss.
  */
-export function createBoundedCache<Value>(limit = 100) {
+export function createBoundedCache<Value>(
+  limit = 100,
+): (key: string, create: () => Value) => Value {
   const cache = new Map<string, Value>()
 
   return function getOrCreate(key: string, create: () => Value) {
@@ -34,6 +36,6 @@ export function createBoundedCache<Value>(limit = 100) {
  * @param options - The options to serialize.
  * @returns The serialized options.
  */
-export function serializeOptions(options: object) {
+export function serializeOptions(options: object): string {
   return JSON.stringify(options, Object.keys(options).sort())
 }

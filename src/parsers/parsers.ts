@@ -8,7 +8,7 @@
  * @returns The parsed JSON object or the original string.
  * @template T - The type of the parsed JSON object.
  */
-export function maybeParseJson<T>(value: string) {
+export function maybeParseJson<T>(value: string): T | string {
   try {
     return JSON.parse(value) as T
   } catch {
@@ -21,7 +21,7 @@ export function maybeParseJson<T>(value: string) {
  * @param value - The value to stringify.
  * @returns The JSON string representation of the object, or the original string if it's not an object.
  */
-export function maybeStringifyJson(value?: object | string) {
+export function maybeStringifyJson(value?: object | string): string | undefined {
   if (typeof value === "object") {
     return JSON.stringify(value)
   }

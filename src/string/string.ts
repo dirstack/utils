@@ -11,7 +11,7 @@ import { createBoundedCache } from "../internal/cache.js"
  * @param string - The string to uppercase the first character of.
  * @returns The string with the first character in uppercase.
  */
-export function ucFirst(string: string) {
+export function ucFirst(string: string): string {
   if (typeof string !== "string") return ""
 
   return `${string.charAt(0).toUpperCase()}${string.slice(1)}`
@@ -22,7 +22,7 @@ export function ucFirst(string: string) {
  * @param string - The string to lowercase the first character of.
  * @returns The string with the first character in lowercase.
  */
-export function lcFirst(string: string) {
+export function lcFirst(string: string): string {
   if (typeof string !== "string") return ""
 
   return `${string.charAt(0).toLowerCase()}${string.slice(1)}`
@@ -33,7 +33,7 @@ export function lcFirst(string: string) {
  * @param string - The string to strip tags from.
  * @returns The string without HTML tags.
  */
-export function stripHtml(string: string) {
+export function stripHtml(string: string): string {
   return string.replace(/<[^>]*>?/gm, "")
 }
 
@@ -43,7 +43,7 @@ export function stripHtml(string: string) {
  * @param replacement - The text that replaces each run of newlines. Defaults to a space.
  * @returns The string with newlines replaced.
  */
-export function convertNewlines(string: string, replacement = " ") {
+export function convertNewlines(string: string, replacement = " "): string {
   return string.replace(/\n+/g, replacement)
 }
 
@@ -53,7 +53,7 @@ export function convertNewlines(string: string, replacement = " ") {
  * @param length - The maximum length of the excerpt, before "..." is added. Defaults to 250.
  * @returns The excerpt, ending in "..." when the text was cut, or null for empty content.
  */
-export function getExcerpt(content: string | undefined | null, length = 250) {
+export function getExcerpt(content: string | undefined | null, length = 250): string | null {
   if (!content) return null
 
   const plainText = convertNewlines(stripHtml(content))
@@ -83,7 +83,7 @@ export function slugify(input: string, decamelize = false): string {
  * @param id - The string to check.
  * @returns A boolean indicating if the string is a cuid.
  */
-export function isCuid(id: string) {
+export function isCuid(id: string): boolean {
   return id.length === 25 && id[0] === "c"
 }
 
@@ -93,7 +93,7 @@ export function isCuid(id: string) {
  * @param limit - The maximum number of initials to return. 0 means no limit.
  * @returns The initials from the string.
  */
-export function getInitials(value?: string | null, limit = 0) {
+export function getInitials(value?: string | null, limit = 0): string {
   const trimmed = (value ?? "").trim()
 
   // Two characters or fewer are treated as initials already.
@@ -144,7 +144,7 @@ export function joinAsSentence(
     limit = Number.POSITIVE_INFINITY,
     formatRest = count => `${count} more`,
   }: JoinAsSentenceOptions = {},
-) {
+): string {
   const formatter = getCachedListFormat(
     `${locale}:${type}`,
     () => new Intl.ListFormat(locale, { type, style: "long" }),

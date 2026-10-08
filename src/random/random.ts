@@ -62,7 +62,7 @@ export function getRandomString(length = 16): string {
  * @param max - The maximum value for the random number.
  * @returns A random integer between the specified minimum and maximum values.
  */
-export function getRandomNumber(min: number, max: number) {
+export function getRandomNumber(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
@@ -73,7 +73,7 @@ export function getRandomNumber(min: number, max: number) {
  * @param length - The number of digits.
  * @returns A random string of digits.
  */
-export function getRandomDigits(length: number) {
+export function getRandomDigits(length: number): string {
   return getRandomCharacters(DIGITS, length)
 }
 
