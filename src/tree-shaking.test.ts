@@ -72,4 +72,13 @@ describe("tree shaking", () => {
     expect(code).not.toContain("transliterate")
     expect(modules).toEqual(["format/format.js", "internal/cache.js"])
   })
+
+  it("bundles getClientIp without the URL helpers", async () => {
+    const { code, modules } = await bundleExport("getClientIp")
+
+    expect(code).toContain("CLOUDFLARE_IP_RANGES")
+    expect(code).not.toContain("HTTP_PROTOCOL")
+    expect(code).not.toContain("slugify")
+    expect(modules).toEqual(["http/http.js"])
+  })
 })

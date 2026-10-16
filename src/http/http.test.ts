@@ -1,9 +1,14 @@
 import { describe, expect, it } from "vitest"
 import {
   addProtocol,
+  CLOUDFLARE_IP_RANGES,
+  getClientIp,
   getDomain,
+  isCloudflareIp,
   isExternalUrl,
   isHostname,
+  isIp,
+  isIpInRange,
   isValidImageSrc,
   isValidUrl,
   isWithinDomain,
@@ -309,5 +314,221 @@ describe("isWithinDomain", () => {
   it("treats a wildcard domain like the bare one", () => {
     expect(isWithinDomain("app.example.com", "*.example.com")).toBe(true)
     expect(isWithinDomain("example.com", "*.example.com")).toBe(true)
+  })
+})
+
+describe("isIp", () => {
+  it("accepts IPv4 addresses", () => {
+    expect(isIp("192.0.2.1")).toBe(true)
+    expect(isIp("0.0.0.0")).toBe(true)
+    expect(isIp("255.255.255.255")).toBe(true)
+  })
+
+  it("accepts IPv6 addresses, with or without compression", () => {
+    expect(isIp("2001:0db8:0000:0000:0000:0000:0000:0001")).toBe(true)
+    expect(isIp("2001:db8::1")).toBe(true)
+    expect(isIp("2606:4700::")).toBe(true)
+    expect(isIp("::1")).toBe(true)
+    expect(isIp("::")).toBe(true)
+    expect(isIp("FE80::ABCD")).toBe(true)
+  })
+
+  it("accepts IPv4-mapped IPv6 addresses", () => {
+    expect(isIp("::ffff:192.0.2.1")).toBe(true)
+    expect(isIp("::FFFF:192.0.2.1")).toBe(true)
+    expect(isIp("::ffff:c000:201")).toBe(true)
+  })
+
+  it("rejects malformed IPv4", () => {
+    expect(isIp("256.0.0.1")).toBe(false)
+    expect(isIp("192.0.2")).toBe(false)
+    expect(isIp("192.0.2.1.5")).toBe(false)
+    expect(isIp("010.0.0.1")).toBe(false)
+    expect(isIp("192.0.2.-1")).toBe(false)
+    expect(isIp("192.0.2.1 ")).toBe(false)
+  })
+
+  it("rejects malformed IPv6", () => {
+    expect(isIp("2001:db8::1::1")).toBe(false)
+    expect(isIp(":::")).toBe(false)
+    expect(isIp(":1")).toBe(false)
+    expect(isIp("1:")).toBe(false)
+    expect(isIp("1:2:3:4:5:6:7")).toBe(false)
+    expect(isIp("1:2:3:4:5:6:7:8:9")).toBe(false)
+    expect(isIp("1:2:3:4::5:6:7:8")).toBe(false)
+    expect(isIp("2001:db8::12345")).toBe(false)
+    expect(isIp("2001:db8::g")).toBe(false)
+    expect(isIp("fe80::1%eth0")).toBe(false)
+    expect(isIp("::ffff:256.0.0.1")).toBe(false)
+    expect(isIp("::192.0.2.1:1")).toBe(false)
+  })
+
+  it("rejects values that are not addresses", () => {
+    expect(isIp("")).toBe(false)
+    expect(isIp("unknown")).toBe(false)
+    expect(isIp("example.com")).toBe(false)
+    expect(isIp("192.0.2.1:8080")).toBe(false)
+  })
+})
+
+describe("isIpInRange", () => {
+  it("matches IPv4 addresses inside the range", () => {
+    expect(isIpInRange("192.0.2.1", "192.0.2.0/24")).toBe(true)
+    expect(isIpInRange("162.159.255.255", "162.158.0.0/15")).toBe(true)
+    expect(isIpInRange("10.1.2.3", "0.0.0.0/0")).toBe(true)
+    expect(isIpInRange("192.0.2.1", "192.0.2.1/32")).toBe(true)
+  })
+
+  it("rejects IPv4 addresses outside the range", () => {
+    expect(isIpInRange("192.0.3.1", "192.0.2.0/24")).toBe(false)
+    expect(isIpInRange("162.160.0.0", "162.158.0.0/15")).toBe(false)
+    expect(isIpInRange("192.0.2.2", "192.0.2.1/32")).toBe(false)
+  })
+
+  it("matches IPv6 addresses inside the range", () => {
+    expect(isIpInRange("2001:db8::1", "2001:db8::/32")).toBe(true)
+    expect(isIpInRange("2a06:98c7:ffff::1", "2a06:98c0::/29")).toBe(true)
+    expect(isIpInRange("2001:db8::1", "2001:db8::1/128")).toBe(true)
+  })
+
+  it("rejects IPv6 addresses outside the range", () => {
+    expect(isIpInRange("2001:db9::1", "2001:db8::/32")).toBe(false)
+    expect(isIpInRange("2a06:98c8::1", "2a06:98c0::/29")).toBe(false)
+  })
+
+  it("matches IPv4-mapped IPv6 addresses against IPv4 ranges", () => {
+    expect(isIpInRange("::ffff:192.0.2.1", "192.0.2.0/24")).toBe(true)
+    expect(isIpInRange("::ffff:c000:201", "192.0.2.0/24")).toBe(true)
+    expect(isIpInRange("192.0.2.1", "::ffff:192.0.2.0/120")).toBe(true)
+    expect(isIpInRange("::ffff:192.0.3.1", "192.0.2.0/24")).toBe(false)
+  })
+
+  it("never matches IPv4 against an IPv6 range outside the mapped block", () => {
+    expect(isIpInRange("192.0.2.1", "2001:db8::/32")).toBe(false)
+    expect(isIpInRange("2001:db8::1", "192.0.2.0/24")).toBe(false)
+  })
+
+  it("rejects malformed input", () => {
+    expect(isIpInRange("192.0.2.1", "192.0.2.0")).toBe(false)
+    expect(isIpInRange("192.0.2.1", "192.0.2.0/33")).toBe(false)
+    expect(isIpInRange("2001:db8::1", "2001:db8::/129")).toBe(false)
+    expect(isIpInRange("192.0.2.1", "192.0.2.0/-1")).toBe(false)
+    expect(isIpInRange("192.0.2.1", "192.0.2.0/24/8")).toBe(false)
+    expect(isIpInRange("192.0.2.1", "not-a-range/24")).toBe(false)
+    expect(isIpInRange("not-an-ip", "192.0.2.0/24")).toBe(false)
+    expect(isIpInRange("", "0.0.0.0/0")).toBe(false)
+  })
+})
+
+describe("isCloudflareIp", () => {
+  it("parses every published range", () => {
+    for (const range of CLOUDFLARE_IP_RANGES) {
+      expect(isIpInRange(range.split("/")[0]!, range)).toBe(true)
+    }
+  })
+
+  it("matches Cloudflare IPv4 and IPv6 addresses", () => {
+    expect(isCloudflareIp("173.245.48.1")).toBe(true)
+    expect(isCloudflareIp("104.23.255.255")).toBe(true)
+    expect(isCloudflareIp("2606:4700::6810:84e5")).toBe(true)
+    expect(isCloudflareIp("2c0f:f248:ffff::1")).toBe(true)
+  })
+
+  it("matches IPv4-mapped Cloudflare addresses", () => {
+    expect(isCloudflareIp("::ffff:162.158.1.1")).toBe(true)
+  })
+
+  it("rejects other addresses", () => {
+    expect(isCloudflareIp("192.0.2.1")).toBe(false)
+    expect(isCloudflareIp("104.15.255.255")).toBe(false)
+    expect(isCloudflareIp("2606:4701::1")).toBe(false)
+    expect(isCloudflareIp("::ffff:192.0.2.1")).toBe(false)
+  })
+
+  it("rejects malformed input", () => {
+    expect(isCloudflareIp("")).toBe(false)
+    expect(isCloudflareIp("cloudflare")).toBe(false)
+    expect(isCloudflareIp("173.245.48.256")).toBe(false)
+  })
+})
+
+describe("getClientIp", () => {
+  const cloudflarePeer = "172.68.10.20"
+
+  it("returns the last x-forwarded-for entry, which the proxy appended", () => {
+    const headers = new Headers({ "x-forwarded-for": "198.51.100.7, 203.0.113.9" })
+    expect(getClientIp(headers)).toBe("203.0.113.9")
+  })
+
+  it("ignores a spoofed first x-forwarded-for entry", () => {
+    const headers = new Headers({ "x-forwarded-for": "1.1.1.1,203.0.113.9" })
+    expect(getClientIp(headers)).toBe("203.0.113.9")
+  })
+
+  it("trims and accepts an IPv6 peer", () => {
+    const headers = new Headers({ "x-forwarded-for": "198.51.100.7,  2001:db8::1 " })
+    expect(getClientIp(headers)).toBe("2001:db8::1")
+  })
+
+  it("returns cf-connecting-ip when the peer is Cloudflare", () => {
+    const headers = new Headers({
+      "x-forwarded-for": `198.51.100.7, ${cloudflarePeer}`,
+      "cf-connecting-ip": " 198.51.100.7 ",
+    })
+    expect(getClientIp(headers, { trust: "cloudflare" })).toBe("198.51.100.7")
+  })
+
+  it("returns cf-connecting-ip when the peer is an IPv4-mapped Cloudflare address", () => {
+    const headers = new Headers({
+      "x-forwarded-for": `::ffff:${cloudflarePeer}`,
+      "cf-connecting-ip": "2001:db8::7",
+    })
+    expect(getClientIp(headers, { trust: "cloudflare" })).toBe("2001:db8::7")
+  })
+
+  it("ignores cf-connecting-ip without the cloudflare option", () => {
+    const headers = new Headers({
+      "x-forwarded-for": cloudflarePeer,
+      "cf-connecting-ip": "198.51.100.7",
+    })
+    expect(getClientIp(headers)).toBe(cloudflarePeer)
+  })
+
+  it("ignores a spoofed cf-connecting-ip from a peer outside Cloudflare", () => {
+    const headers = new Headers({
+      "x-forwarded-for": "203.0.113.9",
+      "cf-connecting-ip": "198.51.100.7",
+    })
+    expect(getClientIp(headers, { trust: "cloudflare" })).toBe("203.0.113.9")
+  })
+
+  it("ignores a cf-connecting-ip that is not an IP address", () => {
+    const headers = new Headers({
+      "x-forwarded-for": cloudflarePeer,
+      "cf-connecting-ip": "<script>",
+    })
+    expect(getClientIp(headers, { trust: "cloudflare" })).toBe(cloudflarePeer)
+  })
+
+  it("falls back to x-real-ip without x-forwarded-for", () => {
+    const headers = new Headers({ "x-real-ip": " 203.0.113.9 " })
+    expect(getClientIp(headers)).toBe("203.0.113.9")
+  })
+
+  it("falls back to x-real-ip when the last x-forwarded-for entry is not an IP address", () => {
+    const headers = new Headers({
+      "x-forwarded-for": "198.51.100.7, unknown",
+      "x-real-ip": "203.0.113.9",
+    })
+    expect(getClientIp(headers)).toBe("203.0.113.9")
+  })
+
+  it("returns undefined when no header holds a valid IP address", () => {
+    expect(getClientIp(new Headers())).toBeUndefined()
+    expect(getClientIp(new Headers({ "x-forwarded-for": "198.51.100.7," }))).toBeUndefined()
+    expect(getClientIp(new Headers({ "x-real-ip": "localhost" }))).toBeUndefined()
+    expect(
+      getClientIp(new Headers({ "cf-connecting-ip": "198.51.100.7" }), { trust: "cloudflare" }),
+    ).toBeUndefined()
   })
 })
