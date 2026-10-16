@@ -38,7 +38,7 @@ Each module is also available on its own path, such as `@dirstack/utils/array` o
 | `files` | `formatBytes`, `isMimeTypeMatch`, `toBase64`, `toDataUrl` |
 | `format` | `formatNumber`, `formatCurrency`, `formatIntervalAmount`, `currencyExponent`, `minorUnits` |
 | `helpers` | `sleep`, `isTruthy`, `tryCatch`, `retry`, `withTimeout` |
-| `http` | `isValidUrl`, `addProtocol`, `removeProtocol`, `getDomain`, `isExternalUrl`, `joinUrlPaths`, `setQueryParams`, `removeQueryParams`, `isValidImageSrc`, `isHostname`, `normalizeHostname`, `stripWildcard`, `isWithinDomain` |
+| `http` | `isValidUrl`, `addProtocol`, `removeProtocol`, `getDomain`, `isExternalUrl`, `joinUrlPaths`, `setQueryParams`, `removeQueryParams`, `isValidImageSrc`, `isHostname`, `normalizeHostname`, `stripWildcard`, `isWithinDomain`, `isIp`, `isIpInRange`, `isCloudflareIp`, `getClientIp`, `CLOUDFLARE_IP_RANGES` |
 | `numbers` | `clamp`, `preciseRound` |
 | `objects` | `pick`, `omit`, `isEmptyObject`, `isKeyInObject` |
 | `parsers` | `serialize` |
@@ -62,6 +62,24 @@ formatDateRange("2026-10-05", "2026-10-09", { timeZone: "UTC" }) // "Oct 5 – 9
 ```
 
 Date-only strings such as `"2026-10-05"` parse as UTC midnight, so format them with `timeZone: "UTC"` to keep the same calendar day everywhere.
+
+### Client IP behind a proxy
+
+`getClientIp` reads the visitor's address from request headers set by a reverse proxy such as Traefik. The first `x-forwarded-for` entry comes from the client and can be forged, so it returns the last entry, which the proxy appends as the TCP peer. It falls back to `x-real-ip`, and returns `undefined` when no header holds a valid IP address:
+
+```ts
+import { getClientIp } from "@dirstack/utils"
+
+getClientIp(request.headers) ?? "127.0.0.1"
+```
+
+Behind proxied Cloudflare records, the peer is a Cloudflare server. Pass `trust: "cloudflare"` to return `cf-connecting-ip` instead. The header is read only when the peer is in `CLOUDFLARE_IP_RANGES`, because a request sent straight to the origin can set it to anything:
+
+```ts
+getClientIp(request.headers, { trust: "cloudflare" })
+```
+
+The IP helpers parse IPv4 and IPv6 in plain TypeScript, without `node:net`, so they also run in browsers and edge runtimes.
 
 ## Migrating from v2
 
