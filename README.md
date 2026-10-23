@@ -45,7 +45,7 @@ Each module is also available on its own path, such as `@dirstack/utils/array` o
 | `random` | `getRandomString`, `getRandomDigits`, `getRandomNumber`, `getRandomElement` |
 | `string` | `ucFirst`, `lcFirst`, `truncate`, `slugify`, `getInitials`, `joinAsSentence` |
 | `time` | `formatDate`, `formatTime`, `formatDateTime`, `formatDateRange`, `getReadTime`, `dayKey`, `shiftDayKey`, `dayIn`, `fromUnix`, `toUnix`, `SECOND_MS`, `MINUTE_MS`, `HOUR_MS`, `DAY_MS`, `MINUTE_SECONDS`, `HOUR_SECONDS`, `DAY_SECONDS` |
-| `ui` | `getBalancedColumns`, `isLightColor`, `getCurrentPage`, `getPagination`, `getPageLink` |
+| `ui` | `getBalancedColumns`, `isLightColor`, `getCurrentPage`, `getPagination`, `getPageCount`, `isPageOutOfRange`, `getPageLink` |
 | types | `WithOptional`, `WithRequired`, plus the types in helper signatures, such as `Result` (from `tryCatch`), `Timestamp` and `ProcessBatchOptions` |
 
 

@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest"
-import { getBalancedColumns, getCurrentPage, getPageLink, getPagination, isLightColor } from "./ui"
+import {
+  getBalancedColumns,
+  getCurrentPage,
+  getPageCount,
+  getPageLink,
+  getPagination,
+  isLightColor,
+  isPageOutOfRange,
+} from "./ui"
 
 describe("getBalancedColumns", () => {
   it("never returns fewer than one column", () => {
@@ -186,5 +194,47 @@ describe("getPagination", () => {
 
   it("rounds a fractional page down", () => {
     expect(getPagination({ page: 2.7, perPage: 10 })).toEqual({ skip: 10, take: 10 })
+  })
+})
+
+describe("getPageCount", () => {
+  it("rounds a partial last page up", () => {
+    expect(getPageCount(45, 20)).toBe(3)
+  })
+
+  it("returns the exact count when the items fill every page", () => {
+    expect(getPageCount(40, 20)).toBe(2)
+  })
+
+  it("returns 0 for an empty listing", () => {
+    expect(getPageCount(0, 20)).toBe(0)
+  })
+
+  it("treats a perPage below 1 as 1", () => {
+    expect(getPageCount(5, 0)).toBe(5)
+    expect(getPageCount(5, -10)).toBe(5)
+    expect(getPageCount(0, 0)).toBe(0)
+  })
+
+  it("treats a negative total as 0", () => {
+    expect(getPageCount(-5, 10)).toBe(0)
+  })
+})
+
+describe("isPageOutOfRange", () => {
+  it("keeps page 1 in range for an empty listing", () => {
+    expect(isPageOutOfRange(1, 0)).toBe(false)
+  })
+
+  it("flags any page past 1 in an empty listing", () => {
+    expect(isPageOutOfRange(2, 0)).toBe(true)
+  })
+
+  it("keeps the last page in range", () => {
+    expect(isPageOutOfRange(3, 3)).toBe(false)
+  })
+
+  it("flags a page past the last page", () => {
+    expect(isPageOutOfRange(4, 3)).toBe(true)
   })
 })

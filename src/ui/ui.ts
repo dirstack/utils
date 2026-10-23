@@ -82,6 +82,33 @@ export function getPagination({ page, perPage }: { page: number; perPage: number
 }
 
 /**
+ * Counts the pages needed to list a number of items.
+ * A `perPage` below 1 counts as 1, so the result is never `Infinity` or `NaN`.
+ * @param total - The total number of items.
+ * @param perPage - The number of items per page.
+ * @returns The number of pages. An empty listing has 0 pages.
+ * @example
+ * getPageCount(45, 20) // 3
+ */
+export function getPageCount(total: number, perPage: number): number {
+  return Math.ceil(Math.max(total, 0) / Math.max(perPage, 1))
+}
+
+/**
+ * Checks if a page sits past the last page of a listing, for returning a 404.
+ * Page 1 always exists, so an empty listing renders its empty state rather than a 404.
+ * @param page - The page number to check.
+ * @param pageCount - The number of pages in the listing, as returned by `getPageCount`.
+ * @returns A boolean indicating if the page is past the last page.
+ * @example
+ * isPageOutOfRange(4, 3) // true
+ * isPageOutOfRange(1, 0) // false
+ */
+export function isPageOutOfRange(page: number, pageCount: number): boolean {
+  return page > 1 && page > pageCount
+}
+
+/**
  * Returns a link to a specific page of a paginated query.
  * @param searchParams - The current search parameters. They are copied, not modified.
  * @param pathname - The pathname of the URL.
