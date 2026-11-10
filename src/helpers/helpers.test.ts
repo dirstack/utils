@@ -264,6 +264,7 @@ describe("retry", () => {
     )
 
     expect(result).toBe("ok")
+    expect(attempts).toBe(2)
   })
 })
 
