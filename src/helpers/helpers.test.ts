@@ -114,6 +114,157 @@ describe("retry", () => {
 
     expect(seen).toEqual([1, 2, 3])
   })
+
+  it("keeps the default delays when no new option is set", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout")
+
+    await expect(
+      retry(
+        async () => {
+          throw new Error("fail")
+        },
+        { retries: 3, delay: 1 },
+      ),
+    ).rejects.toThrow("fail")
+
+    expect(setTimeoutSpy.mock.calls.map(call => call[1])).toEqual([1, 2, 4])
+    setTimeoutSpy.mockRestore()
+  })
+
+  it("caps each wait at maxDelay", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout")
+
+    await expect(
+      retry(
+        async () => {
+          throw new Error("fail")
+        },
+        { retries: 5, delay: 1, factor: 3, maxDelay: 5 },
+      ),
+    ).rejects.toThrow("fail")
+
+    // 1, 3, then 9, 27 and 81 capped at 5.
+    expect(setTimeoutSpy.mock.calls.map(call => call[1])).toEqual([1, 3, 5, 5, 5])
+    setTimeoutSpy.mockRestore()
+  })
+
+  it("stops before a wait would overshoot the timeout", async () => {
+    let attempts = 0
+    const startedAt = Date.now()
+
+    await expect(
+      retry(
+        async () => {
+          attempts++
+          throw new Error(`fail ${attempts}`)
+        },
+        { retries: Infinity, delay: 10, timeout: 50 },
+      ),
+    ).rejects.toThrow("fail 3")
+
+    // Waits of 10ms and 20ms fit. The next 40ms wait would end near 70ms, so it never starts.
+    expect(attempts).toBe(3)
+    expect(Date.now() - startedAt).toBeLessThan(50)
+  })
+
+  it("lets several calls share one deadline", async () => {
+    const deadline = Date.now() + 50
+    let firstAttempts = 0
+
+    const result = await retry(
+      async () => {
+        firstAttempts++
+        if (firstAttempts === 1) throw new Error("first")
+        return "ok"
+      },
+      { delay: 30, deadline },
+    )
+
+    expect(result).toBe("ok")
+
+    // About 30ms of the budget is gone, so a second 30ms wait no longer fits.
+    let secondAttempts = 0
+    await expect(
+      retry(
+        async () => {
+          secondAttempts++
+          throw new Error("second")
+        },
+        { delay: 30, deadline },
+      ),
+    ).rejects.toThrow("second")
+
+    expect(secondAttempts).toBe(1)
+  })
+
+  it("applies the earlier of timeout and deadline", async () => {
+    let attempts = 0
+
+    await expect(
+      retry(
+        async () => {
+          attempts++
+          throw new Error("fail")
+        },
+        { retries: Infinity, delay: 20, timeout: 1000, deadline: Date.now() + 10 },
+      ),
+    ).rejects.toThrow("fail")
+
+    expect(attempts).toBe(1)
+  })
+
+  it("rejects with the abort reason when aborted during a wait", async () => {
+    const controller = new AbortController()
+    const reason = new Error("aborted")
+    let attempts = 0
+    const startedAt = Date.now()
+
+    setTimeout(() => controller.abort(reason), 20)
+
+    await expect(
+      retry(
+        async () => {
+          attempts++
+          throw new Error("fail")
+        },
+        { retries: Infinity, delay: 1000, signal: controller.signal },
+      ),
+    ).rejects.toBe(reason)
+
+    expect(attempts).toBe(1)
+    expect(Date.now() - startedAt).toBeLessThan(500)
+  })
+
+  it("does not run the callback when the signal is already aborted", async () => {
+    const reason = new Error("aborted")
+    let attempts = 0
+
+    await expect(
+      retry(
+        async () => {
+          attempts++
+          return "ok"
+        },
+        { signal: AbortSignal.abort(reason) },
+      ),
+    ).rejects.toBe(reason)
+
+    expect(attempts).toBe(0)
+  })
+
+  it("returns the result when a signal is set but never aborts", async () => {
+    let attempts = 0
+    const result = await retry(
+      async () => {
+        attempts++
+        if (attempts < 2) throw new Error("fail")
+        return "ok"
+      },
+      { delay: 1, signal: new AbortController().signal },
+    )
+
+    expect(result).toBe("ok")
+  })
 })
 
 describe("withTimeout", () => {

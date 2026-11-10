@@ -81,6 +81,33 @@ getClientIp(request.headers, { trust: "cloudflare" })
 
 The IP helpers parse IPv4 and IPv6 in plain TypeScript, without `node:net`, so they also run in browsers and edge runtimes.
 
+### Retrying with a time budget
+
+`retry` runs an async function again when it throws. By default it makes 3 retries with no wait between them. `delay` and `factor` add exponential backoff, and `maxDelay` caps each wait:
+
+```ts
+import { retry } from "@dirstack/utils"
+
+// Waits 100ms, 200ms, 400ms, 800ms, then 1s between attempts, for at most 15 seconds.
+const rows = await retry(() => client.query(sql), {
+  retries: Infinity,
+  delay: 100,
+  maxDelay: 1000,
+  timeout: 15_000,
+  shouldRetry: isConnectionError,
+})
+```
+
+`timeout` counts milliseconds from the call to `retry`. `deadline` takes an epoch timestamp instead, so several calls can share one budget. When both are set, the earlier one applies. `retry` never starts a wait that would end past the budget: it rethrows the last error instead. `retries` still defaults to 3 with a budget set, so pass `retries: Infinity` to let the budget alone end the loop.
+
+```ts
+const deadline = Date.now() + 15_000
+const user = await retry(() => findUser(id), { retries: Infinity, delay: 100, deadline })
+await retry(() => insertEvent(user), { retries: Infinity, delay: 100, deadline })
+```
+
+`signal` takes an `AbortSignal`. Once it aborts, `retry` stops, even in the middle of a wait, and rejects with `signal.reason`. Neither the budget nor the signal interrupts an attempt that is already running. Wrap the callback in `withTimeout` when a single attempt can hang.
+
 ## Migrating from v2
 
 v3 leaves one way to call each helper. Each removed alias or call form below has a direct replacement.
