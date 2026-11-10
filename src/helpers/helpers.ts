@@ -152,7 +152,7 @@ function abortableSleep(delay: number, signal: AbortSignal): Promise<void> {
  * @param options - Retry configuration.
  * @returns The resolved value of `callback`.
  * @example
- * // Retry for up to 15 seconds, waiting 100ms, 200ms, 400ms, then 1s between attempts.
+ * // Retry for up to 15 seconds, waiting 100ms, 200ms, 400ms, 800ms, then 1s between attempts.
  * await retry(connect, { retries: Infinity, delay: 100, maxDelay: 1000, timeout: 15_000 })
  */
 export async function retry<T>(callback: () => Promise<T>, options: RetryOptions = {}): Promise<T> {
@@ -168,7 +168,7 @@ export async function retry<T>(callback: () => Promise<T>, options: RetryOptions
     onRetry,
   } = options
 
-  const end = Math.min(
+  const budgetEndsAt = Math.min(
     deadline ?? Infinity,
     timeout === undefined ? Infinity : Date.now() + timeout,
   )
@@ -184,7 +184,7 @@ export async function retry<T>(callback: () => Promise<T>, options: RetryOptions
       if (shouldRetry && !shouldRetry(error, attempt + 1)) throw error
 
       const wait = Math.min(delay * factor ** attempt, maxDelay)
-      if (Date.now() + wait > end) throw error
+      if (Date.now() + wait > budgetEndsAt) throw error
 
       onRetry?.(error, attempt + 1)
       if (wait > 0) await (signal ? abortableSleep(wait, signal) : sleep(wait))
