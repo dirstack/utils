@@ -367,11 +367,13 @@ const NON_PUBLIC_IP_RANGES: readonly string[] = [
   "::ffff:0:0:0/96", // IPv4-translated
   "64:ff9b::/96", // NAT64
   "64:ff9b:1::/48", // Local-use NAT64
+  "100::/64", // Discard-only
   "2001::/23", // IETF protocol assignments, including Teredo
   "2001:db8::/32", // Documentation
   "2002::/16", // 6to4
   "fc00::/7", // Unique local
   "fe80::/10", // Link-local
+  "fec0::/10", // Site-local (deprecated)
   "ff00::/8", // Multicast
 ]
 
