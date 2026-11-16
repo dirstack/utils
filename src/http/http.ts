@@ -366,6 +366,8 @@ const NON_PUBLIC_IP_RANGES: readonly string[] = [
   "::/96", // Unspecified, loopback and IPv4-compatible
   "::ffff:0:0:0/96", // IPv4-translated
   "64:ff9b::/96", // NAT64
+  "64:ff9b:1::/48", // Local-use NAT64
+  "2001::/23", // IETF protocol assignments, including Teredo
   "2001:db8::/32", // Documentation
   "2002::/16", // 6to4
   "fc00::/7", // Unique local

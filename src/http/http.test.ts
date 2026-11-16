@@ -486,6 +486,8 @@ describe("isPublicIp", () => {
     ["::/96", "::", "::ffff:ffff"],
     ["::ffff:0:0:0/96", "::ffff:0:0:0", "::ffff:0:ffff:ffff"],
     ["64:ff9b::/96", "64:ff9b::", "64:ff9b::ffff:ffff"],
+    ["64:ff9b:1::/48", "64:ff9b:1::", "64:ff9b:1:ffff:ffff:ffff:ffff:ffff"],
+    ["2001::/23", "2001::", "2001:1ff:ffff:ffff:ffff:ffff:ffff:ffff"],
     ["2001:db8::/32", "2001:db8::", "2001:db8:ffff:ffff:ffff:ffff:ffff:ffff"],
     ["2002::/16", "2002::", "2002:ffff:ffff:ffff:ffff:ffff:ffff:ffff"],
     ["fc00::/7", "fc00::", "fdff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"],
@@ -513,6 +515,8 @@ describe("isPublicIp", () => {
     expect(isPublicIp("223.255.255.255")).toBe(true)
     expect(isPublicIp("::1:0:0")).toBe(true)
     expect(isPublicIp("64:ff9b::1:0:0")).toBe(true)
+    expect(isPublicIp("64:ff9b:2::")).toBe(true)
+    expect(isPublicIp("2001:200::")).toBe(true)
     expect(isPublicIp("2001:db9::")).toBe(true)
     expect(isPublicIp("2003::")).toBe(true)
     expect(isPublicIp("fbff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")).toBe(true)
@@ -542,6 +546,8 @@ describe("isPublicIp", () => {
     expect(isPublicIp("::ffff:0:7f00:1")).toBe(false)
     expect(isPublicIp("64:ff9b::7f00:1")).toBe(false)
     expect(isPublicIp("64:ff9b::127.0.0.1")).toBe(false)
+    expect(isPublicIp("64:ff9b:1::a00:1")).toBe(false)
+    expect(isPublicIp("2001:0:4136:e378:8000:63bf:3fff:fdd2")).toBe(false)
     expect(isPublicIp("2002:7f00:1::")).toBe(false)
     expect(isPublicIp("2002:a9fe:a9fe::1")).toBe(false)
   })

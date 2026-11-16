@@ -91,7 +91,7 @@ const addresses = await lookup(new URL(url).hostname, { all: true })
 if (!addresses.every(({ address }) => isPublicIp(address))) throw new Error("Blocked address")
 ```
 
-It returns `false` for private, loopback, link-local, shared, reserved, multicast, benchmarking and documentation ranges. IPv6 forms that embed an IPv4 address are blocked too: IPv4-mapped (`::ffff:127.0.0.1`, `::ffff:7f00:1`), IPv4-compatible (`::7f00:1`), IPv4-translated, NAT64 (`64:ff9b::/96`) and 6to4 (`2002::/16`). Anything `isIp` rejects also returns `false`, including zone IDs and short or octal IPv4 such as `127.1`. Connect to the address you checked, not the hostname, or a second DNS lookup can return a different address.
+It returns `false` for private, loopback, link-local, shared, reserved, multicast, benchmarking and documentation ranges. IPv6 forms that embed an IPv4 address are blocked too: IPv4-mapped (`::ffff:127.0.0.1`, `::ffff:7f00:1`), IPv4-compatible (`::7f00:1`), IPv4-translated, NAT64 (`64:ff9b::/96` and `64:ff9b:1::/48`), Teredo (`2001::/32`) and 6to4 (`2002::/16`). Anything `isIp` rejects also returns `false`, including zone IDs and short or octal IPv4 such as `127.1`. Connect to the address you checked, not the hostname, or a second DNS lookup can return a different address.
 
 The IP helpers parse IPv4 and IPv6 in plain TypeScript, without `node:net`, so they also run in browsers and edge runtimes.
 
