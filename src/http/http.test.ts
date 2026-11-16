@@ -487,11 +487,13 @@ describe("isPublicIp", () => {
     ["::ffff:0:0:0/96", "::ffff:0:0:0", "::ffff:0:ffff:ffff"],
     ["64:ff9b::/96", "64:ff9b::", "64:ff9b::ffff:ffff"],
     ["64:ff9b:1::/48", "64:ff9b:1::", "64:ff9b:1:ffff:ffff:ffff:ffff:ffff"],
+    ["100::/64", "100::", "100::ffff:ffff:ffff:ffff"],
     ["2001::/23", "2001::", "2001:1ff:ffff:ffff:ffff:ffff:ffff:ffff"],
     ["2001:db8::/32", "2001:db8::", "2001:db8:ffff:ffff:ffff:ffff:ffff:ffff"],
     ["2002::/16", "2002::", "2002:ffff:ffff:ffff:ffff:ffff:ffff:ffff"],
     ["fc00::/7", "fc00::", "fdff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"],
     ["fe80::/10", "fe80::", "febf:ffff:ffff:ffff:ffff:ffff:ffff:ffff"],
+    ["fec0::/10", "fec0::", "feff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"],
     ["ff00::/8", "ff00::", "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"],
   ]
 
@@ -520,7 +522,7 @@ describe("isPublicIp", () => {
     expect(isPublicIp("2001:db9::")).toBe(true)
     expect(isPublicIp("2003::")).toBe(true)
     expect(isPublicIp("fbff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")).toBe(true)
-    expect(isPublicIp("fec0::")).toBe(true)
+    expect(isPublicIp("100:0:0:1::")).toBe(true)
   })
 
   it("rejects common SSRF targets", () => {
