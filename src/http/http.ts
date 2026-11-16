@@ -343,6 +343,53 @@ export function isCloudflareIp(ip: string): boolean {
   return CLOUDFLARE_IP_RANGES.some(range => isIpInRange(ip, range))
 }
 
+/**
+ * Ranges that are not on the public internet: private, loopback, link-local, shared, reserved,
+ * multicast and documentation ranges, plus the IPv6 forms that embed an IPv4 address.
+ * IPv4 ranges also match their IPv4-mapped IPv6 form through {@link isIpInRange}.
+ */
+const NON_PUBLIC_IP_RANGES: readonly string[] = [
+  "0.0.0.0/8", // "This network"
+  "10.0.0.0/8", // Private
+  "100.64.0.0/10", // Shared address space (carrier-grade NAT)
+  "127.0.0.0/8", // Loopback
+  "169.254.0.0/16", // Link-local, including cloud metadata at 169.254.169.254
+  "172.16.0.0/12", // Private
+  "192.0.0.0/24", // IETF protocol assignments
+  "192.0.2.0/24", // Documentation (TEST-NET-1)
+  "192.168.0.0/16", // Private
+  "198.18.0.0/15", // Benchmarking
+  "198.51.100.0/24", // Documentation (TEST-NET-2)
+  "203.0.113.0/24", // Documentation (TEST-NET-3)
+  "224.0.0.0/4", // Multicast
+  "240.0.0.0/4", // Reserved, including broadcast 255.255.255.255
+  "::/96", // Unspecified, loopback and IPv4-compatible
+  "::ffff:0:0:0/96", // IPv4-translated
+  "64:ff9b::/96", // NAT64
+  "2001:db8::/32", // Documentation
+  "2002::/16", // 6to4
+  "fc00::/7", // Unique local
+  "fe80::/10", // Link-local
+  "ff00::/8", // Multicast
+]
+
+/**
+ * Checks if an IP address is on the public internet. Use it as an SSRF guard: before fetching a
+ * user-supplied URL, resolve its hostname and check every resolved address.
+ * Fails closed: malformed input, zone IDs (`fe80::1%en0`) and short or octal IPv4 forms
+ * (`127.1`, `0127.0.0.1`) return false.
+ * @param ip - The IP address to check, IPv4, IPv6 or IPv4-mapped IPv6.
+ * @returns True if the address is valid and outside every private, reserved or special range.
+ * @example
+ * isPublicIp("93.184.216.34") // true
+ * isPublicIp("::ffff:127.0.0.1") // false
+ */
+export function isPublicIp(ip: string): boolean {
+  if (!isIp(ip)) return false
+
+  return !NON_PUBLIC_IP_RANGES.some(range => isIpInRange(ip, range))
+}
+
 /** Options for {@link getClientIp}. */
 export interface GetClientIpOptions {
   /**

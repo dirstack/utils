@@ -38,7 +38,7 @@ Each module is also available on its own path, such as `@dirstack/utils/array` o
 | `files` | `formatBytes`, `isMimeTypeMatch`, `toBase64`, `toDataUrl` |
 | `format` | `formatNumber`, `formatCurrency`, `formatIntervalAmount`, `currencyExponent`, `minorUnits` |
 | `helpers` | `sleep`, `isTruthy`, `tryCatch`, `retry`, `withTimeout` |
-| `http` | `isValidUrl`, `addProtocol`, `removeProtocol`, `getDomain`, `isExternalUrl`, `joinUrlPaths`, `setQueryParams`, `removeQueryParams`, `isValidImageSrc`, `isHostname`, `normalizeHostname`, `stripWildcard`, `isWithinDomain`, `isIp`, `isIpInRange`, `isCloudflareIp`, `getClientIp`, `CLOUDFLARE_IP_RANGES` |
+| `http` | `isValidUrl`, `addProtocol`, `removeProtocol`, `getDomain`, `isExternalUrl`, `joinUrlPaths`, `setQueryParams`, `removeQueryParams`, `isValidImageSrc`, `isHostname`, `normalizeHostname`, `stripWildcard`, `isWithinDomain`, `isIp`, `isIpInRange`, `isPublicIp`, `isCloudflareIp`, `getClientIp`, `CLOUDFLARE_IP_RANGES` |
 | `numbers` | `clamp`, `preciseRound` |
 | `objects` | `pick`, `omit`, `isEmptyObject`, `isKeyInObject` |
 | `parsers` | `serialize` |
@@ -78,6 +78,20 @@ Behind proxied Cloudflare records, the peer is a Cloudflare server. Pass `trust:
 ```ts
 getClientIp(request.headers, { trust: "cloudflare" })
 ```
+
+### Blocking private addresses before a fetch
+
+`isPublicIp` guards a server that fetches a user-supplied URL against server-side request forgery (SSRF). Resolve the hostname, then check every address it returns:
+
+```ts
+import { lookup } from "node:dns/promises"
+import { isPublicIp } from "@dirstack/utils"
+
+const addresses = await lookup(new URL(url).hostname, { all: true })
+if (!addresses.every(({ address }) => isPublicIp(address))) throw new Error("Blocked address")
+```
+
+It returns `false` for private, loopback, link-local, shared, reserved, multicast, benchmarking and documentation ranges. IPv6 forms that embed an IPv4 address are blocked too: IPv4-mapped (`::ffff:127.0.0.1`, `::ffff:7f00:1`), IPv4-compatible (`::7f00:1`), IPv4-translated, NAT64 (`64:ff9b::/96`) and 6to4 (`2002::/16`). Anything `isIp` rejects also returns `false`, including zone IDs and short or octal IPv4 such as `127.1`. Connect to the address you checked, not the hostname, or a second DNS lookup can return a different address.
 
 The IP helpers parse IPv4 and IPv6 in plain TypeScript, without `node:net`, so they also run in browsers and edge runtimes.
 

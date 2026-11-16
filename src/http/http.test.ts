@@ -9,6 +9,7 @@ import {
   isHostname,
   isIp,
   isIpInRange,
+  isPublicIp,
   isValidImageSrc,
   isValidUrl,
   isWithinDomain,
@@ -449,6 +450,138 @@ describe("isCloudflareIp", () => {
     expect(isCloudflareIp("")).toBe(false)
     expect(isCloudflareIp("cloudflare")).toBe(false)
     expect(isCloudflareIp("173.245.48.256")).toBe(false)
+  })
+})
+
+describe("isPublicIp", () => {
+  it("accepts public IPv4 and IPv6 addresses", () => {
+    expect(isPublicIp("93.184.216.34")).toBe(true)
+    expect(isPublicIp("1.1.1.1")).toBe(true)
+    expect(isPublicIp("8.8.8.8")).toBe(true)
+    expect(isPublicIp("2606:4700::1111")).toBe(true)
+    expect(isPublicIp("2a00:1450:4001:80b::200e")).toBe(true)
+  })
+
+  it("accepts public IPv4-mapped IPv6 addresses", () => {
+    expect(isPublicIp("::ffff:1.1.1.1")).toBe(true)
+    expect(isPublicIp("::ffff:101:101")).toBe(true)
+  })
+
+  // The first and last address of every blocked range.
+  const blocked: [range: string, first: string, last: string][] = [
+    ["0.0.0.0/8", "0.0.0.0", "0.255.255.255"],
+    ["10.0.0.0/8", "10.0.0.0", "10.255.255.255"],
+    ["100.64.0.0/10", "100.64.0.0", "100.127.255.255"],
+    ["127.0.0.0/8", "127.0.0.0", "127.255.255.255"],
+    ["169.254.0.0/16", "169.254.0.0", "169.254.255.255"],
+    ["172.16.0.0/12", "172.16.0.0", "172.31.255.255"],
+    ["192.0.0.0/24", "192.0.0.0", "192.0.0.255"],
+    ["192.0.2.0/24", "192.0.2.0", "192.0.2.255"],
+    ["192.168.0.0/16", "192.168.0.0", "192.168.255.255"],
+    ["198.18.0.0/15", "198.18.0.0", "198.19.255.255"],
+    ["198.51.100.0/24", "198.51.100.0", "198.51.100.255"],
+    ["203.0.113.0/24", "203.0.113.0", "203.0.113.255"],
+    ["224.0.0.0/4", "224.0.0.0", "239.255.255.255"],
+    ["240.0.0.0/4", "240.0.0.0", "255.255.255.255"],
+    ["::/96", "::", "::ffff:ffff"],
+    ["::ffff:0:0:0/96", "::ffff:0:0:0", "::ffff:0:ffff:ffff"],
+    ["64:ff9b::/96", "64:ff9b::", "64:ff9b::ffff:ffff"],
+    ["2001:db8::/32", "2001:db8::", "2001:db8:ffff:ffff:ffff:ffff:ffff:ffff"],
+    ["2002::/16", "2002::", "2002:ffff:ffff:ffff:ffff:ffff:ffff:ffff"],
+    ["fc00::/7", "fc00::", "fdff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"],
+    ["fe80::/10", "fe80::", "febf:ffff:ffff:ffff:ffff:ffff:ffff:ffff"],
+    ["ff00::/8", "ff00::", "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"],
+  ]
+
+  it.each(blocked)("rejects every address in %s", (_range, first, last) => {
+    expect(isPublicIp(first)).toBe(false)
+    expect(isPublicIp(last)).toBe(false)
+  })
+
+  it("accepts addresses just outside the blocked ranges", () => {
+    expect(isPublicIp("1.0.0.0")).toBe(true)
+    expect(isPublicIp("9.255.255.255")).toBe(true)
+    expect(isPublicIp("11.0.0.0")).toBe(true)
+    expect(isPublicIp("100.63.255.255")).toBe(true)
+    expect(isPublicIp("100.128.0.0")).toBe(true)
+    expect(isPublicIp("172.15.255.255")).toBe(true)
+    expect(isPublicIp("172.32.0.0")).toBe(true)
+    expect(isPublicIp("192.0.1.255")).toBe(true)
+    expect(isPublicIp("192.0.3.0")).toBe(true)
+    expect(isPublicIp("198.17.255.255")).toBe(true)
+    expect(isPublicIp("198.20.0.0")).toBe(true)
+    expect(isPublicIp("223.255.255.255")).toBe(true)
+    expect(isPublicIp("::1:0:0")).toBe(true)
+    expect(isPublicIp("64:ff9b::1:0:0")).toBe(true)
+    expect(isPublicIp("2001:db9::")).toBe(true)
+    expect(isPublicIp("2003::")).toBe(true)
+    expect(isPublicIp("fbff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")).toBe(true)
+    expect(isPublicIp("fec0::")).toBe(true)
+  })
+
+  it("rejects common SSRF targets", () => {
+    expect(isPublicIp("127.0.0.1")).toBe(false)
+    expect(isPublicIp("169.254.169.254")).toBe(false)
+    expect(isPublicIp("::1")).toBe(false)
+    expect(isPublicIp("fd00:ec2::254")).toBe(false)
+  })
+
+  it("rejects blocked IPv4 in IPv4-mapped IPv6, dotted and hex", () => {
+    expect(isPublicIp("::ffff:127.0.0.1")).toBe(false)
+    expect(isPublicIp("::ffff:7f00:1")).toBe(false)
+    expect(isPublicIp("::ffff:10.0.0.1")).toBe(false)
+    expect(isPublicIp("::ffff:a00:1")).toBe(false)
+    expect(isPublicIp("::ffff:169.254.169.254")).toBe(false)
+    expect(isPublicIp("::ffff:a9fe:a9fe")).toBe(false)
+    expect(isPublicIp("0:0:0:0:0:ffff:192.168.0.1")).toBe(false)
+  })
+
+  it("rejects IPv6 forms that embed a private IPv4 address", () => {
+    expect(isPublicIp("::7f00:1")).toBe(false)
+    expect(isPublicIp("::127.0.0.1")).toBe(false)
+    expect(isPublicIp("::ffff:0:7f00:1")).toBe(false)
+    expect(isPublicIp("64:ff9b::7f00:1")).toBe(false)
+    expect(isPublicIp("64:ff9b::127.0.0.1")).toBe(false)
+    expect(isPublicIp("2002:7f00:1::")).toBe(false)
+    expect(isPublicIp("2002:a9fe:a9fe::1")).toBe(false)
+  })
+
+  it("reads uppercase hex the same as lowercase", () => {
+    expect(isPublicIp("::FFFF:7F00:1")).toBe(false)
+    expect(isPublicIp("::FFFF:A9FE:A9FE")).toBe(false)
+    expect(isPublicIp("FE80::1")).toBe(false)
+    expect(isPublicIp("FD00::1")).toBe(false)
+    expect(isPublicIp("FF02::1")).toBe(false)
+    expect(isPublicIp("2606:4700::1111".toUpperCase())).toBe(true)
+  })
+
+  it("rejects IPv6 zone IDs", () => {
+    expect(isPublicIp("fe80::1%en0")).toBe(false)
+    expect(isPublicIp("fe80::1%eth0")).toBe(false)
+    expect(isPublicIp("2606:4700::1111%en0")).toBe(false)
+  })
+
+  it("rejects short and octal IPv4 forms", () => {
+    expect(isPublicIp("127.1")).toBe(false)
+    expect(isPublicIp("0127.0.0.1")).toBe(false)
+    expect(isPublicIp("010.0.0.1")).toBe(false)
+    expect(isPublicIp("0x7f.0.0.1")).toBe(false)
+    expect(isPublicIp("2130706433")).toBe(false)
+    expect(isPublicIp("1.1.1")).toBe(false)
+  })
+
+  it("rejects malformed input", () => {
+    expect(isPublicIp("")).toBe(false)
+    expect(isPublicIp(" 1.1.1.1")).toBe(false)
+    expect(isPublicIp("1.1.1.1 ")).toBe(false)
+    expect(isPublicIp("256.1.1.1")).toBe(false)
+    expect(isPublicIp("1.1.1.1:80")).toBe(false)
+    expect(isPublicIp("[2606:4700::1111]")).toBe(false)
+    expect(isPublicIp("2606:4700::1111::1")).toBe(false)
+    expect(isPublicIp("2606:4700::g")).toBe(false)
+    expect(isPublicIp("1.1.1.1/32")).toBe(false)
+    expect(isPublicIp("example.com")).toBe(false)
+    expect(isPublicIp("localhost")).toBe(false)
   })
 })
 
