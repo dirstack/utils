@@ -12,7 +12,7 @@
         "@changesets/cli": "^3.0.3",
         "@commitlint/cli": "^21.2.3",
         "@commitlint/config-conventional": "^21.2.3",
-        "@dirstack/kodeks": "1.10.0",
+        "@dirstack/kodeks": "1.11.0",
         "@types/bun": "^1.2.21",
         "esbuild": "^0.27.3",
         "lefthook": "^2.1.17",
@@ -108,7 +108,7 @@
 
     "@conventional-changelog/template": ["@conventional-changelog/template@1.4.0", "", {}, "sha512-aalGyl7dbB5PArRebDIX43ZvBlXrYm9uWzGJ26t+4SzJVPsOuvfILGGbw5X4yX7i50YEmJ8zvbiWnqH/AAnZqg=="],
 
-    "@dirstack/kodeks": ["@dirstack/kodeks@1.10.0", "", { "peerDependencies": { "@commitlint/cli": ">=21", "@commitlint/config-conventional": ">=21", "conventional-changelog-conventionalcommits": ">=10", "eslint-plugin-better-tailwindcss": ">=4", "lefthook": ">=2", "oxfmt": ">=0.58", "oxlint": ">=1.73", "semantic-release": ">=25", "typescript": ">=5" }, "optionalPeers": ["@commitlint/cli", "@commitlint/config-conventional", "conventional-changelog-conventionalcommits", "eslint-plugin-better-tailwindcss", "lefthook", "oxfmt", "oxlint", "semantic-release", "typescript"], "bin": { "kodeks": "dist/cli/kodeks.js" } }, "sha512-ZMIltX91ISyYY4M9eCb+002d+8bu2lF8qhQ1rdPp8CKUukTCm37gC1C/q/cSFeDn5WPz1xk+HC8UJxhF9/kzkQ=="],
+    "@dirstack/kodeks": ["@dirstack/kodeks@1.11.0", "", { "peerDependencies": { "@commitlint/cli": ">=21", "@commitlint/config-conventional": ">=21", "conventional-changelog-conventionalcommits": ">=10", "eslint-plugin-better-tailwindcss": ">=4", "lefthook": ">=2", "oxfmt": ">=0.58", "oxlint": ">=1.73", "semantic-release": ">=25", "typescript": ">=5" }, "optionalPeers": ["@commitlint/cli", "@commitlint/config-conventional", "conventional-changelog-conventionalcommits", "eslint-plugin-better-tailwindcss", "lefthook", "oxfmt", "oxlint", "semantic-release", "typescript"], "bin": { "kodeks": "dist/cli/kodeks.js" } }, "sha512-pUeDsBgQIcuZE634QSoGP35QzfFqyEcVFgl2oZ7X8ccqqCnDW+aJj7PRyC8PU7dO2YDM2Bhm8fnTnUqSBecXgw=="],
 
     "@esbuild/aix-ppc64": ["@esbuild/aix-ppc64@0.27.3", "", { "os": "aix", "cpu": "ppc64" }, "sha512-9fJMTNFTWZMh5qwrBItuziu834eOCUcEqymSH7pY+zoMVEZg3gcPuBNxH1EvfVYe9h0x/Ptw8KBzv7qxb7l8dg=="],
 
