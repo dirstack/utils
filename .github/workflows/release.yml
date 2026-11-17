@@ -1,46 +1,33 @@
 name: Release
 
+# Pushing to main never publishes on its own. Pending changesets open or update the
+# "Version Packages" pull request. Merging it bumps the version, and the release job then
+# publishes that version to npm and creates its GitHub Release. The release job does nothing
+# when the version in package.json is already on npm.
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
+  version:
+    permissions:
+      contents: write
+      pull-requests: write
+    uses: dirstack/kodeks/.github/workflows/public-version.yml@fad5b9492d76308925f49c49906d2eb0353cc5f3 # v1.10.0
+    with:
+      bun-version-file: .bun-version
+
   release:
     permissions:
       contents: write
-      issues: write
-      pull-requests: write
       id-token: write
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          registry-url: https://registry.npmjs.org
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version-file: .bun-version
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Typecheck
-        run: bun run typecheck
-
-      - name: Test
-        run: bun test
-
-      - name: Build
-        run: bun run build
-
-      - name: Release and publish package
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bunx semantic-release --extends ./release.json
+    uses: dirstack/kodeks/.github/workflows/public-release.yml@fad5b9492d76308925f49c49906d2eb0353cc5f3 # v1.10.0
+    with:
+      bun-version-file: .bun-version
+      # CI does not run on the "Version Packages" pull request, so check again before publishing.
+      build-command: bun run typecheck && bun test && bun run build

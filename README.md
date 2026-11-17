@@ -272,6 +272,14 @@ bun run lint
 bun run build      # build with tsdown, then check the package with publint and attw
 ```
 
+## Releasing
+
+Releases use [Changesets](https://github.com/changesets/changesets) and [Kodeks](https://github.com/dirstack/kodeks#releasing-packages). Pushing to `main` never publishes on its own.
+
+1. In a pull request that changes the package, run `bunx changeset`, pick the bump type and write the changelog line. Commit the new file in `.changeset/`.
+2. After the pull request merges, the release workflow opens or updates the "Version Packages" pull request. That pull request bumps `version` in `package.json` and adds the entries to `CHANGELOG.md`.
+3. Merge the "Version Packages" pull request when you want to release. The release workflow then publishes the new version to npm with provenance and creates its GitHub Release.
+
 ## License
 
 MIT © [Piotr Kulpinski](https://kulpinski.pl)
