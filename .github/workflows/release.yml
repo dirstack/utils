@@ -20,7 +20,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    uses: dirstack/kodeks/.github/workflows/public-version.yml@fad5b9492d76308925f49c49906d2eb0353cc5f3 # v1.10.0
+    uses: dirstack/kodeks/.github/workflows/public-version.yml@7ac8adedaecc08ce04601926a4408b5c3747f110 # v1.11.0
     with:
       bun-version-file: .bun-version
 
@@ -29,7 +29,7 @@ jobs:
     permissions:
       contents: write
       id-token: write
-    uses: dirstack/kodeks/.github/workflows/public-release.yml@fad5b9492d76308925f49c49906d2eb0353cc5f3 # v1.10.0
+    uses: dirstack/kodeks/.github/workflows/public-release.yml@7ac8adedaecc08ce04601926a4408b5c3747f110 # v1.11.0
     with:
       bun-version-file: .bun-version
       # CI does not run on the "Version Packages" pull request, so check again before publishing.

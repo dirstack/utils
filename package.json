@@ -55,7 +55,7 @@
     "@changesets/cli": "^3.0.3",
     "@commitlint/cli": "^21.2.3",
     "@commitlint/config-conventional": "^21.2.3",
-    "@dirstack/kodeks": "1.10.0",
+    "@dirstack/kodeks": "1.11.0",
     "@types/bun": "^1.2.21",
     "esbuild": "^0.27.3",
     "lefthook": "^2.1.17",
